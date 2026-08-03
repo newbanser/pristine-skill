@@ -1,5 +1,7 @@
 # Pristine
 
+![Pristine cover](cover-image/pristine/cover.png)
+
 > Write everything as if it were being written for the first time.
 
 A cross-platform agent skill that enforces the **First-Time Principle** — the
