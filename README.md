@@ -1,6 +1,6 @@
 # Pristine
 
-![Pristine cover](cover-image/pristine/cover.png)
+![Pristine cover](cover.png)
 
 > Write everything as if it were being written for the first time.
 

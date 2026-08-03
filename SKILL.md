@@ -22,129 +22,67 @@ description: >
 
 > Write everything as if it were being written for the first time.
 
-## What it is
-
-The First-Time Principle (a.k.a. the "Virgin Principle") is a governing
-philosophy for code, documentation, and agent memory. It rejects patch-based
-evolution: **every modification should land as its final form**, not as a
-quick fix stacked on top of earlier quick fixes. Each change is a first
-draft and a final draft at the same time.
-
-It applies to everything you touch:
-
-- **Code** — functions, modules, migrations, refactors
-- **Docs** — CLAUDE.md / AGENTS.md, README, docs/, changelogs
-- **Memory** — agent memory files, notes, checklists, personal rules
-- **Deployments** — what runs in production must be exactly what lives in the repo
+A governing philosophy for code, docs, and agent memory: every modification
+lands as its final form — a first draft and a final draft at the same time.
+It applies to everything you touch: code, docs (CLAUDE.md/AGENTS.md, README,
+docs/), memory files, and deployments.
 
 ## The four laws
 
 ### 1. No patching — go back to the root cause
 
-When something is wrong, fix the root, not the symptom. Do not accumulate
-`if` special cases, do not copy old logic and tweak parameters, do not add
-switches to route around a problem. A patch buys time and costs structure:
-every special case makes the next change harder and the next bug more likely.
-
-When a defect is found, ask *where does the rule actually live?* — then fix
-it there, once. If the accumulated patches have made the code worse than a
-clean rewrite would be, rewrite it. Rewriting from a clear understanding is
-cheaper than maintaining a patch pile.
+Fix the root, not the symptom. Do not accumulate special-case `if`s, copy
+old logic and tweak parameters, or add switches to route around a problem —
+a patch buys time and costs structure. Ask *where does the rule actually
+live?*, fix it there once, and remove the workaround. If the patch pile is
+worse than a clean rewrite, rewrite it.
 
 ### 2. Code explains itself — comments only say "why"
 
-Names carry the "what". A function called `isValidPhone` needs no comment
-saying it validates phones. Comments are reserved for:
-
-- **Why** — decisions that are not visible from the code itself (business
-  rules, regulatory constraints, performance trade-offs)
-- **History traps** — things that look wrong but are intentional
-
-No explanatory comments, no "note:" annotations, no commented-out code
-blocks. If a reader needs an explanation, the code needs a better name, not
-a comment.
+Names carry the "what". Comments are reserved for decisions not visible from
+the code: business rules, constraints, history traps. No explanatory
+comments, no "note:" annotations, no commented-out code blocks. If a reader
+needs an explanation, the code needs a better name.
 
 ### 3. No residue — nothing left behind
 
-No backup files, no leftover drafts, no dead code, no intermediate states.
-Wrong output is corrected, not preserved. If a file, branch, or block no
-longer serves the current design, delete it — version control keeps the
-history, you keep the surface clean.
-
-This also applies to docs and memory: a superseded rule is updated in place
-(single source of truth), not appended as "as of 2026-08-03..." — history
-belongs in the changelog, not in the rulebook.
+No backups, drafts, dead code, or intermediate states — version control
+keeps history, you keep the surface clean. Superseded rules are updated in
+place (single source of truth), never appended as "as of …" notes: history
+belongs in the changelog, not the rulebook.
 
 ### 4. Deployment parity — local and remote are one
 
-What runs in production is what was reviewed locally. No "let me just fix
-this quickly on the server" — a remote-only edit is a mutation of the truth:
-the repo no longer represents reality, and the next deploy silently
-overwrites the fix (or the next bug report can't be reproduced). Verify
-artifacts (e.g. checksums) where the cost is justified, so that local source,
-built output, and deployed output can be proven identical.
+What runs in production is what was reviewed locally. A remote-only quick
+fix mutates the truth: the repo no longer represents reality, the next
+deploy silently overwrites the fix, and the next bug can't be reproduced.
+Verify artifacts (e.g. checksums) where justified.
 
 ## Why it matters for AI-assisted development
 
-In AI-assisted development, the cost of patches compounds differently than
-in human-only teams:
-
-- Code is rewritten often, but **docs and memory are the only bridge across
-  sessions**. A stale memory entry makes the next agent — Claude, Codex, or
-  a human — decide on a false premise.
-- Agents read the whole file, not a diff. Every commented-out block and
-  leftover special case is noise that dilutes the signal of the real design.
-- A patch that "works" is the easiest thing to reproduce in the future,
-  because it requires the least understanding. Every round of patching
-  teaches the next session to patch.
-
-The First-Time Principle is the counterweight: each change, made as if for
-the first time, keeps the system evolving toward clarity instead of toward
-entropy.
-
-## How it guides everyday work
-
-### When implementing
-
-Before writing a change, imagine the final state: *if this feature were the
-only thing in the codebase, how would it look?* Write that. If the existing
-code can't host it cleanly, refactor the host — the new feature is the
-excuse, not the reason, to leave a wart.
-
-### When fixing a bug
-
-Reproduce → trace the root cause → fix the single source of truth → remove
-the patch that was working around it. If the fix requires a special case,
-suspect the root cause analysis, not the codebase.
-
-### When writing docs
-
-Docs keep only what is **high-value, stable, and not derivable from the
-code**. Anything queryable from code (route lists, field names) is not
-documented. Update in place; never append narrative history. Ask: *would the
-next agent make a mistake if this line were missing?* If no, cut it.
-
-### When writing memory
-
-One memory, one fact. No incident postmortems as narrative — compress them
-into a reusable rule or delete them. Absolute dates, no "today" or "recently".
-Merge duplicates; a duplicated fact is two facts that will drift apart.
+Code is rewritten often, but **docs and memory are the only bridge across
+sessions** — a stale entry makes the next agent decide on a false premise.
+Agents read whole files, not diffs, so every leftover special case dilutes
+the real design. And a patch that works is the easiest thing to reproduce,
+because it needs the least understanding — each round of patching teaches
+the next session to patch. Pristine is the counterweight: changes made as if
+for the first time keep the system evolving toward clarity, not entropy.
 
 ## Decision table
 
 | Situation | Patch instinct | First-time move |
 |---|---|---|
-| Bug at the edge of the system | Add an `if` special case | Trace to the root rule, fix it once, remove the workaround |
-| Code that needs explaining | Add a "what" comment | Rename the function / extract the logic |
-| Unused file or block | Keep it "just in case" | Delete it; version control remembers |
+| Bug at the edge | Add an `if` special case | Trace to the root rule, fix once, remove the workaround |
+| Code needs explaining | Add a "what" comment | Rename the function / extract the logic |
+| Unused file or block | Keep it "just in case" | Delete it — version control remembers |
 | Rule changed last month | Append "as of …" note | Edit the original entry in place |
 | Production misbehaves | Quick fix on the server | Fix locally, deploy the exact source |
-| Docs out of sync with code | Add a note about the drift | Update the doc to match the code |
+| Docs out of sync | Add a note about the drift | Update the doc to match the code |
 
-## Final check — run before finishing any task
+## Final check — before finishing any task
 
-- [ ] If I wrote this from scratch today, would it look like this? If not — rewrite, don't patch.
-- [ ] Does every comment say *why*, and nothing comments on *what*?
-- [ ] Are there backups, commented-out blocks, or dead files left behind? Remove them.
-- [ ] Does local source match what is deployed? (proven, not assumed)
-- [ ] Is every rule defined in exactly one place? (single source of truth)
+- [ ] Would I write it this way from scratch today? If not — rewrite, don't patch.
+- [ ] Do comments say *why* only, never *what*?
+- [ ] Any backups, commented-out blocks, dead files? Remove them.
+- [ ] Does local source match what's deployed? (proven, not assumed)
+- [ ] Is every rule defined in exactly one place?
