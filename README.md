@@ -65,6 +65,21 @@ invoke it by name:
 - `virgin` / `first-time` — aliases, recognized semantically via the skill
   description
 
+## Session watch (optional companion)
+
+[`scripts/session-watch.js`](scripts/session-watch.js) enforces the 15-turn
+rule mechanically: it counts user turns in the current session and prints a
+reminder when the threshold is crossed. Wire it as a Claude Code Stop hook:
+
+```json
+"hooks": { "Stop": [ { "matcher": "", "hooks": [ { "type": "command",
+  "command": "node /path/to/scripts/session-watch.js --threshold 15" } ] } ] }
+```
+
+The script reads the session transcript path from the hook's stdin — no
+session discovery, no hardcoded paths, exit code always 0 (a reminder, not
+a gate).
+
 ## Examples
 
 See [examples/before-after.md](examples/before-after.md) for

@@ -103,7 +103,9 @@ that, every extra turn buys less and less.
 These are not pricing trivia: a session that runs to hundreds of turns
 costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
-like any other residue — cut it at the root.
+like any other residue — cut it at the root. The companion script
+`scripts/session-watch.js` enforces the 15-turn rule mechanically via a
+Claude Code Stop hook (see README).
 
 ## Decision table
 
