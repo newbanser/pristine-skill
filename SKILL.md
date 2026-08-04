@@ -13,7 +13,9 @@ description: >
   "just patch it", "just add a special case", "just wrap it in a flag",
   "leave this commented out", or "fix it quickly on the server". Also
   triggers on doc/memory edits that append workarounds, narratives, or stale
-  notes instead of rewriting the root source. Works alongside the codebase's
+  notes instead of rewriting the root source. Also triggers when a session
+  is getting long and its context is drifting — see the session-cost section
+  for the 15-turn rule. Works alongside the codebase's
   other engineering rules; this one governs how any change lands.
   Cross-platform: Claude Code, OpenAI Codex, OpenCode, OpenClaw.
 ---
@@ -67,6 +69,41 @@ the real design. And a patch that works is the easiest thing to reproduce,
 because it needs the least understanding — each round of patching teaches
 the next session to patch. Pristine is the counterweight: changes made as if
 for the first time keep the system evolving toward clarity, not entropy.
+
+## Session cost — a fifth law for agents
+
+A session that grows without bound is the same entropy as a file that grows
+without bound. Every new turn re-sends the full history, and the cost model
+is harsh: history is charged at full price on the first mention, then only
+at cache-read rates on later turns — so each added turn costs roughly the
+new tokens at full price plus the accumulated history at a fraction.
+
+Measured on real workloads, the per-turn cost curve has a clear sweet spot:
+short sessions never build a useful cache; long sessions pay to re-ship
+thousands of tokens that the model has already seen. Around **15 turns per
+session**, cache is saturated and marginal cost is near its floor — beyond
+that, every extra turn buys less and less.
+
+### The laws of session hygiene
+
+1. **One task per session.** When a task is done, start fresh. Do not let a
+   session accumulate unrelated turns.
+2. **Around 15 turns, propose a reset.** When a session approaches its
+   sweet spot and the task still needs more work, say so: "this session is
+   getting long — /clear and continue, the context will be leaner and
+   cheaper." Do not silently keep going.
+3. **Cost belongs to the habit, not the tool.** The per-turn cost of
+   carrying history is identical across tools — an editor that keeps one
+   long-lived chat panel invites drift; a context-switched one fragments
+   naturally. Choose the workflow, not the vendor.
+4. **A fresh session is not a lost session.** Persist conclusions in
+   notes/docs before resetting — memory is the bridge across sessions, same
+   as law 3 says for files.
+
+These are not pricing trivia: a session that runs to hundreds of turns
+costs an order of magnitude more than fifteen disciplined ones doing the
+same work, and the tail turns run on stale context. Treat session length
+like any other residue — cut it at the root.
 
 ## Decision table
 
