@@ -3,6 +3,8 @@
 ![Pristine cover](cover.png)
 
 > Write everything as if it were being written for the first time.
+> 纯净、清晰、节约 — pure, clear, economical: nothing patched, nothing hidden,
+> nothing wasted.
 
 A cross-platform agent skill that enforces the **First-Time Principle** — the
 discipline of landing every change in its final form: no patches, no
@@ -35,6 +37,7 @@ keeps the system evolving toward clarity instead of entropy.
 | **Code explains itself** | Names carry the "what". Comments only say "why": business rules, constraints, history traps. No explanatory comments, no commented-out code blocks. |
 | **No residue** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes. |
 | **Deployment parity** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes — the repo must keep representing reality. |
+| **Economy** | The lazy ladder: reuse before write, one line before five, YAGNI before "maybe useful". Simplifications are marked (`ponytail:`), never silent. |
 | **Session cost** | A session that grows without bound is the same entropy as a file that grows without bound. Around 15 turns, propose a reset. |
 
 ## Install

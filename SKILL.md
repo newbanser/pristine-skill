@@ -23,6 +23,9 @@ description: >
 # The First-Time Principle
 
 > Write everything as if it were being written for the first time.
+>
+> 纯净、清晰、节约 — pure, clear, economical: nothing patched, nothing
+> hidden, nothing wasted.
 
 A governing philosophy for code, docs, and agent memory: every modification
 lands as its final form — a first draft and a final draft at the same time.
@@ -59,6 +62,24 @@ What runs in production is what was reviewed locally. A remote-only quick
 fix mutates the truth: the repo no longer represents reality, the next
 deploy silently overwrites the fix, and the next bug can't be reproduced.
 Verify artifacts (e.g. checksums) where justified.
+
+## Economy — the lazy ladder
+
+The best code is the code never written. Before writing, climb the first
+rung that holds: must it exist at all? does it already exist (codebase,
+stdlib, platform, installed dependency)? can it be one line? Then write
+the minimum that works — climb after understanding the problem, never
+instead of it.
+
+Reuse healthy code: fix once in the shared function. Rewrite a patch
+pile — stacked `if`s, copied-and-tweaked logic, route-around switches —
+when the rewrite is cleaner than the pile. A deliberate simplification
+with a known ceiling (global lock, O(n²), naive heuristic) is marked
+`ponytail:`, naming the ceiling and upgrade path.
+
+Never lazy about: understanding the problem, input validation at trust
+boundaries, error handling that prevents data loss, security,
+accessibility. Non-trivial logic leaves one runnable self-check.
 
 ## Why it matters for AI-assisted development
 
@@ -117,10 +138,12 @@ Claude Code Stop hook (see README).
 | Rule changed last month | Append "as of …" note | Edit the original entry in place |
 | Production misbehaves | Quick fix on the server | Fix locally, deploy the exact source |
 | Docs out of sync | Add a note about the drift | Update the doc to match the code |
+| New feature | Build a fresh module | Reuse what exists, write only what's missing — or skip it (YAGNI) |
 
 ## Final check — before finishing any task
 
 - [ ] Would I write it this way from scratch today? If not — rewrite, don't patch.
+- [ ] Reused what exists, wrote only what's missing — nothing to delete?
 - [ ] Do comments say *why* only, never *what*?
 - [ ] Any backups, commented-out blocks, dead files? Remove them.
 - [ ] Does local source match what's deployed? (proven, not assumed)
