@@ -75,15 +75,12 @@ Verify artifacts (e.g. checksums) where justified.
 Purity means nothing duplicated. Reuse the helper, util, or pattern that
 already exists — stdlib, platform, installed dependency — before writing
 it by hand. Ask whether the feature needs to exist at all (YAGNI) first:
-the cleanest code is the code never written. Reuse healthy code, fix once
-in the shared function; rewrite a patch pile — stacked `if`s,
-copied-and-tweaked logic, route-around switches — when the rewrite is
-cleaner than the pile.
+the cleanest code is the code never written.
 
-Never lazy about: understanding the problem, input validation at trust
-boundaries, error handling that prevents data loss, security,
-accessibility — purity is not skimping. Non-trivial logic leaves one
-runnable self-check.
+Purity is not skimping: understanding the problem, input validation at
+trust boundaries, error handling that prevents data loss, security,
+accessibility are never cut. Non-trivial logic leaves one runnable
+self-check.
 
 ## Why it matters for AI-assisted development
 
@@ -95,7 +92,7 @@ because it needs the least understanding — each round of patching teaches
 the next session to patch. Pristine is the counterweight: changes made as if
 for the first time keep the system evolving toward clarity, not entropy.
 
-## Session cost — a sixth law for agents
+## Session cost — keep sessions lean
 
 A session that grows without bound is the same entropy as a file that grows
 without bound. Every new turn re-sends the full history, and the cost model
