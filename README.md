@@ -57,6 +57,10 @@ mkdir -p .opencode/skills/pristine
 cp SKILL.md .opencode/skills/pristine/
 ```
 
+For the optional session watch (see below), copy `scripts/session-watch.js`
+alongside `SKILL.md` — or just clone the whole repo — so the hook points at
+a stable path.
+
 ## Usage
 
 The skill activates automatically when you start implementation, refactor,
@@ -70,11 +74,13 @@ invoke it by name:
 ## Session watch (optional companion)
 
 [`scripts/session-watch.js`](scripts/session-watch.js) enforces the 15-turn
-rule mechanically: it counts user turns in the current session and prints a
-reminder when the threshold is crossed. Wire it as a Claude Code Stop hook:
+rule mechanically: it counts real user turns in the current session and
+prints a reminder when the threshold is crossed. Wire it as a Claude Code
+`UserPromptSubmit` hook (fires on every user message; a `Stop` hook also
+works):
 
 ```json
-"hooks": { "Stop": [ { "matcher": "", "hooks": [ { "type": "command",
+"hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
   "command": "node /path/to/scripts/session-watch.js --threshold 15" } ] } ] }
 ```
 
