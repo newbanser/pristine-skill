@@ -41,6 +41,11 @@ a patch buys time and costs structure. Ask *where does the rule actually
 live?*, fix it there once, and remove the workaround. If the patch pile is
 worse than a clean rewrite, rewrite it.
 
+Rewrite is structure repair, not behavior change: healthy structure is
+fixed in place, only a patch pile is rewritten. Never rewrite code you
+merely dislike, and never rewrite more than the one broken root at a
+time.
+
 ### 2. Code explains itself — comments only say "why"
 
 Names carry the "what". Comments are reserved for decisions not visible from
