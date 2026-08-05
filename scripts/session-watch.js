@@ -10,13 +10,13 @@
  * user-typed entries in the transcript (type "user" with a tool_result
  * block), and counting them would inflate the turn count.
  *
- * Claude Code Stop hooks receive JSON on stdin; transcript_path points at
+ * UserPromptSubmit hooks receive JSON on stdin; transcript_path points at
  * the current session's JSONL, so no session discovery is needed. Exit
  * code is always 0 — this is a reminder, not a gate.
  *
  * Wire it in settings.json:
- *   "hooks": { "Stop": [ { "matcher": "", "hooks": [ { "type": "command",
- *     "command": "node /path/to/session-watch.js --threshold 15" } ] } ] }
+ *   "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
+ *     "command": "node /path/to/scripts/session-watch.js --threshold 15" } ] } ] }
  */
 const fs = require('fs')
 

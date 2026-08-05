@@ -58,8 +58,8 @@ cp SKILL.md .opencode/skills/pristine/
 ```
 
 For the optional session watch (see below), copy `scripts/session-watch.js`
-alongside `SKILL.md` — or just clone the whole repo — so the hook points at
-a stable path.
+alongside `SKILL.md` — or clone the repo and point the hook at the clone —
+so the hook path stays stable.
 
 ## Usage
 

@@ -7,15 +7,15 @@ description: >
   Enforce the First-Time Principle: write every line of code, every doc, and
   every memory entry as if it were being written for the first time — no
   patches, no "what"-comments, no leftovers, no local/deployed drift.
-  Responds to all of its names: "pristine", "纯净原则", or "first-time". MUST trigger when starting
-  any implementation, refactor, or bug fix, and whenever the urge arises to
-  "just patch it", "just add a special case", "just wrap it in a flag",
-  "leave this commented out", or "fix it quickly on the server". Also
-  triggers on doc/memory edits that append workarounds, narratives, or stale
-  notes instead of rewriting the root source. Also triggers when a session
-  is getting long and its context is drifting — see the session-cost section
-  for the 15-turn rule. Works alongside the codebase's
-  other engineering rules; this one governs how any change lands.
+  Responds to all of its names: "pristine", "纯净原则", or "first-time". MUST
+  trigger when starting any implementation, refactor, or bug fix, and whenever
+  the urge arises to "just patch it", "just add a special case", "just wrap it
+  in a flag", "leave this commented out", or "fix it quickly on the server".
+  Also triggers on doc/memory edits that append workarounds, narratives, or
+  stale notes instead of rewriting the root source. Also triggers when a
+  session is getting long and its context is drifting — see the session-cost
+  section for the 15-turn rule. Works alongside the codebase's other
+  engineering rules; this one governs how any change lands.
   Cross-platform: Claude Code, OpenAI Codex, OpenCode, OpenClaw.
 ---
 
@@ -116,7 +116,7 @@ costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
 like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the 15-turn rule mechanically via a
-Claude Code Stop hook (see README).
+Claude Code `UserPromptSubmit` hook (see README).
 
 ## Why it matters for AI-assisted development
 
