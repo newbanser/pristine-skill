@@ -32,7 +32,7 @@ lands as its final form — a first draft and a final draft at the same time.
 It applies to everything you touch: code, docs (CLAUDE.md/AGENTS.md, README,
 docs/), memory files, and deployments.
 
-## The four laws
+## The six laws
 
 ### 1. No patching — go back to the root cause
 
@@ -63,23 +63,22 @@ fix mutates the truth: the repo no longer represents reality, the next
 deploy silently overwrites the fix, and the next bug can't be reproduced.
 Verify artifacts (e.g. checksums) where justified.
 
-## Economy — the lazy ladder
+### 5. Nothing extra — one source for every behavior
 
-The best code is the code never written. Before writing, climb the first
-rung that holds: must it exist at all? does it already exist (codebase,
-stdlib, platform, installed dependency)? can it be one line? Then write
-the minimum that works — climb after understanding the problem, never
-instead of it.
-
-Reuse healthy code: fix once in the shared function. Rewrite a patch
-pile — stacked `if`s, copied-and-tweaked logic, route-around switches —
-when the rewrite is cleaner than the pile. A deliberate simplification
-with a known ceiling (global lock, O(n²), naive heuristic) is marked
-`ponytail:`, naming the ceiling and upgrade path.
+Purity means nothing duplicated. Reuse the helper, util, or pattern that
+already exists — stdlib, platform, installed dependency — before writing
+it by hand. Ask whether the feature needs to exist at all (YAGNI) first:
+the cleanest code is the code never written. Reuse healthy code, fix once
+in the shared function; rewrite a patch pile — stacked `if`s,
+copied-and-tweaked logic, route-around switches — when the rewrite is
+cleaner than the pile. Deliberate simplifications with a known ceiling
+(global lock, O(n²) scan, naive heuristic) are marked `ponytail:`, naming
+the ceiling and upgrade path — visibility is a form of clarity.
 
 Never lazy about: understanding the problem, input validation at trust
 boundaries, error handling that prevents data loss, security,
-accessibility. Non-trivial logic leaves one runnable self-check.
+accessibility — purity is not skimping. Non-trivial logic leaves one
+runnable self-check.
 
 ## Why it matters for AI-assisted development
 
@@ -91,7 +90,7 @@ because it needs the least understanding — each round of patching teaches
 the next session to patch. Pristine is the counterweight: changes made as if
 for the first time keep the system evolving toward clarity, not entropy.
 
-## Session cost — a fifth law for agents
+## Session cost — a sixth law for agents
 
 A session that grows without bound is the same entropy as a file that grows
 without bound. Every new turn re-sends the full history, and the cost model
