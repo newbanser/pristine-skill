@@ -82,17 +82,7 @@ trust boundaries, error handling that prevents data loss, security,
 accessibility are never cut. Non-trivial logic leaves one runnable
 self-check.
 
-## Why it matters for AI-assisted development
-
-Code is rewritten often, but **docs and memory are the only bridge across
-sessions** — a stale entry makes the next agent decide on a false premise.
-Agents read whole files, not diffs, so every leftover special case dilutes
-the real design. And a patch that works is the easiest thing to reproduce,
-because it needs the least understanding — each round of patching teaches
-the next session to patch. Pristine is the counterweight: changes made as if
-for the first time keep the system evolving toward clarity, not entropy.
-
-## Session cost — keep sessions lean
+### 6. Session cost — keep sessions lean
 
 A session that grows without bound is the same entropy as a file that grows
 without bound. Every new turn re-sends the full history, and the cost model
@@ -106,7 +96,7 @@ thousands of tokens that the model has already seen. Around **15 turns per
 session**, cache is saturated and marginal cost is near its floor — beyond
 that, every extra turn buys less and less.
 
-### The laws of session hygiene
+#### The laws of session hygiene
 
 1. **One task per session.** When a task is done, start fresh. Do not let a
    session accumulate unrelated turns.
@@ -128,6 +118,16 @@ same work, and the tail turns run on stale context. Treat session length
 like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the 15-turn rule mechanically via a
 Claude Code Stop hook (see README).
+
+## Why it matters for AI-assisted development
+
+Code is rewritten often, but **docs and memory are the only bridge across
+sessions** — a stale entry makes the next agent decide on a false premise.
+Agents read whole files, not diffs, so every leftover special case dilutes
+the real design. And a patch that works is the easiest thing to reproduce,
+because it needs the least understanding — each round of patching teaches
+the next session to patch. Pristine is the counterweight: changes made as if
+for the first time keep the system evolving toward clarity, not entropy.
 
 ## Decision table
 
