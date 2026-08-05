@@ -1,14 +1,13 @@
 ---
 name: pristine
 aliases:
-  - virgin
+  - 纯净原则
   - first-time
 description: >
   Enforce the First-Time Principle: write every line of code, every doc, and
   every memory entry as if it were being written for the first time — no
   patches, no "what"-comments, no leftovers, no local/deployed drift.
-  Responds to all of its names: "pristine", "virgin" (the informal alias for
-  the principle's original name), or "first-time". MUST trigger when starting
+  Responds to all of its names: "pristine", "纯净原则", or "first-time". MUST trigger when starting
   any implementation, refactor, or bug fix, and whenever the urge arises to
   "just patch it", "just add a special case", "just wrap it in a flag",
   "leave this commented out", or "fix it quickly on the server". Also

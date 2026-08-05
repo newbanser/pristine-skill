@@ -64,7 +64,7 @@ or bug-fix work, and whenever the "just patch it" urge appears. You can also
 invoke it by name:
 
 - `pristine` — the formal name ("we work in pristine mode")
-- `virgin` / `first-time` — aliases, recognized semantically via the skill
+- `纯净原则` / `first-time` — aliases, recognized semantically via the skill
   description
 
 ## Session watch (optional companion)
