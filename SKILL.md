@@ -27,10 +27,9 @@ description: >
 > 纯净、清晰、节约 — pure, clear, economical: nothing patched, nothing
 > hidden, nothing wasted.
 
-A governing philosophy for code, docs, and agent memory: every modification
-lands as its final form — a first draft and a final draft at the same time.
-It applies to everything you touch: code, docs (CLAUDE.md/AGENTS.md, README,
-docs/), memory files, and deployments.
+A governing philosophy for code, docs, and agent memory. It applies to
+everything you touch: code, docs (CLAUDE.md/AGENTS.md, README, docs/),
+memory files, and deployments.
 
 ## The six laws
 

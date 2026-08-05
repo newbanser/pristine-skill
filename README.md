@@ -6,9 +6,8 @@
 > 纯净、清晰、节约 — pure, clear, economical: nothing patched, nothing hidden,
 > nothing wasted.
 
-A cross-platform agent skill that enforces the **First-Time Principle** — the
-discipline of landing every change in its final form: no patches, no
-"what"-comments, no leftovers, no local/deployed drift.
+A cross-platform agent skill enforcing the **First-Time Principle**: no
+patches, no "what"-comments, no leftovers, no local/deployed drift.
 
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
