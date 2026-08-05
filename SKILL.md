@@ -50,10 +50,10 @@ time.
 Names carry the "what". Comments are reserved for decisions not visible from
 the code: business rules, constraints, history traps. Deliberate
 simplifications (global lock, O(n²) scan, naive heuristic) carry their
-ceiling and upgrade path in a comment — untold, a trade-off reads as a
-bug. No explanatory comments, no "note:" annotations, no commented-out
-code blocks. If a reader needs an explanation, the code needs a better
-name.
+ceiling and upgrade path in a `pristine:` comment — untold, a trade-off
+reads as a bug; tagged, the debt stays greppable. No explanatory comments,
+no "note:" annotations, no commented-out code blocks. If a reader needs an
+explanation, the code needs a better name.
 
 ### 3. No residue — nothing left behind
 
@@ -73,8 +73,20 @@ Verify artifacts (e.g. checksums) where justified.
 
 Purity means nothing duplicated. Reuse the helper, util, or pattern that
 already exists — stdlib, platform, installed dependency — before writing
-it by hand. Ask whether the feature needs to exist at all (YAGNI) first:
-the cleanest code is the code never written.
+it by hand.
+
+Ask *does it need to exist at all* first; if it does, climb the reuse
+ladder and stop at the first rung that holds:
+
+1. Does the codebase already have it? Reuse, don't re-write.
+2. Does the standard library cover it? Use it.
+3. Does the platform provide it natively? Use it.
+4. Does an installed dependency solve it? Use it.
+5. Can it be one line? Make it one line.
+
+Only then write the minimum that works. The ladder runs after you
+understand the problem, not instead of it — a small diff you don't
+understand is not purity, it's a second bug.
 
 Purity is not skimping: understanding the problem, input validation at
 trust boundaries, error handling that prevents data loss, security,
