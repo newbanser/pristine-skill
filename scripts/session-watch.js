@@ -2,9 +2,13 @@
 /**
  * session-watch — companion script for the pristine skill.
  *
- * Counts user turns in the current Claude Code session and prints a
+ * Counts real user turns in the current Claude Code session and prints a
  * reminder when the session exceeds the threshold (default 15), backing
  * the skill's 15-turn rule with a mechanical check.
+ *
+ * Only genuine user messages count — tool results are also recorded as
+ * user-typed entries in the transcript (type "user" with a tool_result
+ * block), and counting them would inflate the turn count.
  *
  * Claude Code Stop hooks receive JSON on stdin; transcript_path points at
  * the current session's JSONL, so no session discovery is needed. Exit
@@ -34,7 +38,11 @@ try {
     if (!line.trim()) continue
     try {
       const entry = JSON.parse(line)
-      if (entry.type === 'user' || entry.message?.role === 'user') turns++
+      if (entry.type !== 'user' || entry.message?.role !== 'user') continue
+      const content = entry.message.content
+      const isToolResult = Array.isArray(content) &&
+        content.some(block => block?.type === 'tool_result')
+      if (!isToolResult) turns++
     } catch {}
   }
 } catch {
