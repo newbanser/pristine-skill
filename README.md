@@ -33,10 +33,10 @@ keeps the system evolving toward clarity instead of entropy.
 | Law | Meaning |
 |-----|---------|
 | **No patching** | Fix the root cause, not the symptom. No `if` special cases, no copied-and-tweaked logic, no switches that route around a problem. Rewrite when the patch pile is worse than a clean rewrite. |
-| **Code explains itself** | Names carry the "what". Comments only say "why": business rules, constraints, history traps. No explanatory comments, no commented-out code blocks. |
+| **Code explains itself** | Names carry the "what". Comments only say "why": business rules, constraints, deliberate trade-offs. No explanatory comments, no commented-out code blocks. |
 | **No residue** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes. |
 | **Deployment parity** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes — the repo must keep representing reality. |
-| **Nothing extra** | One source for every behavior: reuse what exists, skip what doesn't need to exist, rewrite what's patched. Deliberate simplifications are marked (`ponytail:`), never silent. |
+| **Nothing extra** | One source for every behavior: reuse what exists, skip what doesn't need to exist, rewrite what's patched. |
 | **Session cost** | A session that grows without bound is the same entropy as a file that grows without bound. Around 15 turns, propose a reset. |
 
 ## Install

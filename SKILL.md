@@ -49,9 +49,12 @@ time.
 ### 2. Code explains itself — comments only say "why"
 
 Names carry the "what". Comments are reserved for decisions not visible from
-the code: business rules, constraints, history traps. No explanatory
-comments, no "note:" annotations, no commented-out code blocks. If a reader
-needs an explanation, the code needs a better name.
+the code: business rules, constraints, history traps. Deliberate
+simplifications (global lock, O(n²) scan, naive heuristic) carry their
+ceiling and upgrade path in a comment — untold, a trade-off reads as a
+bug. No explanatory comments, no "note:" annotations, no commented-out
+code blocks. If a reader needs an explanation, the code needs a better
+name.
 
 ### 3. No residue — nothing left behind
 
@@ -75,9 +78,7 @@ it by hand. Ask whether the feature needs to exist at all (YAGNI) first:
 the cleanest code is the code never written. Reuse healthy code, fix once
 in the shared function; rewrite a patch pile — stacked `if`s,
 copied-and-tweaked logic, route-around switches — when the rewrite is
-cleaner than the pile. Deliberate simplifications with a known ceiling
-(global lock, O(n²) scan, naive heuristic) are marked `ponytail:`, naming
-the ceiling and upgrade path — visibility is a form of clarity.
+cleaner than the pile.
 
 Never lazy about: understanding the problem, input validation at trust
 boundaries, error handling that prevents data loss, security,
