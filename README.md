@@ -93,6 +93,11 @@ a gate).
 See [examples/before-after.md](examples/before-after.md) for
 patch-instinct vs. first-time-move side-by-side comparisons.
 
+## Credits
+
+The reuse ladder and the `pristine:` comment tag are inspired by
+[ponytail](https://github.com/DietrichGebert/ponytail) (MIT).
+
 ## License
 
 MIT © 2026
