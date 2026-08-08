@@ -30,7 +30,7 @@ A governing philosophy for code, docs, and agent memory. It applies to
 everything you touch: code, docs (CLAUDE.md/AGENTS.md, README, docs/),
 memory files, and deployments.
 
-## The six laws
+## The seven laws
 
 ### 1. No patching — go back to the root cause
 
@@ -130,6 +130,23 @@ like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the 15-turn rule mechanically via a
 Claude Code `UserPromptSubmit` hook (see README).
 
+### 7. Before launch, everything is a first draft — no migrations, no legacy
+
+Until production goes live, there is no installed base: the codebase is a
+first draft, and "because it used to be different" never applies. Change a
+column? Edit the CREATE TABLE and rebuild the database — no migration
+functions, no `ALTER TABLE` upgrade steps, no compatibility layers, no
+snapshots for old structures. Found code that exists only to carry an old
+shape forward? Delete it back to the root. The day before launch and the
+day after must read the same: the schema is what the code says it is.
+
+Migrations, fallbacks, and "old → new" translation layers are launch-day
+machinery. Writing them before launch is writing residue.
+
+The tell: any code, comment, or file that implies "previously",
+"legacy", "old", "compat", "backward", "_old"/"_new", or a migration
+step is a confession — in a pre-launch codebase it should not exist.
+
 ## Why it matters for AI-assisted development
 
 Code is rewritten often, but **docs and memory are the only bridge across
@@ -151,6 +168,8 @@ for the first time keep the system evolving toward clarity, not entropy.
 | Production misbehaves | Quick fix on the server | Fix locally, deploy the exact source |
 | Docs out of sync | Add a note about the drift | Update the doc to match the code |
 | New feature | Build a fresh module | Reuse what exists, write only what's missing — or skip it (YAGNI) |
+| Column renamed (pre-launch) | Write a migration / `ALTER TABLE` step | Edit the CREATE TABLE, rebuild the database |
+| Old shape found in code | Add a compatibility layer | Delete it — no installed base exists yet |
 
 ## Final check — before finishing any task
 
@@ -160,3 +179,4 @@ for the first time keep the system evolving toward clarity, not entropy.
 - [ ] Any backups, commented-out blocks, dead files? Remove them.
 - [ ] Does local source match what's deployed? (proven, not assumed)
 - [ ] Is every rule defined in exactly one place?
+- [ ] Before launch: any migration, compat layer, or "old → new" fallback in the codebase? Remove it — the schema is what the code says it is.

@@ -28,7 +28,7 @@ human-only teams:
 Pristine is the counterweight: each change, made as if for the first time,
 keeps the system evolving toward clarity instead of entropy.
 
-## The six laws
+## The seven laws
 
 | Law | Meaning |
 |-----|---------|
@@ -38,6 +38,7 @@ keeps the system evolving toward clarity instead of entropy.
 | **Deployment parity** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes — the repo must keep representing reality. |
 | **Nothing extra** | One source for every behavior: reuse what exists, skip what doesn't need to exist. |
 | **Session cost** | A session that grows without bound is the same entropy as a file that grows without bound. Around 15 turns, propose a reset. |
+| **First draft before launch** | Until production goes live there is no installed base: change the definition, not the compat. No migrations, no `ALTER TABLE` steps, no compatibility layers — delete anything that exists only to carry an old shape forward. |
 
 ## Install
 
