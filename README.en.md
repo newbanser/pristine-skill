@@ -4,12 +4,11 @@
 
 ![Pristine cover](cover.png)
 
-> Write everything as if it were being written for the first time.
-> 纯净、清晰、节约 — pure, clear, economical: nothing patched, nothing hidden,
-> nothing wasted.
+If memory loss is the root, let every AI agent rebirth follow the First-Time Principle.
 
-A cross-platform agent skill enforcing the **First-Time Principle**: no
-patches, no "what"-comments, no leftovers, no local/deployed drift.
+Perhaps the only agent skill you need — a cross-platform agent skill that
+makes your output forever look written for the first time. Pure, clear,
+economical.
 
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
@@ -113,7 +112,7 @@ Over-report on purpose, converge false positives by hand (business
 fallback rules and docs that quote the signal words are noise). Exit code
 always 0 — a reminder, not a gate.
 
-**For users: self-checks are a habit, not an AI mechanism.** Keeping an AI
+**For users: self-checks are a habit for humans, not an AI mechanism.** Keeping an AI
 pristine is not discipline but system — wire the scan into your CI or
 pre-commit hook.
 
