@@ -15,7 +15,7 @@ Skill format).
 
 **Current version: v1.3.0**
 
-## Why
+## What you need to know
 
 In AI-assisted development, patches compound differently than in
 human-only teams:
@@ -31,7 +31,7 @@ human-only teams:
 Pristine is the counterweight: each change, made as if for the first time,
 keeps the system evolving toward clarity instead of entropy.
 
-## The seven laws
+## What your AI needs to know
 
 | Law | Meaning |
 |-----|---------|
