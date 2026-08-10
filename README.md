@@ -89,6 +89,26 @@ The script reads the session transcript path from the hook's stdin — no
 session discovery, no hardcoded paths, exit code always 0 (a reminder, not
 a gate).
 
+## Pristine scan (companion)
+
+[`scripts/pristine-scan.js`](scripts/pristine-scan.js) backs the
+**adversarial verification** layer of the skill: self-assessment is not
+evidence (the evaluator is the executor), so a clean claim needs a
+mechanical check. It scans a codebase for the signal words of patch piles,
+residue, and pre-launch migration machinery — `migrate`/`ALTER TABLE`/
+`legacy`/`_old`/`_new`, `workaround`/`hotfix`/`special case`, `backup`/
+`dead`/`obsolete`, `note:` annotations and commented-out code — and prints
+`file:line` hits grouped by law.
+
+```bash
+node scripts/pristine-scan.js <target-dir>   # scan a codebase
+node scripts/pristine-scan.js --selftest     # verify the rule table itself
+```
+
+Over-report on purpose, converge false positives by hand (business
+fallback rules and docs that quote the signal words are noise). Exit code
+always 0 — a reminder, not a gate.
+
 ## Examples
 
 See [examples/before-after.md](examples/before-after.md) for

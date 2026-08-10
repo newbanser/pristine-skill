@@ -1,13 +1,13 @@
 ---
 name: pristine
 aliases:
-  - 纯净原则
+  - 纯净自检
   - first-time
 description: >
   Enforce the First-Time Principle: write every line of code, every doc, and
   every memory entry as if it were being written for the first time — no
   patches, no "what"-comments, no leftovers, no local/deployed drift.
-  Responds to all of its names: "pristine", "纯净原则", or "first-time". MUST
+  Responds to all of its names: "pristine", "纯净自检", or "first-time". MUST
   trigger when starting any implementation, refactor, or bug fix, and whenever
   the urge arises to "just patch it", "just add a special case", "just wrap it
   in a flag", "leave this commented out", or "fix it quickly on the server".
@@ -146,6 +146,24 @@ machinery. Writing them before launch is writing residue.
 The tell: any code, comment, or file that implies "previously",
 "legacy", "old", "compat", "backward", "_old"/"_new", or a migration
 step is a confession — in a pre-launch codebase it should not exist.
+
+## Adversarial verification — self-assessment is not evidence
+
+Self-checks fail by construction: the evaluator is the executor, so asking
+"is it pristine?" always leans yes (confirmation bias), and the trigger
+words never appear in the agent's head at the moment of patching. The
+mechanical answer is the companion script:
+
+```
+node scripts/pristine-scan.js <target-dir>    # scans for residue signal words
+node scripts/pristine-scan.js --selftest      # verifies the rule table itself
+```
+
+The verdict is the output, not the self-assessment. Over-report on purpose,
+converge false positives by hand: business fallback rules, test seeds, and
+documentation that quotes the signal words are noise; code that carries an
+old shape forward, compatibility layers, dead branches, and commented-out
+code are real. A clean scan is the claim, the scan is the evidence.
 
 ## Why it matters for AI-assisted development
 
