@@ -6,7 +6,7 @@
 
 如果失忆是根因，那就让AI的每次重生都遵从纯净原则。
 
-这或许是你唯一需要使用的agent skill，一个跨平台的 Agent 技能，让你的产出永远像第一次写出来一样。 纯净、清晰、节约。
+这或许是你唯一需要使用的agent skill，让你的产出永远像第一次写出来一样。 纯净、清晰、节约。
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 

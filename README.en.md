@@ -6,9 +6,7 @@
 
 If memory loss is the root, let every AI agent rebirth follow the First-Time Principle.
 
-Perhaps the only agent skill you need — a cross-platform agent skill that
-makes your output forever look written for the first time. Pure, clear,
-economical.
+Perhaps the only agent skill you need — your output, forever written for the first time. Pure, clear, economical.
 
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
