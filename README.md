@@ -6,10 +6,7 @@
 
 > 这或许是你唯一需要使用的agent skill：如果失忆是根因，那就让AI的每次重生都遵从纯净原则。
 
-> 像第一次写出来一样。
-> 纯净、清晰、节约 —— nothing patched, nothing hidden, nothing wasted。
-
-一个跨平台的 Agent 技能，执行 **First-Time Principle（首次原则）**：不打补丁、不写"是什么"注释、不留残渣、本地与线上零漂移。
+一个跨平台的 Agent 技能，让你的产出永远像第一次写出来一样。 纯净、清晰、节约。
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
