@@ -4,7 +4,7 @@
 
 ![Pristine cover](cover.png)
 
-> 如果失忆是根因，就让AI的每次重生都遵从纯净原则。
+> 这或许是你唯一需要使用的agent skill：如果失忆是根因，那就让AI的每次重生都遵从纯净原则。
 
 > 像第一次写出来一样。
 > 纯净、清晰、节约 —— nothing patched, nothing hidden, nothing wasted。
