@@ -1,13 +1,13 @@
 ---
 name: pristine
 aliases:
-  - 纯净自检
+  - 纯净原则
   - first-time
 description: >
   Enforce the First-Time Principle: write every line of code, every doc, and
   every memory entry as if it were being written for the first time — no
   patches, no "what"-comments, no leftovers, no local/deployed drift.
-  Responds to all of its names: "pristine", "纯净自检", or "first-time". MUST
+  Responds to all of its names: "pristine", "纯净原则", or "first-time". MUST
   trigger when starting any implementation, refactor, or bug fix, and whenever
   the urge arises to "just patch it", "just add a special case", "just wrap it
   in a flag", "leave this commented out", or "fix it quickly on the server".
@@ -32,7 +32,7 @@ memory files, and deployments.
 
 ## The seven laws
 
-### 1. No patching — go back to the root cause
+### 1. No patching — 追溯根源
 
 Fix the root, not the symptom. Do not accumulate special-case `if`s, copy
 old logic and tweak parameters, or add switches to route around a problem —
@@ -45,7 +45,7 @@ fixed in place, only a patch pile is rewritten. Never rewrite code you
 merely dislike, and never rewrite more than the one broken root at a
 time.
 
-### 2. Code explains itself — comments only say "why"
+### 2. Code explains itself — 代码自释
 
 Names carry the "what". Comments are reserved for decisions not visible from
 the code: business rules, constraints, history traps. Deliberate
@@ -55,21 +55,21 @@ reads as a bug; tagged, the debt stays greppable. No explanatory comments,
 no "note:" annotations, no commented-out code blocks. If a reader needs an
 explanation, the code needs a better name.
 
-### 3. No residue — nothing left behind
+### 3. No residue — 不留残渣
 
 No backups, drafts, dead code, or intermediate states — version control
 keeps history, you keep the surface clean. Superseded rules are updated in
 place (single source of truth), never appended as "as of …" notes: history
 belongs in the changelog, not the rulebook.
 
-### 4. Deployment parity — local and remote are one
+### 4. Deployment parity — 部署如一
 
 What runs in production is what was reviewed locally. A remote-only quick
 fix mutates the truth: the repo no longer represents reality, the next
 deploy silently overwrites the fix, and the next bug can't be reproduced.
 Verify artifacts (e.g. checksums) where justified.
 
-### 5. Nothing extra — one source for every behavior
+### 5. Nothing extra — 单一真源
 
 Purity means nothing duplicated. Reuse the helper, util, or pattern that
 already exists — stdlib, platform, installed dependency — before writing
@@ -91,9 +91,10 @@ understand is not purity, it's a second bug.
 Purity is not skimping: understanding the problem, input validation at
 trust boundaries, error handling that prevents data loss, security,
 accessibility are never cut. Non-trivial logic leaves one runnable
-self-check.
+mechanical verification — self-checks are a habit for humans, not a
+mechanism for AI (see Adversarial verification).
 
-### 6. Session cost — keep sessions lean
+### 6. Session cost — 会话成本
 
 A session that grows without bound is the same entropy as a file that grows
 without bound. Every new turn re-sends the full history, and the cost model
@@ -130,7 +131,7 @@ like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the 15-turn rule mechanically via a
 Claude Code `UserPromptSubmit` hook (see README).
 
-### 7. Before launch, everything is a first draft — no migrations, no legacy
+### 7. Before launch, everything is a first draft — 上线初稿
 
 Until production goes live, there is no installed base: the codebase is a
 first draft, and "because it used to be different" never applies. Change a
@@ -146,13 +147,18 @@ machinery. Writing them before launch is writing residue.
 The tell: any code, comment, or file that implies "previously",
 "legacy", "old", "compat", "backward", "_old"/"_new", or a migration
 step is a confession — in a pre-launch codebase it should not exist.
+Signal-word hits are a starting point, not a verdict: business fallback
+rules and docs that quote the signal words are noise — converge them by
+hand (see Adversarial verification).
 
 ## Adversarial verification — self-assessment is not evidence
 
-Self-checks fail by construction: the evaluator is the executor, so asking
-"is it pristine?" always leans yes (confirmation bias), and the trigger
-words never appear in the agent's head at the moment of patching. The
-mechanical answer is the companion script:
+Self-checks are a habit for humans, not a mechanism for AI. A model
+cannot police itself: the evaluator is the executor, so asking "is it
+pristine?" always leans yes (confirmation bias), and the trigger words
+never appear in its head at the moment of patching. AI relies on
+systems, not discipline — the mechanical answer is the companion
+script:
 
 ```
 node scripts/pristine-scan.js <target-dir>    # scans for residue signal words
