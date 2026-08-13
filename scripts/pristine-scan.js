@@ -13,6 +13,29 @@
  *
  * Exit code is always 0 — a reminder, not a gate (same as session-watch).
  *
+ * Dead-code detection:
+ *   Definition shapes are extracted per file (export function / ALL_CAPS
+ *   const / module.exports.name). A name that appears codebase-wide exactly
+ *   once — its own definition line — has zero callers and is reported as
+ *   dead code. This is the mechanical half of "收编必查调用": the moment a
+ *   definition stops being referenced, the scanner names it instead of
+ *   waiting for a human to ask.
+ *   Note: camelCase consts (e.g. `const foo = () =>`) are not extracted —
+ *   the scanner over-reports, never under-reports, but local setup-state
+ *   consts are deliberately out of scope.
+ *
+ * SOURCE annotations (single-source verification):
+ *   A true single source marks itself:  // SOURCE: name
+ *   The scanner collects every annotation and cross-checks two things:
+ *     - 死真源 (dead source): the name appears only once codebase-wide —
+ *       nobody uses it, so it is not a source of anything.
+ *     - 重复定义 (duplicate definitions): the name has definition shapes in
+ *       two or more files — the mark is on the name, but the truth has
+ *       copies (the machine read of a failed 收编).
+ *   The annotation makes "single source of truth" machine-checkable: the
+ *   source list grows out of the code, not out of a hand-maintained table
+ *   (a hand table drifts and becomes a fake source itself).
+ *
  * Usage:
  *   node pristine-scan.js [dir...]     scan targets (default: current dir)
  *   node pristine-scan.js --selftest   verify the rule table against probes
@@ -70,6 +93,12 @@ const RULES = [
 // 注释掉的可执行代码（仅代码文件，md/yaml 的 # 和 /* 是数据不是注释）
 const COMMENTED_CODE_RE = /^\s*(?:\/\/|#|\/\*|\*)\s*(?:const|let|var|function|async\s+function|class|def\s+|if\s*\(|for\s*\(|while\s*\(|return\s+|import\s+|export\s+|require\s*\(|=>)/
 
+// ===== 定义提取：只在定义形态上识别名字（调用点不算定义） =====
+const DEF_RE = /^(?:export\s+)?(?:async\s+)?(?:function\s+([A-Za-z_$][\w$]*)|const\s+([A-Z_][A-Z0-9_]*)\s*=)|^module\.exports\.([A-Za-z_$][\w$]*)\s*=/
+
+// ===== SOURCE 标注：真源用注释自证，机器核销调用点 =====
+const SOURCE_RE = /\/\/\s*SOURCE:\s*([A-Za-z_$][\w$]*)/
+
 const CODE_EXTS = new Set(['js', 'mjs', 'cjs', 'ts', 'tsx', 'jsx', 'py', 'rb', 'go', 'rs', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'php', 'swift', 'kt', 'sh', 'bash', 'zsh', 'sql', 'vue', 'svelte'])
 const TEXT_EXTS = new Set([...CODE_EXTS, 'md', 'markdown', 'txt', 'json', 'yaml', 'yml', 'toml', 'ini', 'css', 'scss', 'less', 'html', 'htm'])
 
@@ -78,7 +107,8 @@ const SKIP_FILE_RE = /(?:^|\/)(?:package-lock\.json|pnpm-lock\.yaml|yarn\.lock|C
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024
 
-function scanFile(file, hits) {
+// ===== 文件级收集：hits（关键词）+ defs（定义表）+ fileLines（供全库计数） =====
+function scanFile(file, hits, defs, fileLines) {
   const ext = path.extname(file).slice(1).toLowerCase()
   if (!TEXT_EXTS.has(ext) || SKIP_FILE_RE.test(file)) return
   let size
@@ -91,6 +121,7 @@ function scanFile(file, hits) {
 
   const rel = path.relative(process.cwd(), file).split(path.sep).join('/')
   const lines = fs.readFileSync(file, 'utf8').split('\n')
+  const defList = []
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
     for (const rule of RULES) {
@@ -101,21 +132,84 @@ function scanFile(file, hits) {
     if (CODE_EXTS.has(ext) && COMMENTED_CODE_RE.test(line)) {
       hits.push({ file: rel, line: i + 1, law: 'law 3', title: 'commented-out code', text: line.trim() })
     }
+    if (CODE_EXTS.has(ext)) {
+      const m = line.match(DEF_RE)
+      if (m) {
+        const name = m[1] || m[2] || m[3]
+        if (name) defList.push({ name, line: i + 1, text: line.trim() })
+      }
+      if (line.includes('SOURCE:')) {
+        const s = line.match(SOURCE_RE)
+        if (s) defList.push({ name: s[1], line: i + 1, text: line.trim(), isSource: true })
+      }
+    }
   }
+  if (defList.length) defs[rel] = defList
+  if (CODE_EXTS.has(ext)) fileLines[rel] = lines
 }
 
-function walk(dir, hits) {
+function walk(dir, hits, defs, fileLines) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (SKIP_DIR_RE.test('/' + entry.name + '/')) continue
-      walk(path.join(dir, entry.name), hits)
+      walk(path.join(dir, entry.name), hits, defs, fileLines)
     } else if (entry.isFile()) {
-      scanFile(path.join(dir, entry.name), hits)
+      scanFile(path.join(dir, entry.name), hits, defs, fileLines)
     }
   }
 }
 
-function report(hits, targets) {
+// ===== 全库出现次数：每个已知名字在全部代码行里数（含定义行自身） =====
+function nameOccurrences(fileLines, defs) {
+  const names = new Set()
+  for (const file of Object.keys(defs)) {
+    for (const d of defs[file]) names.add(d.name)
+  }
+  const count = new Map()
+  for (const lines of Object.values(fileLines)) {
+    for (const line of lines) {
+      for (const name of names) {
+        if (line.includes(name)) count.set(name, (count.get(name) || 0) + 1)
+      }
+    }
+  }
+  return { count, names }
+}
+
+// ===== 定义形态所在文件集合（≥2 文件 = 重复定义） =====
+function nameDefFiles(defs) {
+  const files = new Map()
+  for (const file of Object.keys(defs)) {
+    for (const d of defs[file]) {
+      if (!files.has(d.name)) files.set(d.name, new Set())
+      files.get(d.name).add(file)
+    }
+  }
+  return files
+}
+
+function defReport(defs, count, defFiles) {
+  const dead = []    // 全库只出现 1 次（定义行自己）——零调用
+  const sources = [] // 标注过的真源
+  for (const file of Object.keys(defs)) {
+    for (const d of defs[file]) {
+      const n = count.get(d.name) || 0
+      const nf = defFiles.get(d.name)?.size || 0
+      if (d.isSource) {
+        // 重复定义只对自证真源报：未标注的名字无法区分「镜像」与「漏收编」——它是真源，
+        // 就有核销义务；它不是真源，就无收编义务
+        if (nf >= 2) dead.push({ file, line: d.line, name: d.name, text: d.text, kind: `重复定义（${nf} 个文件都有定义形态）` })
+        if (n <= 1) dead.push({ file, line: d.line, name: d.name, text: d.text, kind: '死真源（标注但零调用）' })
+        else sources.push({ file, line: d.line, name: d.name, text: d.text, kind: '真源（有调用）' })
+      } else if (n <= 1) {
+        dead.push({ file, line: d.line, name: d.name, text: d.text, kind: '死代码（定义零调用）' })
+      }
+    }
+  }
+  return { dead, sources }
+}
+
+function report(hits, defs, fileLines, targets) {
   console.log('pristine-scan — adversarial residue scan')
   console.log(`targets: ${targets.join(', ')}`)
   for (const rule of RULES) {
@@ -128,7 +222,31 @@ function report(hits, targets) {
       console.log(`   ${h.file}:${h.line}  ${t}`)
     }
   }
-  console.log(`\n${hits.length} hits — 以输出为准，不以自评为准；宁可多报，人工收敛误报。`)
+
+  const { count, names } = nameOccurrences(fileLines, defs)
+  const defFiles = nameDefFiles(defs)
+  const { dead, sources } = defReport(defs, count, defFiles)
+
+  const dups = dead.filter(d => d.kind.startsWith('重复'))
+  const noCall = dead.filter(d => !d.kind.startsWith('重复'))
+
+  console.log(`\n── law 3 · dead definitions（${noCall.length}）`)
+  for (const d of noCall) {
+    console.log(`   ${d.file}:${d.line}  ${d.kind}: ${d.name}`)
+  }
+  console.log(`\n── SOURCE annotations · duplicate definitions（${dups.length}）`)
+  for (const d of dups) {
+    console.log(`   ${d.file}:${d.line}  ${d.kind}: ${d.name}`)
+  }
+
+  console.log(`\n── SOURCE annotations · single-source verify（${sources.length}）`)
+  if (sources.length === 0) {
+    console.log('   无标注 — 真源清单 = 空，代码里没有自证的真源')
+  } else {
+    for (const s of sources) console.log(`   ${s.file}:${s.line}  ${s.kind}: ${s.name}`)
+  }
+
+  console.log(`\n${hits.length + noCall.length + dups.length} hits — 以输出为准，不以自评为准；宁可多报，人工收敛误报。`)
 }
 
 // ===== self-test：规则表自身也不自评，用正反探针验证 =====
@@ -138,6 +256,13 @@ const SELFTEST = [
   { law: 'law 3', pos: ['backup file', 'dead code', 'deprecated api', '备份文件', '废弃字段', '不再使用'], neg: ['keep history in git'] },
   { law: 'law 2', pos: ['note: this is fragile'], neg: ['notes are stored in the table'] },
 ]
+
+function testDef(line, expect) {
+  const m = line.match(DEF_RE)
+  const got = !!(m && (m[1] || m[2] || m[3]))
+  if (got !== expect) console.log(`FAIL  def ${expect ? 'pos' : 'neg'}: ${line}`)
+  return got !== expect
+}
 
 function selftest() {
   let fail = 0
@@ -156,6 +281,17 @@ function selftest() {
   for (const s of ['// 注释说明', 'const x = 1', '/* 普通注释 */', '# 普通注释']) {
     if (COMMENTED_CODE_RE.test(s)) { console.log(`FAIL  commented-code neg: ${s}`); fail++ }
   }
+  // 定义提取：正反探针
+  for (const s of ['export function roleLabel(role) {', 'function isValidPhone(phone) {', 'export const ROLE_LABELS = {', 'const STAGE_REQUIREMENTS = {', 'module.exports.PERMISSION_LABELS = PERMISSION_LABELS']) {
+    if (testDef(s, true)) fail++
+  }
+  for (const s of ['roleLabel(role)', 'const x = ROLE_LABELS', 'return STAGE_REQUIREMENTS', '// 注释里的 function foo() {']) {
+    if (testDef(s, false)) fail++
+  }
+  // SOURCE 标注
+  for (const s of ['// SOURCE: roleLabel', '  // SOURCE: PERMISSION_LABELS']) {
+    if (!SOURCE_RE.test(s)) { console.log(`FAIL  source pos: ${s}`); fail++ }
+  }
   console.log(fail ? `selftest: ${fail} failure(s)` : 'selftest: all rules pass')
   process.exit(fail ? 1 : 0)
 }
@@ -167,15 +303,17 @@ const targets = args.filter(a => !a.startsWith('-'))
 if (targets.length === 0) targets.push('.')
 
 const hits = []
+const defs = {}
+const fileLines = {}
 for (const t of targets) {
   if (!fs.existsSync(t)) {
     console.error(`pristine-scan: target not found: ${t}`)
     continue
   }
   const st = fs.statSync(t)
-  if (st.isFile()) scanFile(t, hits)
-  else walk(t, hits)
+  if (st.isFile()) scanFile(t, hits, defs, fileLines)
+  else walk(t, hits, defs, fileLines)
 }
 
 hits.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)
-report(hits, targets)
+report(hits, defs, fileLines, targets)

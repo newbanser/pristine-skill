@@ -171,6 +171,34 @@ documentation that quotes the signal words are noise; code that carries an
 old shape forward, compatibility layers, dead branches, and commented-out
 code are real. A clean scan is the claim, the scan is the evidence.
 
+### Dead-code and source verification
+
+Beyond signal words, the scan extracts definitions and verifies them
+mechanically:
+
+- **Dead code** — a defined name that appears codebase-wide exactly once (its
+  own definition line) has zero callers. The moment a definition stops being
+  referenced, the scanner names it instead of waiting for a human to ask.
+- **Source annotations** — a true single source marks itself with a comment:
+  `// SOURCE: name`. The scanner collects every annotation and verifies it:
+  - `真源（有调用）` — healthy, referenced somewhere
+  - `死真源（标注但零调用）` — nothing uses it; it is not a source of anything
+  - `重复定义（N 个文件都有定义形态）` — the truth has copies
+
+Consolidating scattered copies into a single source is three moves, not one:
+
+1. **Create the source** — one definition, marked `// SOURCE: name`
+2. **Delete every duplicate** — grep the old copies and remove them all
+3. **Verify the call sites** — every caller resolves to the new source
+
+Done means provable, not intended: a `死代码` hit for the old name or a
+`重复定义` hit on the annotation means the consolidation is incomplete. The
+source list grows out of the code, not out of a hand-maintained table (a
+hand table drifts out of sync and becomes a fake source itself). Two
+consequences: consolidating requires annotating (an unmarked source is
+invisible to the scan), and only full-codebase scans are scans (dead-code
+counts are global; partial scans over-report).
+
 ## Why it matters for AI-assisted development
 
 Code is rewritten often, but **docs and memory are the only bridge across
