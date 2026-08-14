@@ -38,6 +38,7 @@
  *
  * Usage:
  *   node pristine-scan.js [dir...]     scan targets (default: current dir)
+ *   node pristine-scan.js --map[=path] also write a source map (markdown)
  *   node pristine-scan.js --selftest   verify the rule table against probes
  */
 const fs = require('fs')
@@ -299,6 +300,15 @@ function selftest() {
 const args = process.argv.slice(2)
 if (args.includes('--selftest')) selftest()
 
+// ===== --map[=path]：导出真源地图（markdown）——地图是索引不是领土 =====
+const mapIdx = args.findIndex(a => a.startsWith('--map'))
+let mapFile = null
+if (mapIdx >= 0) {
+  const raw = args[mapIdx].split('=')
+  mapFile = raw[1] || 'SOURCE_MAP.md'
+  args.splice(mapIdx, 1)
+}
+
 const targets = args.filter(a => !a.startsWith('-'))
 if (targets.length === 0) targets.push('.')
 
@@ -317,3 +327,35 @@ for (const t of targets) {
 
 hits.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)
 report(hits, defs, fileLines, targets)
+
+if (mapFile) {
+  const { count, names } = nameOccurrences(fileLines, defs)
+  const defFiles = nameDefFiles(defs)
+  const { dead, sources } = defReport(defs, count, defFiles)
+  const dups = dead.filter(d => d.kind.startsWith('重复'))
+  const noCall = dead.filter(d => !d.kind.startsWith('重复'))
+
+  const lines = []
+  lines.push('# 真源地图（SOURCE MAP）')
+  lines.push('')
+  lines.push('> 由 `pristine-scan.js --map` 从代码自动生成 —— 地图是索引不是领土，')
+  lines.push('> 只指向规则在哪、如何访问，从不复制规则本体。生成后不要手改。')
+  lines.push('')
+  lines.push(`生成目标：\`${targets.join('`, `')}\``)
+  lines.push('')
+  lines.push('## 真源（有调用）')
+  lines.push('')
+  if (sources.length === 0) lines.push('_无_')
+  else for (const s of sources) lines.push(`- \`${s.name}\` — ${s.file}:${s.line}`)
+  lines.push('')
+  lines.push('## 死真源 / 重复定义（需处理）')
+  lines.push('')
+  if (noCall.length === 0 && dups.length === 0) lines.push('_无_')
+  else {
+    for (const d of noCall) lines.push(`- ⚠️ ${d.kind}: \`${d.name}\` — ${d.file}:${d.line}`)
+    for (const d of dups) lines.push(`- ⚠️ ${d.kind}: \`${d.name}\` — ${d.file}:${d.line}`)
+  }
+  lines.push('')
+  fs.writeFileSync(mapFile, lines.join('\n'), 'utf8')
+  console.log(`\n真源地图已写入 ${mapFile}`)
+}

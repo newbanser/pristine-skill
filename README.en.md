@@ -11,7 +11,7 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.3.0**
+**Current version: v1.6.0**
 
 ## What you need to know
 

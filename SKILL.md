@@ -30,6 +30,18 @@ A governing philosophy for code, docs, and agent memory. It applies to
 everything you touch: code, docs (CLAUDE.md/AGENTS.md, README, docs/),
 memory files, and deployments.
 
+### Relationship to domain skills
+
+Pristine is a meta-law: it governs *how any change lands*, in any domain.
+Domain skills (a knowledge system, a writing practice, a specific
+codebase's rules) govern *what* is produced within their domain. Every
+domain skill's output is still a change, so it still lands under these
+seven laws — a domain skill may say "write the dictionary this way", it
+may not say "leave this draft in place" or "append an as-of note". The
+domain layer adds, the meta layer constrains. Domain skills do not need
+to be public projects to benefit; the hierarchy is about discipline, not
+distribution.
+
 ## The seven laws
 
 ### 1. No patching — 追溯根源
@@ -170,6 +182,71 @@ converge false positives by hand: business fallback rules, test seeds, and
 documentation that quotes the signal words are noise; code that carries an
 old shape forward, compatibility layers, dead branches, and commented-out
 code are real. A clean scan is the claim, the scan is the evidence.
+
+### Memory drift — memory files rot the same way code does
+
+Memory files are the bridge across sessions: the next agent reads whole
+files, not diffs, so a stale entry is a false premise for a whole session.
+Memory rots silently — file paths move or get deleted, counts change
+(7 permissions become 9), old names linger.
+
+The companion script makes the rot mechanical to find:
+
+```
+node scripts/memory-scan.js <memory-dir> <repo-dir>   # memory ↔ code drift
+node scripts/memory-scan.js --selftest                # verify the rule table
+```
+
+What it checks:
+
+- **断链 (dead reference)** — a memory file cites a code file path that
+  does not exist (or is now a symlink). Reference rot is structured — a
+  path either exists or it does not — so a machine beats self-report.
+- **已删声称 (deleted claim)** — a memory file says a file "was deleted"
+  but the file is back on disk.
+- **漂移 (drift)** — numeric claims ("7 项权限") need human verification
+  against code. Auto-verification would need a mapping table, and a
+  hand-maintained table drifts into a fake source itself — so the scan
+  reminds, the human checks.
+
+Memory hygiene follows the same discipline as code: edits land as if for
+the first time. Deleting a file means also checking the memory entries
+that reference it — the scanner names the ones you missed. A clean scan
+is the claim; the scan is the evidence. Run it after any memory edit that
+touches file paths, counts, or "was deleted" claims.
+
+### Map index — the map is not the territory
+
+"Code is the single source of truth" has a practical problem: nobody can
+hold the whole codebase in their head. The answer is not more documents —
+a document that restates a rule is a duplicate source that will drift.
+The answer is an index: a map that points to where rules live and how to
+reach them, without ever containing the rule itself. A map can be
+arbitrarily fine-grained and never becomes a second source of truth,
+because it holds no content — only coordinates.
+
+The map grows out of the code, not out of a hand-maintained table (a
+hand table drifts and becomes a fake source itself). Three layers, each
+with its own consumer:
+
+- **机器层 (machine)** — `// SOURCE: name` annotations + the scanner's
+  dead/duplicate verification. The source list is whatever the scan finds.
+- **人类层 (human)** — an in-app docs page driven by an API that returns
+  the rules themselves (e.g. `/api/meta/rules`); the page renders what the
+  backend serves, never a hardcoded copy.
+- **AI 层 (agent)** — memory entries point to files and values, they do
+  not restate them; a memory that quotes a count or a path is a frozen
+  moment that will rot.
+
+The machine map is generated, not written:
+
+```
+node scripts/pristine-scan.js --map[=path] <target-dir>   # write SOURCE_MAP.md
+```
+
+The generated map lists every `// SOURCE:` annotation as healthy, dead,
+or duplicated. A clean map is the claim, the map is the evidence — run it
+after consolidating sources, deleting files, or moving rules.
 
 ### Dead-code and source verification
 

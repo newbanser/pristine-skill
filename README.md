@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.4.0**
+**当前版本：v1.6.0**
 
 ## 你需要知道
 
@@ -84,6 +84,17 @@ node scripts/pristine-scan.js --selftest     # 自检规则表本身
 宁可多报，人工收敛误报（业务兜底规则、引用信号词的文档都是噪音）。退出码永远是 0 —— 提醒，不是闸门。
 
 **给使用者的建议：自检是人类的习惯，不是 AI 的机制。** 让 AI 守住纯净，靠的不是自律而是系统 —— 把扫描挂进你的 CI 或提交前钩子。
+
+## 记忆漂移扫描（配套）
+
+[`scripts/memory-scan.js`](scripts/memory-scan.js) 把记忆文件当作代码一样扫描：记忆是跨会话唯一的桥，一个过期条目会让下一个 Agent 基于错误前提做决定。它检查三类腐化 —— **断链**（记忆引用的代码文件已不存在）、**已删声称**（记忆说文件已删但还在盘上）、**漂移**（数字声称如「7 项权限」，需人工对代码核销）。
+
+```bash
+node scripts/memory-scan.js <memory-dir> <repo-dir>   # 记忆 ↔ 代码漂移
+node scripts/memory-scan.js --selftest                # 自检规则表本身
+```
+
+删除文件、改路径、数字变化后跑一次；历史说明语境（「已实现并删除」）人工收敛为误报。退出码永远是 0 —— 提醒，不是闸门。
 
 ## 示例
 
