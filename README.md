@@ -63,11 +63,11 @@ cp SKILL.md .opencode/skills/pristine/
 
 ## 会话监视（可选配套）
 
-[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：数当前会话的真实用户轮次，超过阈值就打印提醒。它不能直接测上下文水位（hook 拿不到），所以阈值是水位的代理；配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
+[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：**测真实上下文水位**——从会话记录的 `usage` token 算出最近一次 API 调用的真实上下文大小（缓存读 + 输入 + 输出），超过阈值（默认 70% 窗口）就打印提醒。不数轮次（轮次是粗代理，早就弃了）。配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
 
 ```json
 "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
-  "command": "node /path/to/scripts/session-watch.js --threshold 15 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
+  "command": "node /path/to/scripts/session-watch.js --threshold 70 --max 200000 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
 ```
 
 脚本从 hook 的 stdin 读会话记录路径 —— 不自己发现会话、没有硬编码路径、退出码永远是 0（是提醒，不是闸门）。

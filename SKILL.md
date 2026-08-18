@@ -153,8 +153,10 @@ costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
 like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the hygiene mechanically via a
-Claude Code `UserPromptSubmit` hook, and now *writes and reads the
-checkpoint* so a reset is lossless (see README).
+Claude Code `UserPromptSubmit` hook — it measures the *real water level*
+from the transcript's usage tokens (the exact context size of the latest
+API call), no turn counting, and *writes and reads the checkpoint* so a
+reset is lossless (see README).
 
 #### Checkpoints — 检查点（2026-08-18 升级）
 
