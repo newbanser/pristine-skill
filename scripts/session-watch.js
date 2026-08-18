@@ -2,15 +2,26 @@
 /**
  * session-watch — companion script for the pristine skill.
  *
- * Measures the REAL context water level and prints a reminder when it
- * crosses the threshold — no more turn counting.
+ * Measures the REAL context water level AND the water meter, and prints
+ * a reminder when the level crosses the threshold — no turn counting.
  *
- * How water level is measured: the last assistant message in the session
- * transcript carries a `usage` block with the exact token counts of the
- * most recent API call. `cache_read_input_tokens + input_tokens +
- * cache_creation_input_tokens + output_tokens` = the full context the
- * model is actually reading on the next turn. That number is the water
- * level. Turn count was only ever a proxy for it — the proxy is gone.
+ * Two gauges (2026-08-18, 's water-meter framing):
+ *
+ *   WATER LEVEL  — how full the pool is. The last assistant message in the
+ *   transcript carries a `usage` block with the exact token counts of the
+ *   most recent API call: `cache_read_input_tokens + input_tokens +
+ *   cache_creation_input_tokens + output_tokens` = the full context the
+ *   model is actually reading on the next turn. This is the pool's current
+ *   fill level — the signal for "close the valve and switch pools" (reset).
+ *
+ *   WATER METER  — how much water this pool has consumed. The transcript
+ *   is a redundant store (every message re-embeds the full context), so
+ *   file size is NOT consumption. True usage accumulates only the
+ *   per-message deltas: `output_tokens` (what the model actually generated
+ *   this turn) + `cache_creation_input_tokens` (first-time writes). Reading
+ *   from cache is nearly free, so it is deliberately not counted — metering
+ *   it would double-count the same water over and over. The meter tells
+ *   whether the pool's useful life was earned (heavy task ≈ spent budget).
  *
  * With --checkpoint <path>, the reminder also tells the agent to write
  * the checkpoint before resetting, and a checkpoint already on disk
@@ -46,6 +57,7 @@ if (!transcriptPath || !fs.existsSync(transcriptPath)) process.exit(0)
 
 let turns = 0
 let lastTokens = 0
+let usedTokens = 0
 let pct = 0
 try {
   for (const line of fs.readFileSync(transcriptPath, 'utf8').split('\n')) {
@@ -66,6 +78,8 @@ try {
           (usage.cache_creation_input_tokens || 0) +
           (usage.cache_read_input_tokens || 0) +
           (usage.output_tokens || 0)
+        // 水表：逐条累计真实增量（输出 + 首次写入；缓存读≈免费不计，避免同一池水反复计量）
+        usedTokens += (usage.output_tokens || 0) + (usage.cache_creation_input_tokens || 0)
       }
     } catch {}
   }
@@ -86,11 +100,13 @@ if (CHECKPOINT && turns === 1 && fs.existsSync(CHECKPOINT)) {
 
 if (pct >= THRESHOLD) {
   let msg =
-    `Context water level ${pct.toFixed(0)}% (${Math.round(lastTokens / 1000)}k of ${Math.round(MAX / 1000)}k) ` +
-    `— above threshold ${THRESHOLD}%. History is snowballing: write the checkpoint and ` +
+    `池水 ${pct.toFixed(0)}%（${Math.round(lastTokens / 1000)}k / ${Math.round(MAX / 1000)}k）` +
+    `— 超阈值 ${THRESHOLD}%；水表 ${Math.round(usedTokens / 1000)}k（约 ${(usedTokens / MAX).toFixed(1)} 池）` +
+    '. History is snowballing: write the checkpoint and ' +
     'start a fresh session (/clear) to keep context lean and cost flat.'
   if (CHECKPOINT) {
     msg += ` Write it at ${CHECKPOINT}: current task / progress / next step / open questions — then /clear, and the next session resumes from disk.`
   }
   console.log(msg)
 }
+

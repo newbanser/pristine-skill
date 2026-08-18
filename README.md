@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.7.0**
+**当前版本：v1.7.2**
 
 ## 你需要知道
 
@@ -31,7 +31,7 @@ Pristine 是反向的力：每一次改动都像第一次写出来，让系统�
 | **不留残渣**（No residue） | 没有备份、草稿、死代码、中间状态。被取代的规则就地更新，绝不追加"截至……"的说明。 |
 | **部署如一**（Deployment parity） | 线上跑的就是本地审过的。没有只在线上做的快速修复 —— 仓库必须始终代表现实。 |
 | **单一真源**（Nothing extra） | 每个行为只有一个来源：先复用已有的，不需要存在的就不写。非平凡逻辑留一个可运行的机械验证 —— 自检是人类的习惯，不是 AI 的机制。 |
-| **会话成本**（Session cost） | 无限增长的会话和无限增长的文件是同一种熵。轮次不是成本代理——以**上下文水位**为准（70–80% 触发重置），重置前先写**检查点**（checkpoint），状态在磁盘不在对话里。 |
+| **会话成本**（Session cost） | 无限增长的会话和无限增长的文件是同一种熵。轮次不是成本代理——以**上下文水位**为准（70–80% 触发重置），**双表计量**（v1.7.2）：水位表看池子剩多少、水表看这池用了多少（`output + cache_creation` 增量累计），重置前先写**检查点**（checkpoint），状态在磁盘不在对话里。 |
 | **上线初稿**（First draft before launch） | 上线前没有存量用户：改定义，不改兼容。没有迁移、没有 `ALTER TABLE`、没有兼容层 —— 只为了承载旧形态的代码，一律删掉。 |
 
 ## 安装
@@ -63,7 +63,7 @@ cp SKILL.md .opencode/skills/pristine/
 
 ## 会话监视（可选配套）
 
-[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：**测真实上下文水位**——从会话记录的 `usage` token 算出最近一次 API 调用的真实上下文大小（缓存读 + 输入 + 输出），超过阈值（默认 70% 窗口）就打印提醒。不数轮次（轮次是粗代理，早就弃了）。配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
+[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：**双表计量（v1.7.2）**——**水位表**：从会话记录的 `usage` token 算出最近一次 API 调用的真实上下文大小（缓存读 + 输入 + 输出），即「池子还剩多少水」，超过阈值（默认 70% 窗口）就打印提醒；**水表**：逐条累计真实增量（`output_tokens + cache_creation_input_tokens`，缓存读≈免费不计，避免同一池水反复计量），即「这池水用了多少」，换算成池数（如「水表 714k（约 3.6 池）」）判断这池水是否值回票价。不数轮次（轮次是粗代理，早就弃了）。配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
 
 ```json
 "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",

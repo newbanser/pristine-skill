@@ -123,6 +123,20 @@ held, decisions re-explained) approaches 70–80% of capacity, the session
 has hit its useful life — the next turns run on stale or truncated
 context, re-paying for facts already evicted.
 
+**Two gauges: the water level and the water meter** (2026-08-18, 's
+framing). The level is how full the pool is — the exact context size of
+the latest API call (`cache_read + input + cache_creation + output`),
+read from the transcript's `usage` block. That number says *when* to
+close the valve and switch pools (/clear). The meter is how much water
+the pool has consumed — the sum of per-message deltas (`output_tokens` +
+`cache_creation_input_tokens`), because the transcript re-embeds the full
+context on every message and file size is not consumption. Cache reads
+are nearly free and deliberately not metered — they would double-count
+the same water over and over. The meter says *whether* the pool earned
+its life: a heavy task at 1.5 pools is normal; a light chat at 4 pools
+is a habit that leaks budget. Both numbers print in the same reminder:
+「池水 71%（143k / 200k）— 超阈值 70%；水表 714k（约 3.6 池）」.
+
 #### The laws of session hygiene
 
 1. **One task per session.** When a task is done, start fresh. Do not let a
@@ -155,8 +169,9 @@ like any other residue — cut it at the root. The companion script
 `scripts/session-watch.js` enforces the hygiene mechanically via a
 Claude Code `UserPromptSubmit` hook — it measures the *real water level*
 from the transcript's usage tokens (the exact context size of the latest
-API call), no turn counting, and *writes and reads the checkpoint* so a
-reset is lossless (see README).
+API call) plus the *water meter* (accumulated `output + cache_creation`
+deltas ≈ pool count), no turn counting, and *writes and reads the
+checkpoint* so a reset is lossless (see README).
 
 #### Checkpoints — 检查点（2026-08-18 升级）
 
