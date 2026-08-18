@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.6.0**
+**当前版本：v1.7.0**
 
 ## 你需要知道
 
@@ -31,7 +31,7 @@ Pristine 是反向的力：每一次改动都像第一次写出来，让系统�
 | **不留残渣**（No residue） | 没有备份、草稿、死代码、中间状态。被取代的规则就地更新，绝不追加"截至……"的说明。 |
 | **部署如一**（Deployment parity） | 线上跑的就是本地审过的。没有只在线上做的快速修复 —— 仓库必须始终代表现实。 |
 | **单一真源**（Nothing extra） | 每个行为只有一个来源：先复用已有的，不需要存在的就不写。非平凡逻辑留一个可运行的机械验证 —— 自检是人类的习惯，不是 AI 的机制。 |
-| **会话成本**（Session cost） | 无限增长的会话和无限增长的文件是同一种熵。约 15 轮时，主动提议重置。 |
+| **会话成本**（Session cost） | 无限增长的会话和无限增长的文件是同一种熵。轮次不是成本代理——以**上下文水位**为准（70–80% 触发重置），重置前先写**检查点**（checkpoint），状态在磁盘不在对话里。 |
 | **上线初稿**（First draft before launch） | 上线前没有存量用户：改定义，不改兼容。没有迁移、没有 `ALTER TABLE`、没有兼容层 —— 只为了承载旧形态的代码，一律删掉。 |
 
 ## 安装
@@ -63,14 +63,16 @@ cp SKILL.md .opencode/skills/pristine/
 
 ## 会话监视（可选配套）
 
-[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行 15 轮规则：数当前会话的真实用户轮次，超过阈值就打印提醒。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
+[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：数当前会话的真实用户轮次，超过阈值就打印提醒。它不能直接测上下文水位（hook 拿不到），所以阈值是水位的代理；配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
 
 ```json
 "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
-  "command": "node /path/to/scripts/session-watch.js --threshold 15" } ] } ] }
+  "command": "node /path/to/scripts/session-watch.js --threshold 15 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
 ```
 
 脚本从 hook 的 stdin 读会话记录路径 —— 不自己发现会话、没有硬编码路径、退出码永远是 0（是提醒，不是闸门）。
+
+检查点文件（默认 `<项目根>/.claude/checkpoint.md`）只写四行：当前任务 / 进度 / 下一步 / 未定事项。就地覆盖，不追加历史 —— 它是工作台面不是日志；耐久的东西（决策、规则、新约定）在检查点被覆盖前迁移到它的真正归宿（记忆 / 文档 / 代码）。
 
 ## Pristine 扫描（配套）
 

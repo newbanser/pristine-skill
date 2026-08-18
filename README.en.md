@@ -11,7 +11,7 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.6.0**
+**Current version: v1.7.0**
 
 ## What you need to know
 
@@ -38,7 +38,7 @@ keeps the system evolving toward clarity instead of entropy.
 | **No residue — 不留残渣** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes. |
 | **Deployment parity — 部署如一** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes — the repo must keep representing reality. |
 | **Nothing extra — 单一真源** | One source for every behavior: reuse what exists, skip what doesn't need to exist. Non-trivial logic leaves one runnable mechanical verification — self-checks are a habit for humans, not a mechanism for AI. |
-| **Session cost — 会话成本** | A session that grows without bound is the same entropy as a file that grows without bound. Around 15 turns, propose a reset. |
+| **Session cost — 会话成本** | A session that grows without bound is the same entropy as a file that grows without bound. Turns are not the cost proxy — reset on **context water level** (70–80%), and write a **checkpoint** before every reset: state belongs on disk, not in the conversation. |
 | **First draft before launch — 上线初稿** | Until production goes live there is no installed base: change the definition, not the compat. No migrations, no `ALTER TABLE` steps, no compatibility layers — delete anything that exists only to carry an old shape forward. |
 
 ## Install
@@ -75,20 +75,31 @@ invoke it by name:
 
 ## Session watch (optional companion)
 
-[`scripts/session-watch.js`](scripts/session-watch.js) enforces the 15-turn
-rule mechanically: it counts real user turns in the current session and
-prints a reminder when the threshold is crossed. Wire it as a Claude Code
-`UserPromptSubmit` hook (fires on every user message; a `Stop` hook also
-works):
+[`scripts/session-watch.js`](scripts/session-watch.js) enforces the
+session-cost law mechanically: it counts real user turns in the current
+session and prints a reminder when the threshold is crossed. The hook
+cannot measure context water level directly, so the turn threshold stands
+in for it; with `--checkpoint <path>`, the reminder also tells the agent
+to write the checkpoint before resetting, and a checkpoint left on disk by
+a previous session prints a restore instruction at the start of the next
+one. Wire it as a Claude Code `UserPromptSubmit` hook (fires on every user
+message; a `Stop` hook also works):
 
 ```json
 "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
-  "command": "node /path/to/scripts/session-watch.js --threshold 15" } ] } ] }
+  "command": "node /path/to/scripts/session-watch.js --threshold 15 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
 ```
 
 The script reads the session transcript path from the hook's stdin — no
 session discovery, no hardcoded paths, exit code always 0 (a reminder, not
 a gate).
+
+The checkpoint file (default `<project root>/.claude/checkpoint.md`)
+holds exactly four lines: current task / progress / next step / open
+questions. Overwritten in place, never appended — it is a working surface,
+not a log; anything durable that surfaces in it (a decision, a rule, a new
+convention) is moved to its real home (memory / docs / code) before the
+checkpoint is overwritten.
 
 ## Pristine scan (companion)
 

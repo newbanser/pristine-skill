@@ -14,7 +14,7 @@ description: >
   Also triggers on doc/memory edits that append workarounds, narratives, or
   stale notes instead of rewriting the root source. Also triggers when a
   session is getting long and its context is drifting — see the session-cost
-  section for the 15-turn rule. Works alongside the codebase's other
+  section for the water-level rule and checkpoints. Works alongside the codebase's other
   engineering rules; this one governs how any change lands.
   Cross-platform: Claude Code, OpenAI Codex, OpenCode, OpenClaw.
 ---
@@ -114,34 +114,69 @@ is harsh: history is charged at full price on the first mention, then only
 at cache-read rates on later turns — so each added turn costs roughly the
 new tokens at full price plus the accumulated history at a fraction.
 
-Measured on real workloads, the per-turn cost curve has a clear sweet spot:
-short sessions never build a useful cache; long sessions pay to re-ship
-thousands of tokens that the model has already seen. Around **15 turns per
-session**, cache is saturated and marginal cost is near its floor — beyond
-that, every extra turn buys less and less.
+**Turns are not the cost proxy.** A turn is a coarse unit: a one-line
+confirmation may cost a few hundred tokens, a ten-file refactor may cost
+tens of thousands. Counting turns can never time the reset well — it fires
+too early on light turns, too late on heavy ones. The trigger that matters
+is *context water level*: when the working context (files read, diffs
+held, decisions re-explained) approaches 70–80% of capacity, the session
+has hit its useful life — the next turns run on stale or truncated
+context, re-paying for facts already evicted.
 
 #### The laws of session hygiene
 
 1. **One task per session.** When a task is done, start fresh. Do not let a
    session accumulate unrelated turns.
-2. **Around 15 turns, propose a reset.** When a session approaches its
-   sweet spot and the task still needs more work, say so: "this session is
-   getting long — /clear and continue, the context will be leaner and
-   cheaper." Do not silently keep going.
-3. **Cost belongs to the habit, not the tool.** The per-turn cost of
+2. **Reset on water level, not turn count.** The old 15-turn rule was a
+   proxy for water level; the water level is the real signal. When a task
+   completes or the context is heavy (large files held, long chains of
+   edits), propose the reset: "this session is getting long — write the
+   checkpoint and /clear." Do not silently keep going.
+3. **Checkpoint before every reset — never clear with nothing written.**
+   A fresh session is not a lost session only if the bridge exists. Before
+   resetting, write a checkpoint (see §Checkpoints below) so the next
+   session resumes from disk, not from memory. **Memory is the bridge
+   across sessions** — the checkpoint is its temporary extension for
+   in-flight work: same principle, narrower scope.
+4. **Cost belongs to the habit, not the tool.** The per-turn cost of
    carrying history is identical across tools — an editor that keeps one
    long-lived chat panel invites drift; a context-switched one fragments
    naturally. Choose the workflow, not the vendor.
-4. **A fresh session is not a lost session.** Persist conclusions in
-   notes/docs before resetting — memory is the bridge across sessions, same
-   as law 3 says for files.
+5. **Do not restart mid-task out of thrift.** A reset is a trade, not a
+   dogma: a checkpoint costs a few dozen tokens to write and read, but
+   restarting *inside* a task pays it back in re-reads and re-explaining.
+   Finish the task, then reset. Reset is for task boundaries, not for
+   saving a few thousand tokens on a task that is already half done.
 
 These are not pricing trivia: a session that runs to hundreds of turns
 costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
 like any other residue — cut it at the root. The companion script
-`scripts/session-watch.js` enforces the 15-turn rule mechanically via a
-Claude Code `UserPromptSubmit` hook (see README).
+`scripts/session-watch.js` enforces the hygiene mechanically via a
+Claude Code `UserPromptSubmit` hook, and now *writes and reads the
+checkpoint* so a reset is lossless (see README).
+
+#### Checkpoints — 检查点（2026-08-18 升级）
+
+State belongs on disk, not in the conversation. A checkpoint is the
+in-flight twin of a memory file: memory holds durable rules and
+processes; the checkpoint holds *where a task was when the session ended*.
+Written in 3–5 lines, it is the cheapest insurance against a reset.
+
+- **File** — `<vault>/.claude/checkpoint.md` (or project root `.claude/checkpoint.md` outside a vault). One file, overwritten in place — never append history to it (law 3: no residue; the file is a surface, not a log).
+- **Contents** — exactly four items, nothing more:
+  1. 当前任务 — the task, one line
+  2. 进度 — what is done (files changed, decisions landed)
+  3. 下一步 — the very next step, concrete enough to resume without the session
+  4. 未定事项 — open questions / pending decisions that will block the next session
+- **When** — before every reset, and at any natural task boundary when the session is heavy. A checkpoint with "no open tasks" says exactly that.
+- **Consumed** — the next session reads it at start (the hook prints a reminder when a checkpoint exists), does the next step, then deletes or overwrites it — done is done, no carry-over residue.
+- **Hook** — `session-watch.js --checkpoint <path>` also prints the checkpoint reminder on threshold; the restore instruction lives in the reminder itself.
+
+The checkpoint file is a working surface, not a source of truth: anything
+durable that surfaces in it (a decision, a rule, a new convention) is
+moved to its real home (memory / docs / code) before the checkpoint is
+overwritten. Truth migrates up; the checkpoint only holds the tail.
 
 ### 7. Before launch, everything is a first draft — 上线初稿
 
