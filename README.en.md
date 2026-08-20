@@ -11,7 +11,7 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.7.5**
+**Current version: v1.7.6**
 
 ## Update principle (2026-08-20, )
 
@@ -31,6 +31,14 @@ update must:
 3. **Cross-check** — after editing, verify the key parameters (version,
    thresholds, commands) match across all three files, and no old logic
    lingers.
+4. **Release notes are for users** (2026-08-20, ) — version notes
+   and commit messages say **what this update solves for the user**.
+   Pristine is an open-source project: the reader is a stranger on
+   GitHub, not the maintainer. Write "optimized the two-gauge metering —
+   token costs drop sharply" (user value: savings), not "cleared the
+   zh/en debt" (internal housekeeping). The mechanics live in the code
+   and the body text; a release note is for users, not an engineering
+   ledger.
 
 It works both ways: a change to the README requires SKILL.md to follow,
 and a change to SKILL.md requires the READMEs to follow.
