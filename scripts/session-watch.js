@@ -29,11 +29,12 @@
  *   next prompt's context, the model relays it. Missable if the model is
  *   deep in a task or the session compacts right after.
  *
- *   BLOCK (default 90%) — hard reminder: prints a user-facing message in
+ *   BLOCK (default 80%) — hard reminder: prints a user-facing message in
  *   Chinese and exits 1, which ABORTS the user's prompt in Claude Code —
  *   the message is shown to the user directly and the prompt won't run
- *   until they act (/clear). This is the guaranteed channel: at 90% the
- *   pool is about to compact anyway, so blocking is protective, not rude.
+ *   until they act (/clear). This is the guaranteed channel: at 80% the
+ *   pool is still far enough from the platform's own compaction (observed
+ *   at 83-84%) that the block beats it — blocking is protective, not rude.
  *
  * With --checkpoint <path>, the reminder also tells the agent to write
  * the checkpoint before resetting, and a checkpoint already on disk

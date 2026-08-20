@@ -124,7 +124,7 @@ has hit its useful life — the next turns run on stale or truncated
 context, re-paying for facts already evicted.
 
 **Two gauges: the water level and the water meter** — the level is how
-full the pool is — the exact context size of
+full the pool is: the exact context size of
 the latest API call (`cache_read + input + cache_creation + output`),
 read from the transcript's `usage` block. That number says *when* to
 close the valve and switch pools (/clear). The meter is how much water
@@ -167,7 +167,7 @@ costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
 like any other residue — cut it at the root.
 
-Why mechanical enforcement (2026-08-20, measured): two disasters scale
+Why mechanical enforcement: two disasters scale
 with water level. (1) **Cost** — every call re-sends the whole history,
 so a 200k window that costs ~35-55k tokens per turn early on costs
 **150-167k per turn past 75%** (3-5× unit price); in one real 34-turn
@@ -188,7 +188,7 @@ the raw material; the fresh session distills it. Same math, same
 argument as the other companion scripts: hygiene must be a mechanism,
 not an intention.
 
-#### Checkpoints — 检查点（2026-08-18 升级）
+#### Checkpoints — 检查点
 
 State belongs on disk, not in the conversation. A checkpoint is the
 in-flight twin of a memory file: memory holds durable rules and
@@ -368,6 +368,7 @@ for the first time keep the system evolving toward clarity, not entropy.
 | Old shape found in code | Add a compatibility layer | Delete it — no installed base exists yet |
 | Updating a doc or rule | Edit only the changed section | Review the whole file, sync every mirror (zh/en README ↔ SKILL), update the version number — an update is a full review, not a patch |
 | Writing a release note | List the technical changes | Say what it solves for the user ("optimized the two-gauge metering — token costs drop sharply") — the reader is the open-source user, not the maintainer; internal housekeeping stays internal |
+| Removing stale content | Delete whatever looks internal | First ask: is this a rule itself? Rules live in SKILL / Final check / memory, not in READMEs — deleting a rule while "cleaning" breaks the system |
 
 ## Final check — before finishing any task
 

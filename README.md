@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.7.6**
+**当前版本：v1.7.7**
 
 ## 你需要知道
 
