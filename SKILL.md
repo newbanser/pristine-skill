@@ -173,9 +173,13 @@ API call) plus the *water meter* (accumulated `output + cache_creation`
 deltas ≈ pool count), no turn counting, and *writes and reads the
 checkpoint* so a reset is lossless (see README). Two reminder levels
 (2026-08-20): `--threshold` (default 70%) prints a soft reminder into the
-next prompt's context; `--block` (default 90%) prints a user-facing
-message and exits 1, which **aborts the user's prompt** — a guaranteed
-reminder right before the pool would compact anyway.
+next prompt's context; `--block` (default **80%** — the platform auto-
+compacts at 83-84%, so 80% is the last point a block still wins the race)
+prints a user-facing message and exits 1, which **aborts the user's
+prompt**. Because the model gets no turn once the prompt is aborted, the
+block itself writes the raw-material backup (`--backup <dir>`, last ~150
+lines as markdown) — the machine saves the raw material, the fresh
+session distills it.
 
 #### Checkpoints — 检查点（2026-08-18 升级）
 

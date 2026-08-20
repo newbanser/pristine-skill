@@ -46,9 +46,23 @@
  * Wire it in settings.json:
  *   "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
  *     "command": "node /path/to/scripts/session-watch.js --threshold 70 \
- *     --block 90 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
+ *     --block 80 --max 200000 --checkpoint /path/to/.claude/checkpoint.md \
+ *     --backup /path/to/bailu/03-episodic" } ] } ] }
+ *
+ * v1.7.4 (2026-08-20, 's question "90% 直接关门了，记忆损失也很麻烦"):
+ *   --block must fire BEFORE the platform's own compaction (observed at
+ *   83-84% / 167k of 200k, 2026-08-20), otherwise compaction wins the race
+ *   and the memory loss the block exists to prevent already happened. So
+ *   the default block level is now 80%, and the block itself no longer
+ *   asks the model to do anything — exit 1 aborts the user's prompt, which
+ *   means the model never gets a turn, so nothing it "should" do can run.
+ *   Instead the script itself writes the backup (--backup <dir>): the last
+ *   ~150 transcript lines as markdown, so raw material is on disk and a
+ *   fresh session can distill it. Machine saves the raw material, model
+ *   keeps the quality.
  */
 const fs = require('fs')
+const path = require('path')
 
 const args = process.argv.slice(2)
 const thrIdx = args.indexOf('--threshold')
@@ -58,7 +72,9 @@ const CHECKPOINT = cpIdx >= 0 ? args[cpIdx + 1] : null
 const maxIdx = args.indexOf('--max')
 const MAX = maxIdx >= 0 ? parseFloat(args[maxIdx + 1]) : 200000
 const blkIdx = args.indexOf('--block')
-const BLOCK = blkIdx >= 0 ? parseFloat(args[blkIdx + 1]) : 90
+const BLOCK = blkIdx >= 0 ? parseFloat(args[blkIdx + 1]) : 80
+const bkpIdx = args.indexOf('--backup')
+const BACKUP = bkpIdx >= 0 ? args[bkpIdx + 1] : null
 
 let transcriptPath = null
 try {
@@ -123,15 +139,55 @@ if (pct >= THRESHOLD) {
   console.log(msg)
 }
 
-// Hard block: 90%+ means the pool is about to compact anyway — abort the
-// prompt with a user-facing message so the reminder CANNOT be missed
-// (2026-08-20, : "如何做到肯定提醒"). Exit 1 = Claude Code shows the
-// message to the user and refuses to run the prompt until they /clear.
+// Hard block: fires BEFORE the platform's own compaction (observed at
+// 83-84%, v1.7.4), and the script itself writes the raw-material backup —
+// exit 1 aborts the prompt, so the model gets no turn and "write the
+// checkpoint" would be an instruction nobody can follow. Machine saves
+// the raw material; the fresh session distills it.
 if (pct >= BLOCK) {
+  let saved = ''
+  if (BACKUP) {
+    try {
+      fs.mkdirSync(BACKUP, { recursive: true })
+      const lines = fs.readFileSync(transcriptPath, 'utf8').split('\n')
+      const tail = lines.filter(l => l.trim()).slice(-150)
+      const md = tail.map(l => {
+        try {
+          const e = JSON.parse(l)
+          const m = e.message || {}
+          if (e.type === 'user') {
+            if (m.role === 'user') {
+              const c = m.content
+              const text = Array.isArray(c)
+                ? c.filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim()
+                : String(c || '')
+              return text ? `## USER\n${text}` : ''
+            }
+            return `[tool results]`
+          }
+          if (e.type === 'assistant' && m.content) {
+            const c = m.content
+            const text = Array.isArray(c)
+              ? c.filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim()
+              : String(c || '')
+            return text ? `## ASSISTANT\n${text}` : ''
+          }
+          return ''
+        } catch { return '' }
+      }).filter(Boolean)
+      if (md.length) {
+        const file = path.join(BACKUP, `紧急对话备份-${new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-')}.md`)
+        fs.writeFileSync(file, `# 会话紧急备份（水位 ${pct.toFixed(0)}% 阻断时自动保存）\n\n> 机器落盘，未整理；新会话据此补沉淀/检查点。\n\n` + md.join('\n\n'))
+        saved = file
+      }
+    } catch {}
+  }
   console.error(
-    `\n⚠️ 池水已到 ${pct.toFixed(0)}%（${Math.round(lastTokens / 1000)}k / ${Math.round(MAX / 1000)}k），再往下就是压缩，越压越糊、越花越多。` +
+    `\n⚠️ 池水已到 ${pct.toFixed(0)}%（${Math.round(lastTokens / 1000)}k / ${Math.round(MAX / 1000)}k），` +
+    `平台约在 83-84% 自动压缩，再继续就会丢记忆。` +
+    (saved ? `\n最近对话已自动备份到：${saved}，无损失。` : '') +
     (CHECKPOINT
-      ? `\n请先让 Claude 写检查点（${CHECKPOINT}），然后 /clear 开新会话，从检查点继续。\n`
+      ? `\n请 /clear 开新会话，从检查点（${CHECKPOINT}）继续。\n`
       : `\n请直接 /clear 开新会话。\n`)
   )
   process.exit(1)
