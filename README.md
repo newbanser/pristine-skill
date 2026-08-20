@@ -48,7 +48,7 @@ mkdir -p .opencode/skills/pristine
 cp SKILL.md .opencode/skills/pristine/
 ```
 
-可选：会话监视（见下）需要把 `scripts/session-watch.js` 和 `SKILL.md` 放一起 —— 或者 clone 整个仓库、让 hook 指向 clone，这样 hook 路径稳定。
+可选：会话监视（见下「配套工具」）需要把 `scripts/session-watch.js` 和 `SKILL.md` 放一起 —— 或者 clone 整个仓库、让 hook 指向 clone，这样 hook 路径稳定。
 
 ## 用法
 
