@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.7.7**
+**当前版本：v1.7.8**
 
 ## 你需要知道
 
@@ -52,7 +52,11 @@ cp SKILL.md .opencode/skills/pristine/
 
 ## 用法
 
-技能在你开始实现、重构、修 bug 时自动激活，也在"先打个补丁再说"的冲动出现时激活。也可以按名字主动调用：
+两种方式，效果相同——Pristine 本质就是一段提示词。
+
+**当提示词用（零安装）**：不装任何技能，把 `SKILL.md` 全文作为提示词发给 AI（system prompt 或对话第一条消息），AI 从此进入纯净模式，每一次改动都像第一次写出来。最快的方式——不用理解技能机制，拿到就能用。
+
+**当技能用（自动激活）**：按「安装」把 `SKILL.md` 复制到 Agent 技能目录，技能在你开始实现、重构、修 bug 时自动激活，也在"先打个补丁再说"的冲动出现时激活。也可以按名字主动调用：
 
 - `pristine` —— 正式名（"we work in pristine mode"）
 - `纯净原则` / `first-time` —— 别名，通过技能描述语义识别

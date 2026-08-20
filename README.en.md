@@ -11,7 +11,7 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.7.7**
+**Current version: v1.7.8**
 
 ## What you need to know
 
@@ -64,9 +64,18 @@ so the hook path stays stable.
 
 ## Usage
 
-The skill activates automatically when you start implementation, refactor,
-or bug-fix work, and whenever the "just patch it" urge appears. You can also
-invoke it by name:
+Two ways, same effect — Pristine is, at bottom, a prompt.
+
+**As a prompt (zero install)**: no skill machinery needed. Send the full
+`SKILL.md` as your prompt (a system prompt, or the first message of the
+conversation), and the AI works in pristine mode from then on — every
+change written as if for the first time. The fastest path: nothing to
+learn about skill systems, usable the moment you have the file.
+
+**As a skill (auto-triggered)**: copy `SKILL.md` into your agent's skill
+directory (see "Install" above). The skill activates automatically when
+you start implementation, refactor, or bug-fix work, and whenever the
+"just patch it" urge appears. You can also invoke it by name:
 
 - `pristine` — the formal name ("we work in pristine mode")
 - `纯净原则` / `first-time` — aliases, recognized semantically via the skill
