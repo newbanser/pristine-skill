@@ -11,7 +11,7 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.7.8**
+**Current version: v1.7.9**
 
 ## What you need to know
 
@@ -71,6 +71,13 @@ Two ways, same effect — Pristine is, at bottom, a prompt.
 conversation), and the AI works in pristine mode from then on — every
 change written as if for the first time. The fastest path: nothing to
 learn about skill systems, usable the moment you have the file.
+
+The boundary of prompt mode: the scanners (pristine-scan / memory-scan)
+come with the SKILL.md text — have the AI run them with the commands in
+the prompt. **Session watch (session-watch) cannot be woken by a prompt**:
+it is a hook, triggered mechanically by configuration — if you need
+water-level monitoring, install the skill and wire the hook (see
+"Companion tools").
 
 **As a skill (auto-triggered)**: copy `SKILL.md` into your agent's skill
 directory (see "Install" above). The skill activates automatically when

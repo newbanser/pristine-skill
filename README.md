@@ -10,7 +10,7 @@
 
 支持 Claude Code、OpenAI Codex、OpenCode、OpenClaw（开放 Agent Skill 格式）。
 
-**当前版本：v1.7.8**
+**当前版本：v1.7.9**
 
 ## 你需要知道
 
@@ -55,6 +55,8 @@ cp SKILL.md .opencode/skills/pristine/
 两种方式，效果相同——Pristine 本质就是一段提示词。
 
 **当提示词用（零安装）**：不装任何技能，把 `SKILL.md` 全文作为提示词发给 AI（system prompt 或对话第一条消息），AI 从此进入纯净模式，每一次改动都像第一次写出来。最快的方式——不用理解技能机制，拿到就能用。
+
+提示词模式的边界：扫描工具（pristine-scan / memory-scan）随 SKILL.md 全文可用——让 AI 按提示词里的命令执行；**会话监视（session-watch）唤不醒**，它是 hook、靠配置机械触发，提示词管不到——需要水位监视就装技能并挂 hook（见「配套工具」）。
 
 **当技能用（自动激活）**：按「安装」把 `SKILL.md` 复制到 Agent 技能目录，技能在你开始实现、重构、修 bug 时自动激活，也在"先打个补丁再说"的冲动出现时激活。也可以按名字主动调用：
 
