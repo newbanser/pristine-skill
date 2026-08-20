@@ -366,6 +366,7 @@ for the first time keep the system evolving toward clarity, not entropy.
 | New feature | Build a fresh module | Reuse what exists, write only what's missing — or skip it (YAGNI) |
 | Column renamed (pre-launch) | Write a migration / `ALTER TABLE` step | Edit the CREATE TABLE, rebuild the database |
 | Old shape found in code | Add a compatibility layer | Delete it — no installed base exists yet |
+| Updating a doc or rule | Edit only the changed section | Review the whole file, sync every mirror (zh/en README ↔ SKILL), update the version number — an update is a full review, not a patch |
 
 ## Final check — before finishing any task
 
@@ -376,3 +377,4 @@ for the first time keep the system evolving toward clarity, not entropy.
 - [ ] Does local source match what's deployed? (proven, not assumed)
 - [ ] Is every rule defined in exactly one place?
 - [ ] Before launch: any migration, compat layer, or "old → new" fallback in the codebase? Remove it — the schema is what the code says it is.
+- [ ] Updated any doc, rule, or version? Reviewed the whole file (not just the target section), synced every mirror (zh/en README ↔ SKILL), and bumped the version number — an update is a full review, not a patch.

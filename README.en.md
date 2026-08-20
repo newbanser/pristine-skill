@@ -11,7 +11,29 @@ Perhaps the only agent skill you need — your output, forever written for the f
 Works with Claude Code, OpenAI Codex, OpenCode, and OpenClaw (open Agent
 Skill format).
 
-**Current version: v1.7.4**
+**Current version: v1.7.5**
+
+## Update principle (2026-08-20, )
+
+**Change anywhere = full review + full sync, or it is a patch.** The
+Chinese README, English README, and SKILL.md in this repo are each
+other's source of truth — editing one file at a time means the next
+update cannot catch up (the English README once stalled at v1.7.0 with
+the abandoned turn-threshold logic, because it was never synced). Every
+update must:
+
+1. **Full review** — read the whole file, not just the section you are
+   editing. Treat every update as if written for the first time; fix
+   stale content (versions, deprecated flags, old wording) you pass on
+   the way.
+2. **Full sync** — update Chinese README / English README / SKILL.md
+   together, and bump the version number together.
+3. **Cross-check** — after editing, verify the key parameters (version,
+   thresholds, commands) match across all three files, and no old logic
+   lingers.
+
+It works both ways: a change to the README requires SKILL.md to follow,
+and a change to SKILL.md requires the READMEs to follow.
 
 ## What you need to know
 
