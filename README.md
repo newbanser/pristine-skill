@@ -63,14 +63,14 @@ cp SKILL.md .opencode/skills/pristine/
 
 ## 会话监视（可选配套）
 
-[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：**双表计量（v1.7.2）**——**水位表**：从会话记录的 `usage` token 算出最近一次 API 调用的真实上下文大小（缓存读 + 输入 + 输出），即「池子还剩多少水」，超过阈值（默认 70% 窗口）就打印提醒；**水表**：逐条累计真实增量（`output_tokens + cache_creation_input_tokens`，缓存读≈免费不计，避免同一池水反复计量），即「这池水用了多少」，换算成池数（如「水表 714k（约 3.6 池）」）判断这池水是否值回票价。不数轮次（轮次是粗代理，早就弃了）。配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
+[`scripts/session-watch.js`](scripts/session-watch.js) 机械地执行会话成本法则：**双表计量（v1.7.2）**——**水位表**：从会话记录的 `usage` token 算出最近一次 API 调用的真实上下文大小（缓存读 + 输入 + 输出），即「池子还剩多少水」，超过阈值（默认 70% 窗口）就打印提醒；**水表**：逐条累计真实增量（`output_tokens + cache_creation_input_tokens`，缓存读≈免费不计，避免同一池水反复计量），即「这池水用了多少」，换算成池数（如「水表 714k（约 3.6 池）」）判断这池水是否值回票价。不数轮次（轮次是粗代理，早就弃了）。配 `--checkpoint <path>` 后，提醒同时包含写检查点的指令 —— 新会话开头若检测到磁盘上有检查点，还会打印恢复指引。**两级提醒（v1.7.3，2026-08-20 定「如何做到肯定提醒」）**：`--threshold`（默认 70%）= 软提醒，打印到 stdout 进下一条上下文，模型转述；`--block`（默认 90%）= 硬阻断，打印中文提示并 **exit 1** —— Claude Code 收到非零退出码会**中止用户的这条消息并把提示直接显示给用户**，想不看见都难。把它挂成 Claude Code 的 `UserPromptSubmit` hook（每条用户消息触发；`Stop` hook 也可以）：
 
 ```json
 "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
-  "command": "node /path/to/scripts/session-watch.js --threshold 70 --max 200000 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
+  "command": "node /path/to/scripts/session-watch.js --threshold 70 --block 90 --max 200000 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
 ```
 
-脚本从 hook 的 stdin 读会话记录路径 —— 不自己发现会话、没有硬编码路径、退出码永远是 0（是提醒，不是闸门）。
+脚本从 hook 的 stdin 读会话记录路径 —— 不自己发现会话、没有硬编码路径。退出码：低于 90% 是 0（提醒，不是闸门）；到 `--block` 是 1（硬闸门，压缩前的最后防线）。
 
 检查点文件（默认 `<项目根>/.claude/checkpoint.md`）只写四行：当前任务 / 进度 / 下一步 / 未定事项。就地覆盖，不追加历史 —— 它是工作台面不是日志；耐久的东西（决策、规则、新约定）在检查点被覆盖前迁移到它的真正归宿（记忆 / 文档 / 代码）。
 

@@ -171,7 +171,11 @@ Claude Code `UserPromptSubmit` hook — it measures the *real water level*
 from the transcript's usage tokens (the exact context size of the latest
 API call) plus the *water meter* (accumulated `output + cache_creation`
 deltas ≈ pool count), no turn counting, and *writes and reads the
-checkpoint* so a reset is lossless (see README).
+checkpoint* so a reset is lossless (see README). Two reminder levels
+(2026-08-20): `--threshold` (default 70%) prints a soft reminder into the
+next prompt's context; `--block` (default 90%) prints a user-facing
+message and exits 1, which **aborts the user's prompt** — a guaranteed
+reminder right before the pool would compact anyway.
 
 #### Checkpoints — 检查点（2026-08-18 升级）
 

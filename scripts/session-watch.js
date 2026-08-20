@@ -23,19 +23,30 @@
  *   it would double-count the same water over and over. The meter tells
  *   whether the pool's useful life was earned (heavy task ≈ spent budget).
  *
+ * Two levels of reminder (2026-08-20, : "如何做到肯定提醒"):
+ *
+ *   THRESHOLD (default 70%) — soft reminder: prints to stdout, lands in the
+ *   next prompt's context, the model relays it. Missable if the model is
+ *   deep in a task or the session compacts right after.
+ *
+ *   BLOCK (default 90%) — hard reminder: prints a user-facing message in
+ *   Chinese and exits 1, which ABORTS the user's prompt in Claude Code —
+ *   the message is shown to the user directly and the prompt won't run
+ *   until they act (/clear). This is the guaranteed channel: at 90% the
+ *   pool is about to compact anyway, so blocking is protective, not rude.
+ *
  * With --checkpoint <path>, the reminder also tells the agent to write
  * the checkpoint before resetting, and a checkpoint already on disk
  * from a previous session prints a restore instruction at the start of
  * the next one.
  *
  * UserPromptSubmit hooks receive JSON on stdin; transcript_path points at
- * the current session's JSONL, so no session discovery is needed. Exit
- * code is always 0 — this is a reminder, not a gate.
+ * the current session's JSONL, so no session discovery is needed.
  *
  * Wire it in settings.json:
  *   "hooks": { "UserPromptSubmit": [ { "hooks": [ { "type": "command",
  *     "command": "node /path/to/scripts/session-watch.js --threshold 70 \
- *     --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
+ *     --block 90 --checkpoint /path/to/.claude/checkpoint.md" } ] } ] }
  */
 const fs = require('fs')
 
@@ -46,6 +57,8 @@ const cpIdx = args.indexOf('--checkpoint')
 const CHECKPOINT = cpIdx >= 0 ? args[cpIdx + 1] : null
 const maxIdx = args.indexOf('--max')
 const MAX = maxIdx >= 0 ? parseFloat(args[maxIdx + 1]) : 200000
+const blkIdx = args.indexOf('--block')
+const BLOCK = blkIdx >= 0 ? parseFloat(args[blkIdx + 1]) : 90
 
 let transcriptPath = null
 try {
@@ -108,5 +121,19 @@ if (pct >= THRESHOLD) {
     msg += ` Write it at ${CHECKPOINT}: current task / progress / next step / open questions — then /clear, and the next session resumes from disk.`
   }
   console.log(msg)
+}
+
+// Hard block: 90%+ means the pool is about to compact anyway — abort the
+// prompt with a user-facing message so the reminder CANNOT be missed
+// (2026-08-20, : "如何做到肯定提醒"). Exit 1 = Claude Code shows the
+// message to the user and refuses to run the prompt until they /clear.
+if (pct >= BLOCK) {
+  console.error(
+    `\n⚠️ 池水已到 ${pct.toFixed(0)}%（${Math.round(lastTokens / 1000)}k / ${Math.round(MAX / 1000)}k），再往下就是压缩，越压越糊、越花越多。` +
+    (CHECKPOINT
+      ? `\n请先让 Claude 写检查点（${CHECKPOINT}），然后 /clear 开新会话，从检查点继续。\n`
+      : `\n请直接 /clear 开新会话。\n`)
+  )
+  process.exit(1)
 }
 
