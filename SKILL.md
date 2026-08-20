@@ -165,21 +165,28 @@ is a habit that leaks budget. Both numbers print in the same reminder:
 These are not pricing trivia: a session that runs to hundreds of turns
 costs an order of magnitude more than fifteen disciplined ones doing the
 same work, and the tail turns run on stale context. Treat session length
-like any other residue — cut it at the root. The companion script
-`scripts/session-watch.js` enforces the hygiene mechanically via a
-Claude Code `UserPromptSubmit` hook — it measures the *real water level*
-from the transcript's usage tokens (the exact context size of the latest
-API call) plus the *water meter* (accumulated `output + cache_creation`
-deltas ≈ pool count), no turn counting, and *writes and reads the
-checkpoint* so a reset is lossless (see README). Two reminder levels
-(2026-08-20): `--threshold` (default 70%) prints a soft reminder into the
-next prompt's context; `--block` (default **80%** — the platform auto-
-compacts at 83-84%, so 80% is the last point a block still wins the race)
-prints a user-facing message and exits 1, which **aborts the user's
-prompt**. Because the model gets no turn once the prompt is aborted, the
-block itself writes the raw-material backup (`--backup <dir>`, last ~150
-lines as markdown) — the machine saves the raw material, the fresh
-session distills it.
+like any other residue — cut it at the root.
+
+Why mechanical enforcement (2026-08-20, measured): two disasters scale
+with water level. (1) **Cost** — every call re-sends the whole history,
+so a 200k window that costs ~35-55k tokens per turn early on costs
+**150-167k per turn past 75%** (3-5× unit price); in one real 34-turn
+session the 75-84% tail alone was ~50% of the $45-50 total. (2) **Memory**
+— the platform auto-compacts at 83-84%, compressing the entire history
+into a summary: details (decisions, file names, pitfalls) are lost
+irrecoverably, and "continuing after compaction" is working amnesic. And
+the humans/models who would remind us are themselves unreliable — busy
+agents miss reminders, and a completed compaction resets the water level
+so the reminder disappears forever. Reliability therefore must not
+depend on anyone's attention, which is why session-watch is a hook with
+three mechanical levels: soft at 70% (stdout → model relays), **hard
+block at 80%** (exit 1 aborts the user's prompt, message shown directly),
+and — because a blocked prompt means the model never gets a turn and
+cannot write a checkpoint — the block itself writes the last ~150
+transcript lines as a markdown backup (`--backup <dir>`). Machine saves
+the raw material; the fresh session distills it. Same math, same
+argument as the other companion scripts: hygiene must be a mechanism,
+not an intention.
 
 #### Checkpoints — 检查点（2026-08-18 升级）
 
