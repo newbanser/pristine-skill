@@ -5,7 +5,7 @@
  * Measures the REAL context water level AND the water meter, and prints
  * a reminder when the level crosses the threshold — no turn counting.
  *
- * Two gauges (2026-08-18, 's water-meter framing):
+ * Two gauges — the water-level / water-meter framing:
  *
  *   WATER LEVEL  — how full the pool is. The last assistant message in the
  *   transcript carries a `usage` block with the exact token counts of the
@@ -23,7 +23,7 @@
  *   it would double-count the same water over and over. The meter tells
  *   whether the pool's useful life was earned (heavy task ≈ spent budget).
  *
- * Two levels of reminder (2026-08-20, : "如何做到肯定提醒"):
+ * Two levels of reminder:
  *
  *   THRESHOLD (default 70%) — soft reminder: prints to stdout, lands in the
  *   next prompt's context, the model relays it. Missable if the model is
@@ -49,17 +49,16 @@
  *     --block 80 --max 200000 --checkpoint /path/to/.claude/checkpoint.md \
  *     --backup /path/to/bailu/03-episodic" } ] } ] }
  *
- * v1.7.4 (2026-08-20, 's question "90% 直接关门了，记忆损失也很麻烦"):
- *   --block must fire BEFORE the platform's own compaction (observed at
- *   83-84% / 167k of 200k, 2026-08-20), otherwise compaction wins the race
- *   and the memory loss the block exists to prevent already happened. So
- *   the default block level is now 80%, and the block itself no longer
- *   asks the model to do anything — exit 1 aborts the user's prompt, which
- *   means the model never gets a turn, so nothing it "should" do can run.
- *   Instead the script itself writes the backup (--backup <dir>): the last
- *   ~150 transcript lines as markdown, so raw material is on disk and a
- *   fresh session can distill it. Machine saves the raw material, model
- *   keeps the quality.
+ * v1.7.4 — the block must fire BEFORE the platform's own compaction
+ * (observed at 83-84% / 167k of 200k), otherwise compaction wins the race
+ * and the memory loss the block exists to prevent already happened. So
+ * the default block level is now 80%, and the block itself no longer
+ * asks the model to do anything — exit 1 aborts the user's prompt, which
+ * means the model never gets a turn, so nothing it "should" do can run.
+ * Instead the script itself writes the backup (--backup <dir>): the last
+ * ~150 transcript lines as markdown, so raw material is on disk and a
+ * fresh session can distill it. Machine saves the raw material, model
+ * keeps the quality.
  */
 const fs = require('fs')
 const path = require('path')

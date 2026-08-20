@@ -123,8 +123,8 @@ held, decisions re-explained) approaches 70–80% of capacity, the session
 has hit its useful life — the next turns run on stale or truncated
 context, re-paying for facts already evicted.
 
-**Two gauges: the water level and the water meter** (2026-08-18, 's
-framing). The level is how full the pool is — the exact context size of
+**Two gauges: the water level and the water meter** — the level is how
+full the pool is — the exact context size of
 the latest API call (`cache_read + input + cache_creation + output`),
 read from the transcript's `usage` block. That number says *when* to
 close the valve and switch pools (/clear). The meter is how much water
