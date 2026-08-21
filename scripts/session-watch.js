@@ -75,6 +75,10 @@ const blkIdx = args.indexOf('--block')
 const BLOCK = blkIdx >= 0 ? parseFloat(args[blkIdx + 1]) : 80
 const bkpIdx = args.indexOf('--backup')
 const BACKUP = bkpIdx >= 0 ? args[bkpIdx + 1] : null
+// 调用时机（2026-08-21）：UserPromptSubmit = 用户发消息时测（逐轮）；
+// Stop = assistant 回复完成时测（2026-08-21 实测水位单轮暴涨 +22pp，80% 阻断
+// 必须在工具链跑完的当口拦截，等下一轮用户消息平台 83-84% 已先压缩）
+const isStop = args.includes('--stop')
 
 let transcriptPath = null
 try {
@@ -84,36 +88,34 @@ try {
 
 if (!transcriptPath || !fs.existsSync(transcriptPath)) process.exit(0)
 
-let turns = 0
-let lastTokens = 0
-let usedTokens = 0
-let pct = 0
-try {
-  for (const line of fs.readFileSync(transcriptPath, 'utf8').split('\n')) {
-    if (!line.trim()) continue
-    try {
-      const entry = JSON.parse(line)
-      if (entry.type === 'user' && entry.message?.role === 'user') {
-        const content = entry.message.content
-        const isToolResult = Array.isArray(content) &&
-          content.some(block => block?.type === 'tool_result')
-        if (!isToolResult) turns++
-      }
-      // 水位：最后一条带 usage 的消息 = 最近一次 API 调用的真实上下文
-      const usage = (entry.message && entry.message.usage) || entry.usage
-      if (usage) {
-        lastTokens =
-          (usage.input_tokens || 0) +
-          (usage.cache_creation_input_tokens || 0) +
-          (usage.cache_read_input_tokens || 0) +
-          (usage.output_tokens || 0)
-        // 水表：逐条累计真实增量（输出 + 首次写入；缓存读≈免费不计，避免同一池水反复计量）
-        usedTokens += (usage.output_tokens || 0) + (usage.cache_creation_input_tokens || 0)
-      }
-    } catch {}
-  }
-  pct = (lastTokens / MAX) * 100
-} catch {
+// Stop 时机：无用户输入（无 transcript_path），直接量水位后打印提示（只读，不阻断）
+if (isStop) {
+  try {
+    let lastTokens = 0
+    let usedTokens = 0
+    for (const line of fs.readFileSync(transcriptPath, 'utf8').split('\n')) {
+      if (!line.trim()) continue
+      try {
+        const entry = JSON.parse(line)
+        const usage = (entry.message && entry.message.usage) || entry.usage
+        if (usage) {
+          lastTokens =
+            (usage.input_tokens || 0) +
+            (usage.cache_creation_input_tokens || 0) +
+            (usage.cache_read_input_tokens || 0) +
+            (usage.output_tokens || 0)
+          usedTokens += (usage.output_tokens || 0) + (usage.cache_creation_input_tokens || 0)
+        }
+      } catch {}
+    }
+    const pct = (lastTokens / MAX) * 100
+    if (pct >= THRESHOLD) {
+      console.log(
+        `[pristine] 池水 ${pct.toFixed(0)}%（${Math.round(lastTokens / 1000)}k / ${Math.round(MAX / 1000)}k）— 超阈值 ${THRESHOLD}%；水表 ${Math.round(usedTokens / 1000)}k（约 ${(usedTokens / MAX).toFixed(1)} 池）。` +
+        '会话已接近压缩线，本轮收尾请沉淀 + 写检查点 + /clear 开新会话。'
+      )
+    }
+  } catch {}
   process.exit(0)
 }
 

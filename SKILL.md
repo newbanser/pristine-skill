@@ -179,11 +179,18 @@ the humans/models who would remind us are themselves unreliable — busy
 agents miss reminders, and a completed compaction resets the water level
 so the reminder disappears forever. Reliability therefore must not
 depend on anyone's attention, which is why session-watch is a hook with
-three mechanical levels: soft at 70% (stdout → model relays), **hard
-block at 80%** (exit 1 aborts the user's prompt, message shown directly),
-and — because a blocked prompt means the model never gets a turn and
-cannot write a checkpoint — the block itself writes the last ~150
-transcript lines as a markdown backup (`--backup <dir>`). Machine saves
+two firing points and three mechanical levels: soft at 70% (stdout →
+model relays), **hard block at 80%** (exit 1 aborts the user's prompt,
+message shown directly), and — because a blocked prompt means the model
+never gets a turn and cannot write a checkpoint — the block itself
+writes the last ~150 transcript lines as a markdown backup (`--backup
+<dir>`). The two firing points exist because water level jumps *inside*
+one turn (measured +22pp in a single turn), not just between turns:
+**UserPromptSubmit** measures when the user sends a message, **Stop**
+measures when the assistant finishes replying (`--stop`, stdout-only —
+the tool chain has just run, so this is the level that survives until
+the next turn; it prints the same reminder so the model sees the real
+level before the platform's 83-84% auto-compaction wins). Machine saves
 the raw material; the fresh session distills it. Same math, same
 argument as the other companion scripts: hygiene must be a mechanism,
 not an intention.
