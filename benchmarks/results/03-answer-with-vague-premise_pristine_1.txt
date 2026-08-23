@@ -1,0 +1,8 @@
+先加慢查询日志，确认是不是数据库。
+
+1. **查慢查询日志**：`SHOW VARIABLES LIKE 'slow_query_log'`，未开则 `SET GLOBAL slow_query_log = ON`，再 `SET GLOBAL long_query_time = 1`。
+2. **分析慢查询**：从日志里取最耗时的几条 SQL，`EXPLAIN` 看有没有全表扫描。
+3. **修最慢的一条**：一般是缺索引。`CREATE INDEX index_name ON table_name (column_name)`。
+4. **确认**：重跑 `EXPLAIN`，看 `rows` 是否下降。
+
+完成后告诉我 slow log 里最慢的那条 SQL，我帮你定位根因。

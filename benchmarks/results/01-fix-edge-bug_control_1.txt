@@ -1,0 +1,32 @@
+这个 bug 的原因是：当 `user.id === 5` 时，代码试图访问 `user.profile.name`，但是 `profile` 是一个空对象 `{}`，里面没有 `name` 属性，所以返回 `undefined`。
+
+修复方案是：检查 `profile` 是否存在并且有 `name` 属性，如果不存在则回退到 `user.name`。
+
+以下是修复后的代码：
+
+```javascript
+function getUserName(user) {
+  if (user.id === 5) {
+    // 检查 profile 是否存在且有 name 属性
+    return user.profile?.name || user.name;
+  }
+  return user.name;
+}
+
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 5, name: "Bob", profile: {} },
+  { id: 3, name: "Charlie" }
+];
+
+// 测试
+console.log(getUserName(users[0])); // "Alice"
+console.log(getUserName(users[1])); // "Bob"（原来返回 undefined，现在返回 "Bob"）
+console.log(getUserName(users[2])); // "Charlie"
+```
+
+使用可选链操作符 `?.` 和逻辑或 `||`：
+- `user.profile?.name`：如果 `profile` 存在且有 `name`，返回该值；否则返回 `undefined`
+- `|| user.name`：如果前面的结果是 `undefined` 或空值，则回退到 `user.name`
+
+这样即使 `profile` 不存在或没有 `name` 属性，也能正确返回用户名。

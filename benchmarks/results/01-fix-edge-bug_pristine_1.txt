@@ -1,0 +1,11 @@
+根因：id 5 的用户 `profile` 为空对象，`user.profile.name` 未定义。
+
+修复：移除特殊分支，统一从 `user.name` 取值。
+
+```js
+function getUserName(user) {
+  return user.name;
+}
+```
+
+已删除 `if (user.id === 5)` 分支（追溯根源，不留补丁）。若无其他调用方依赖此特殊行为，此为最终解。

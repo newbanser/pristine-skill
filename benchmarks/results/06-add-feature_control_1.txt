@@ -1,0 +1,320 @@
+我来帮你添加按优先级排序的功能。首先看一下当前的代码结构，然后逐步修改。
+
+## 1. 首先修改 `src/utils.js`
+
+```javascript
+// src/utils.js
+
+/**
+ * 优先级权重映射
+ * high: 3, medium: 2, low: 1
+ */
+export const PRIORITY_WEIGHTS = {
+  high: 3,
+  medium: 2,
+  low: 1
+};
+
+/**
+ * 按优先级排序（高优先级在前）
+ * @param {Array} todos - 待办事项数组
+ * @param {string} order - 排序顺序 'asc' | 'desc'
+ * @returns {Array} 排序后的数组
+ */
+export function sortByPriority(todos, order = 'desc') {
+  return [...todos].sort((a, b) => {
+    const weightA = PRIORITY_WEIGHTS[a.priority] || 0;
+    const weightB = PRIORITY_WEIGHTS[b.priority] || 0;
+    
+    if (order === 'asc') {
+      return weightA - weightB;
+    }
+    return weightB - weightA;
+  });
+}
+
+/**
+ * 按创建时间排序
+ * @param {Array} todos - 待办事项数组
+ * @returns {Array} 排序后的数组
+ */
+export function sortByCreatedAt(todos) {
+  return [...todos].sort((a, b) => 
+    new Date(b.createdAt) - new Date(a.createdAt)
+  );
+}
+```
+
+## 2. 修改 `src/App.jsx`
+
+```javascript
+// src/App.jsx
+import { useState } from 'react';
+import TodoList from './TodoList';
+import { sortByPriority, sortByCreatedAt } from './utils';
+
+const App = () => {
+  const [todos, setTodos] = useState([]);
+  const [sortType, setSortType] = useState('createdAt'); // 'createdAt' | 'priority'
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
+
+  const addTodo = (text, priority = 'medium') => {
+    const newTodo = {
+      id: Date.now(),
+      text,
+      completed: false,
+      priority,
+      createdAt: new Date().toISOString()
+    };
+    setTodos(prev => [...prev, newTodo]);
+  };
+
+  const toggleTodo = (id) => {
+    setTodos(prev => 
+      prev.map(todo => 
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(prev => prev.filter(todo => todo.id !== id));
+  };
+
+  // 根据排序类型返回排序后的列表
+  const getSortedTodos = () => {
+    if (sortType === 'priority') {
+      return sortByPriority(todos, sortOrder);
+    }
+    return sortByCreatedAt(todos);
+  };
+
+  return (
+    <div className="app">
+      <h1>待办事项</h1>
+      
+      {/* 排序控制 */}
+      <div className="sort-controls">
+        <select 
+          value={sortType} 
+          onChange={(e) => setSortType(e.target.value)}
+        >
+          <option value="createdAt">按创建时间</option>
+          <option value="priority">按优先级</option>
+        </select>
+        
+        {sortType === 'priority' && (
+          <button 
+            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+          >
+            {sortOrder === 'desc' ? '高优先级在前' : '低优先级在前'}
+          </button>
+        )}
+      </div>
+
+      {/* 添加待办 */}
+      <div className="add-todo">
+        <input 
+          type="text" 
+          placeholder="输入待办事项"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+              addTodo(e.target.value.trim());
+              e.target.value = '';
+            }
+          }}
+        />
+        <select 
+          defaultValue="medium"
+          onChange={(e) => e.target.dataset.priority = e.target.value}
+        >
+          <option value="high">高</option>
+          <option value="medium">中</option>
+          <option value="low">低</option>
+        </select>
+      </div>
+
+      {/* 待办列表 */}
+      <TodoList 
+        todos={getSortedTodos()}
+        onToggle={toggleTodo}
+        onDelete={deleteTodo}
+      />
+    </div>
+  );
+};
+
+export default App;
+```
+
+## 3. 修改 `src/TodoList.jsx`
+
+```javascript
+// src/TodoList.jsx
+import TodoItem from './TodoItem';
+
+const TodoList = ({ todos, onToggle, onDelete }) => {
+  return (
+    <ul className="todo-list">
+      {todos.length === 0 ? (
+        <li className="empty-message">暂无待办事项</li>
+      ) : (
+        todos.map(todo => (
+          <TodoItem 
+            key={todo.id}
+            todo={todo}
+            onToggle={onToggle}
+            onDelete={onDelete}
+          />
+        ))
+      )}
+    </ul>
+  );
+};
+
+export default TodoList;
+```
+
+## 4. 修改 `src/TodoItem.jsx`
+
+```javascript
+// src/TodoItem.jsx
+import { PRIORITY_WEIGHTS } from './utils';
+
+const priorityLabels = {
+  high: '高',
+  medium: '中',
+  low: '低'
+};
+
+const priorityColors = {
+  high: '#ff4444',
+  medium: '#ffaa00',
+  low: '#00aa00'
+};
+
+const TodoItem = ({ todo, onToggle, onDelete }) => {
+  return (
+    <li className={`todo-item ${todo.completed ? 'completed' : ''}`}>
+      <div className="todo-content">
+        <label>
+          <input 
+            type="checkbox" 
+            checked={todo.completed}
+            onChange={() => onToggle(todo.id)}
+          />
+          <span className={`priority-badge priority-${todo.priority}`}>
+            {priorityLabels[todo.priority] || '中'}
+          </span>
+          <span className="todo-text">{todo.text}</span>
+        </label>
+      </div>
+      <button 
+        className="delete-btn"
+        onClick={() => onDelete(todo.id)}
+      >
+        删除
+      </button>
+    </li>
+  );
+};
+
+export default TodoItem;
+```
+
+## 5. 添加样式（在 CSS 文件中）
+
+```css
+/* src/App.css 或 styles.css */
+
+.sort-controls {
+  margin-bottom: 20px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sort-controls select,
+.sort-controls button {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.todo-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.todo-item.completed {
+  background: #f5f5f5;
+  opacity: 0.7;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+}
+
+.todo-content label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
+  background: #eee;
+}
+
+.priority-high {
+  background: #ff4444;
+  color: white;
+}
+
+.priority-medium {
+  background: #ffaa00;
+  color: white;
+}
+
+.priority-low {
+  background: #00aa00;
+  color: white;
+}
+
+.delete-btn {
+  padding: 5px 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #cc0000;
+}
+```
+
+## 主要更改说明：
+
+1. **`utils.js`**：添加了优先级排序函数和对优先级权重的定义
+2. **`App.jsx`**：添加排序类型和排序方向的状态管理
+3. **`TodoItem.jsx`**：增加优先级显示标识
+4. **CSS 样式**：为优先级添加颜色标识
+
+现在你有了一个完整的按优先级排序功能，支持：
+- 高、中、低三档优先级
+- 按优先级降序（高优先在前）或升序（低优先在前）
+- 可视化优先级标签

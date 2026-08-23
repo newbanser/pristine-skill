@@ -1,0 +1,57 @@
+POST /api/login 开始。这个接口接收 `{ username, password }`，校验通过返回 `{ ok: true, token }`，否则 401。
+
+**1. 初始化依赖**
+
+```bash
+npm init -y
+npm install express sqlite3
+```
+
+**2. 启动服务（`server.js`）**
+
+```js
+// SOURCE: server.js
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+
+const app = express();
+const db = new sqlite3.Database('./users.db');
+
+app.use(express.json());
+
+// 初始化表：用户名唯一，密码明文（仅作为演示）
+db.run(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE,
+  password TEXT
+)`);
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
+    if (err) return res.status(500).json({ ok: false, error: err.message });
+    if (!row || row.password !== password) {
+      return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+    }
+    res.json({ ok: true, token: `token-${row.id}` });
+  });
+});
+
+app.listen(3000, () => console.log('Server on :3000'));
+```
+
+**3. 插入测试用户**
+
+```bash
+sqlite3 users.db "INSERT INTO users (username, password) VALUES ('admin', 'secret');"
+```
+
+**4. 测试**
+
+```bash
+curl -X POST http://localhost:3000/api/login -H "Content-Type: application/json" -d '{"username":"admin","password":"secret"}'
+```
+
+**5. 下一步**
+
+加密码哈希（`bcrypt`）和 JWT 签发替换 `token-${row.id}`，需要的话说一声。

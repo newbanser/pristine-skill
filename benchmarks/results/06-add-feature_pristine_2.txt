@@ -1,0 +1,26 @@
+答案：修改 `src/TodoList.jsx` 的排序逻辑，并新增 `src/utils.js` 的优先级权重函数。
+
+1. **`src/utils.js`**：新增优先级权重函数
+```js
+// src/utils.js
+export const PRIORITY = { LOW: 0, MEDIUM: 1, HIGH: 2 };
+
+export function priorityWeight(todo) {
+  return PRIORITY[todo.priority] ?? 0;
+}
+```
+
+2. **`src/TodoList.jsx`**：改用 `priorityWeight` 排序
+```jsx
+import { priorityWeight } from './utils';
+
+// 原：todos.sort((a, b) => a.createdAt - b.createdAt)
+// 改：
+todos.sort((a, b) => priorityWeight(b) - priorityWeight(a));
+```
+
+3. **版本控制**：提交后重建依赖树，无其他改动。
+
+**验证**：创建三个测试 todo（高/中/低优先级），确认列表按高→中→低显示。若 `todo.priority` 缺失，`priorityWeight` 返回 0（低优先级）。
+
+下一步（可选）：在 `App.jsx` 添加优先级筛选器 UI，需要 10 分钟左右的实现工作量。

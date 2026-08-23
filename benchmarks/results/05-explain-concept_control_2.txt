@@ -1,0 +1,117 @@
+闭包（Closure）是 JavaScript 中一个核心且非常强大的概念。简单来说，**闭包是指一个函数能够访问并记住其词法作用域（定义时的作用域）中变量的能力，即使这个函数在其定义时的作用域之外被调用。**
+
+**核心要点：**
+1. 闭包发生在**函数嵌套函数**的情况下。
+2. 内层函数可以访问外层函数的变量（即使外层函数已经执行完毕）。
+3. 外层函数的变量会被“记住”，不会因为函数执行结束而被垃圾回收机制回收。
+
+---
+
+### 经典例子：计数器
+
+这是我们最常见的闭包应用。外层函数 `createCounter` 内部的 `count` 变量，本应在函数执行后销毁，但由于内层函数 `increment` 引用了它，这个变量被“保存”了下来。
+
+```javascript
+function createCounter() {
+  let count = 0; // 这是外层函数的局部变量
+
+  // 这是一个闭包：内部函数引用了外部函数的变量 'count'
+  function increment() {
+    count++; // 访问并修改外部变量
+    return count;
+  }
+
+  return increment; // 返回内层函数
+}
+
+const myCounter = createCounter(); // 调用外层函数，返回 increment 函数
+
+console.log(myCounter()); // 输出: 1
+console.log(myCounter()); // 输出: 2
+console.log(myCounter()); // 输出: 3
+```
+
+**底层原理：**
+当 `createCounter()` 执行完毕后，按照正常逻辑 `count` 应该被销毁。但 JavaScript 引擎发现 `increment` 函数（作为返回值）仍然引用了 `count`，因此**不会**回收它，而是将其保存在内存中，形成一个“闭包”。
+
+---
+
+### 进阶例子：私有变量（数据封装）
+
+在 JavaScript 中，没有真正的“私有”属性，但我们可以用闭包模拟。
+
+```javascript
+function createPerson(name) {
+  // 私有变量：外部无法直接访问
+  let age = 20;
+
+  // 闭包提供对私有变量的访问和修改，但不暴露其本身
+  return {
+    getAge: function() {
+      return age;
+    },
+    setAge: function(newAge) {
+      if (newAge > 0) {
+        age = newAge;
+      }
+    },
+    getName: function() {
+      return name;
+    }
+  };
+}
+
+const person = createPerson("Alice");
+console.log(person.getName());    // "Alice"
+console.log(person.getAge());     // 20
+person.setAge(25);
+console.log(person.getAge());     // 25
+console.log(person.age);          // undefined (外部无法直接访问)
+```
+
+---
+
+### 常见陷阱：循环中的闭包
+
+这是一个经典问题，需要特别注意。
+
+```javascript
+// 错误示范：所有按钮都会弹出 3
+for (var i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log(i); // 输出: 3, 3, 3
+  }, 100);
+}
+
+// 正确示范：使用闭包保存每一次循环的 i 值
+for (var i = 0; i < 3; i++) {
+  // 没有 let 的旧写法，用函数包裹
+  (function(lockedValue) {
+    setTimeout(function() {
+      console.log(lockedValue); // 输出: 0, 1, 2
+    }, 100);
+  })(i);
+}
+
+// 现代写法：直接用 let 解决
+for (let j = 0; j < 3; j++) {
+  setTimeout(function() {
+    console.log(j); // 输出: 0, 1, 2
+  }, 100);
+}
+```
+
+**为什么第一种会输出 3？**  
+因为 `var` 是函数作用域，循环结束后 `i` 已经变为 3，而 `setTimeout` 里的回调函数（闭包）引用的是同一个 `i` 变量，执行时 `i` 已经变成了 3。
+
+---
+
+### 总结
+
+| 特性 | 说明 |
+|------|------|
+| **本质** | 函数 + 其定义时的词法作用域 |
+| **用途** | 1. 创建私有变量（模块模式）<br>2. 记忆函数状态（缓存）<br>3. 实现函数柯里化 |
+| **代价** | 闭包会占用内存，因为外部变量不会被回收。过度使用可能导致内存泄漏，需及时释放引用。 |
+
+理解闭包的关键是记住：**闭包不是函数本身，而是函数和它引用的外部变量组成的“整体”**。它在函数定义时就被创建，与函数调用位置无关。

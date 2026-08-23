@@ -1,0 +1,107 @@
+先回答：完整实现见下文。要点：无外部审计时，防 SQL 注入需要手动参数化，但这里选择使用 `better-sqlite3` 的预处理语句（已内置参数化），且不引入 ORM。
+
+1. 初始化项目与依赖
+
+```bash
+npm init -y
+npm install express better-sqlite3
+```
+
+2. 创建数据库表（`init-db.js`）
+
+```javascript
+const Database = require('better-sqlite3');
+const db = new Database('users.db');
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+db.close();
+console.log('数据库初始化完成');
+```
+
+3. 登录功能（`app.js`）
+
+```javascript
+const express = require('express');
+const Database = require('better-sqlite3');
+const crypto = require('crypto');
+
+const app = express();
+const db = new Database('users.db');
+
+app.use(express.json());
+
+// 密码哈希（使用 Node 内置 crypto，不引入 bcrypt 依赖）
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, stored) {
+  const [salt, hash] = stored.split(':');
+  const testHash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(testHash));
+}
+
+// 注册
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: '邮箱和密码必填' });
+  }
+
+  try {
+    const stmt = db.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)');
+    stmt.run(email, hashPassword(password));
+    res.status(201).json({ message: '注册成功' });
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      res.status(409).json({ error: '该邮箱已注册' });
+    } else {
+      res.status(500).json({ error: '注册失败' });
+    }
+  }
+});
+
+// 登录
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: '邮箱和密码必填' });
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  
+  if (user && verifyPassword(password, user.password_hash)) {
+    res.json({ message: '登录成功', userId: user.id });
+  } else {
+    res.status(401).json({ error: '邮箱或密码错误' });
+  }
+});
+
+const PORT = 3000;
+app.listen(PORT, () => console.log(`服务运行在 http://localhost:${PORT}`));
+```
+
+4. 运行
+
+```bash
+node init-db.js   # 初始化数据库
+node app.js       # 启动服务
+```
+
+测试：用 curl 或 Postman 发送请求。
+
+---
+
+下一步：启动服务后，用 `curl -X POST http://localhost:3000/register -H "Content-Type: application/json" -d '{"email":"test@example.com","password":"123456"}'` 测试注册，再测试登录。

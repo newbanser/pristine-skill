@@ -1,0 +1,47 @@
+这个 bug 的原因是当 `user.id === 5` 时，代码尝试访问 `user.profile.name`，但该用户的 `profile` 是空对象 `{}`，没有 `name` 属性，所以返回 `undefined`。
+
+修复方案有几种，我来提供几个选项：
+
+## 方案1：添加默认值（最简单）
+```javascript
+function getUserName(user) {
+  if (user.id === 5) {
+    return user.profile.name || user.name;  // 如果 profile.name 不存在，就回退到 user.name
+  }
+  return user.name;
+}
+```
+
+## 方案2：使用可选链和空值合并（现代 JavaScript）
+```javascript
+function getUserName(user) {
+  if (user.id === 5) {
+    return user.profile?.name ?? user.name;
+  }
+  return user.name;
+}
+```
+
+## 方案3：统一处理逻辑（推荐）
+```javascript
+function getUserName(user) {
+  return user.profile?.name ?? user.name;
+}
+```
+这个方案最简洁，因为它对所有用户都统一处理：如果存在 `profile.name` 就返回它，否则返回 `user.name`。
+
+## 方案4：如果需要保留特殊逻辑
+```javascript
+function getUserName(user) {
+  if (user.id === 5 && user.profile?.name) {
+    return user.profile.name;
+  }
+  return user.name;
+}
+```
+
+我推荐**方案3**，因为：
+1. 代码更简洁
+2. 逻辑更清晰
+3. 对所有用户的行为保持一致
+4. 使用了现代 JavaScript 的可选链（`?.`）和空值合并（`??`）运算符，更安全可靠

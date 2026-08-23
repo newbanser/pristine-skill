@@ -1,0 +1,21 @@
+闭包是函数与其声明时所在作用域的绑定。它让内部函数能访问外部函数的变量，即使外部函数已执行完毕。
+
+```javascript
+function createCounter() {
+  let count = 0;  // 外部函数的局部变量
+  return function() {  // 内部函数（闭包）
+    count++;          // 访问并修改外部变量
+    return count;
+  };
+}
+
+const counter = createCounter();
+console.log(counter());  // 1
+console.log(counter());  // 2
+```
+
+**关键点**：
+- `count` 在 `createCounter` 执行完后本应销毁，但闭包使其存活
+- 每次调用 `createCounter()` 创建独立的闭包（计数器互不影响）
+
+**实际用途**：数据私有化、函数柯里化、事件处理中保存状态。

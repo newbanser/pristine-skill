@@ -1,0 +1,34 @@
+三个函数共用解析和补零逻辑，缺失的部分是分隔符和模板。
+
+先建一个私有格式化器，再让三个函数各传所需分隔符。补零逻辑放进内部函数。
+
+```javascript
+function formatDate(date, separator = '-') {
+  const d = new Date(date);
+  return withPadding(d, date => `${date.getFullYear()}${separator}${date.getMonth() + 1}${separator}${date.getDate()}`);
+}
+
+function formatDate2(date) {
+  return formatDate(date, '/');
+}
+
+function displayDate(date) {
+  return withPadding(new Date(date), d => `${d.getMonth() + 1}月${d.getDate()}日`);
+}
+
+function withPadding(date, render) {
+  const original = date.getMonth;
+  date.getMonth = function() { return String(original.call(this) + 1).padStart(2, '0'); };
+  date.getDate = function() { return String(Date.prototype.getDate.call(this)).padStart(2, '0'); };
+  return render(date);
+}
+```
+
+改动点：
+- `formatDate` 现在是通用版本，接受可选分隔符
+- `formatDate2` 只是 `formatDate` 传 `/` 的别名
+- `displayDate` 用同一个 `withPadding` 包装
+
+验证一下：`formatDate('2023-01-05')` → `2023-01-05`，`formatDate2('2023-01-05')` → `2023/01/05`，`displayDate('2023-01-05')` → `01月05日`，都符合原行为。
+
+下一步你可以考虑：如果这三个函数在多个文件里被调用，是否值得把它们抽成一个公共模块。

@@ -1,0 +1,68 @@
+这段代码确实有很多重复的地方，我帮你重构一下。主要可以提取公共的逻辑，并提供一个更灵活的日期格式化函数：
+
+```javascript
+// 基础日期格式化函数，支持自定义分隔符
+function formatDate(date, separator = '-', includeYear = true) {
+  const d = new Date(date);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  if (!includeYear) {
+    return `${Number(month)}月${Number(day)}日`;
+  }
+  
+  return `${d.getFullYear()}${separator}${month}${separator}${day}`;
+}
+
+// 保留原有 API 兼容性
+function formatDateWithDash(date) {
+  return formatDate(date, '-');
+}
+
+function formatDateWithSlash(date) {
+  return formatDate(date, '/');
+}
+
+function displayDate(date) {
+  return formatDate(date, '', false);
+}
+
+// 或者更简洁的版本，直接导出一个统一的函数
+const dateFormatter = {
+  dash: (date) => formatDate(date, '-'),
+  slash: (date) => formatDate(date, '/'),
+  chinese: (date) => formatDate(date, '', false),
+  display: (date) => formatDate(date, '', false) // displayDate 的别名
+};
+
+// 使用示例：
+// dateFormatter.dash(new Date())     => "2023-12-25"
+// dateFormatter.slash(new Date())    => "2023/12/25"
+// dateFormatter.chinese(new Date())  => "12月25日"
+```
+
+如果你希望更简洁的重构，可以这样：
+
+```javascript
+const formatDate = (date, separator = '-', includeYear = true) => {
+  const d = new Date(date);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  return includeYear 
+    ? `${d.getFullYear()}${separator}${month}${separator}${day}`
+    : `${Number(month)}月${Number(day)}日`;
+};
+
+// 这样调用
+const date1 = formatDate(date, '-');     // "2023-12-25"
+const date2 = formatDate(date, '/');     // "2023/12/25"
+const date3 = formatDate(date, '', false); // "12月25日"
+```
+
+**重构思路：**
+1. 提取公共逻辑：解析日期、月份和日期的格式化
+2. 使用参数化设计：通过`separator`参数控制分隔符，通过`includeYear`参数控制是否包含年份
+3. 保持向后兼容：保留原有的函数名作为包装函数
+
+这样既减少了代码重复，又提高了代码的可维护性和灵活性。

@@ -1,0 +1,52 @@
+我来帮你重构这段代码，提取公共逻辑并减少重复：
+
+```javascript
+function formatDate(date, separator = '-') {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}${separator}${month}${separator}${day}`;
+}
+
+function displayDate(date) {
+  const d = new Date(date);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
+// 如果还需要保留原来的函数名，可以这样包装：
+const formatDate1 = (date) => formatDate(date, '-');
+const formatDate2 = (date) => formatDate(date, '/');
+```
+
+如果想把 `displayDate` 也统一起来，可以进一步重构：
+
+```javascript
+function formatDate(date, options = {}) {
+  const d = new Date(date);
+  const { separator = '-', includeYear = true, showMonthOnly = false } = options;
+  
+  if (showMonthOnly) {
+    return `${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+  
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  return includeYear 
+    ? `${year}${separator}${month}${separator}${day}`
+    : `${month}${separator}${day}`;
+}
+
+// 使用示例：
+formatDate('2024-01-15');                          // "2024-01-15"
+formatDate('2024-01-15', { separator: '/' });      // "2024/01/15"
+formatDate('2024-01-15', { showMonthOnly: true }); // "1月15日"
+```
+
+**推荐方案**：使用第一个重构方案，因为它：
+1. 简单清晰，易于理解和维护
+2. 保持了原有功能不变
+3. 通过参数化 `separator` 消除了重复
+4. 保留了 `displayDate` 作为独立函数（因为它的格式完全不同）

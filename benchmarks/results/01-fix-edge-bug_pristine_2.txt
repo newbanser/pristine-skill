@@ -1,0 +1,23 @@
+根因：`id === 5` 分支假定 `profile.name` 存在，但数据里 `profile` 是空对象。
+
+修复一（改数据，推荐）：
+
+```javascript
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 5, name: "Bob", profile: { name: "Bob" } },
+  { id: 3, name: "Charlie" }
+];
+```
+
+修复二（改代码，保守可选）：
+
+```javascript
+function getUserName(user) {
+  return user.profile?.name ?? user.name;
+}
+```
+
+说明：修复二用空值合并统一处理所有用户，不再针对 `id === 5` 特判。它消除了特殊分支，符合"追溯根源"原则——根因是数据/逻辑不一致，不是漏了一个用户。
+
+下一步：确认哪种修复符合业务预期——`id === 5` 的用户在系统中是否应有 `profile.name`？若应有，用修复一；若它是可选字段，用修复二。

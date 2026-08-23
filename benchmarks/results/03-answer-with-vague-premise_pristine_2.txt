@@ -1,0 +1,19 @@
+数据库慢导致 500，加一层 Redis 缓存。
+
+具体步骤：
+
+1. 在 `src/services/UserService.ts` 里，`getUser(id)` 方法上新增缓存逻辑：
+   ```ts
+   async getUser(id: string) {
+     const cached = await redis.get(`user:${id}`);
+     if (cached) return JSON.parse(cached);
+     
+     const user = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+     await redis.set(`user:${id}`, JSON.stringify(user), 'EX', 60);
+     return user;
+   }
+   ```
+2. 确认 Redis 已安装并在本地运行（`brew services start redis`）。
+3. 部署后，相同请求会命中缓存，不再打到数据库。
+
+下一步：在 `UserService` 里加这个缓存，然后测试 `GET /users/1` 两次，第二次延迟应显著下降。

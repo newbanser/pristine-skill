@@ -1,0 +1,17 @@
+闭包是函数与其声明时所在作用域的绑定。函数记住并访问定义时的变量，即使该作用域已执行完毕。
+
+```javascript
+function counter() {
+  let count = 0;
+  return function() {
+    count++;
+    return count;
+  };
+}
+
+const increment = counter();
+console.log(increment()); // 1
+console.log(increment()); // 2
+```
+
+`increment` 闭包住了 `counter` 内的 `count`，每次调用访问并修改它。

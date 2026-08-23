@@ -1,0 +1,25 @@
+模板提取为参数化函数。两个格式函数合并为一个，`displayDate` 是中文格式变体。
+
+```javascript
+function formatDate(date, separator = '-') {
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${separator}${m}${separator}${day}`;
+}
+```
+
+`displayDate` 不需要带前导零，是独立语义，保留原文，仅提取公共的 date 初始化：
+
+```javascript
+function displayDate(date) {
+  const d = new Date(date);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+```
+
+两个 `formatDate` 和一个 `formatDate2` 用上例所示，`displayDate` 可保持独立。若 `displayDate` 调用点不多，也可维持不变。
+
+1. 将 `formatDate2` 的所有调用点改为 `formatDate(date, '/')`。
+2. 删除 `formatDate2`。

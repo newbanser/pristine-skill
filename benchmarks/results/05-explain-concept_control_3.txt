@@ -1,0 +1,158 @@
+## 闭包（Closure）
+
+**闭包**是指一个函数能够访问并记住其**词法作用域**（定义时的作用域）中的变量，即使该函数在其词法作用域之外被执行。
+
+简单说：**函数 + 它能访问的外部变量 = 闭包**
+
+### 核心特点
+1. 内部函数可以访问外部函数的变量
+2. 外部函数的变量在函数执行完后**不会销毁**，而是被保存在内存中
+3. 闭包可以让你从一个函数内部访问另一个函数作用域的变量
+
+---
+
+## 经典示例
+
+### 示例1：计数器
+
+```javascript
+function createCounter() {
+  let count = 0;  // 外部函数的局部变量
+  
+  return function() {  // 返回一个内部函数（闭包）
+    count++;          // 访问并修改外部变量
+    return count;
+  };
+}
+
+const counter = createCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
+console.log(counter()); // 3
+
+// 即使 createCounter 已经执行完毕，count 变量依然存在
+```
+
+### 示例2：私有变量
+
+```javascript
+function createPerson(name) {
+  let age = 0;
+  
+  return {
+    getName: function() {
+      return name;
+    },
+    getAge: function() {
+      return age;
+    },
+    celebrateBirthday: function() {
+      age++;
+      console.log(`${name} 现在 ${age} 岁了`);
+    }
+  };
+}
+
+const person = createPerson('张三');
+person.celebrateBirthday(); // 张三 现在 1 岁了
+person.celebrateBirthday(); // 张三 现在 2 岁了
+// 注意：age 变量无法从外部直接访问
+console.log(person.age); // undefined（模拟私有变量）
+```
+
+---
+
+## 常见使用场景
+
+### 1. 延迟执行/事件处理
+
+```javascript
+function setupButton() {
+  let clickCount = 0;
+  
+  document.getElementById('myButton').addEventListener('click', function() {
+    clickCount++;
+    console.log(`按钮被点击了 ${clickCount} 次`);
+  });
+}
+```
+
+### 2. 函数工厂
+
+```javascript
+function multiplyBy(factor) {
+  return function(number) {
+    return number * factor;
+  };
+}
+
+const double = multiplyBy(2);
+const triple = multiplyBy(3);
+
+console.log(double(5));  // 10
+console.log(triple(5));  // 15
+```
+
+---
+
+## 注意事项（易错点）
+
+### 闭包导致的问题 - 循环中的闭包
+
+```javascript
+// ❌ 错误示例
+for (var i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log(i);  // 输出：3 3 3
+  }, 100);
+}
+
+// ✅ 正确修复（使用 let）
+for (let i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log(i);  // 输出：0 1 2
+  }, 100);
+}
+
+// ✅ 另一种修复（使用 IIFE 立即执行函数）
+for (var i = 0; i < 3; i++) {
+  (function(num) {
+    setTimeout(function() {
+      console.log(num);  // 输出：0 1 2
+    }, 100);
+  })(i);
+}
+```
+
+---
+
+## 闭包的内存管理
+
+闭包会保持外部变量的引用，如果使用不当可能导致**内存泄漏**：
+
+```javascript
+// ❌ 可能造成内存泄漏
+function heavyTask() {
+  const largeData = new Array(1000000).fill('data');
+  
+  return function() {
+    console.log(largeData.length);
+  };
+}
+
+// ✅ 使用后主动释放
+let closure = heavyTask();
+// 使用完成后
+closure = null;  // 让垃圾回收器可以回收 largeData
+```
+
+---
+
+## 总结
+
+闭包是 JavaScript 中非常强大的特性，它让我们能够：
+- **封装**数据（实现私有变量）
+- **记忆**状态（函数记住上次的状态）
+- **创建**函数工厂（动态生成函数）
+
+理解闭包的关键在于**词法作用域**：函数在**定义时**记住它所在的上下文的变量，而不是执行时。

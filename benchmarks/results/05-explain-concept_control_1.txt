@@ -1,0 +1,148 @@
+## 什么是闭包？
+
+**闭包（Closure）** 是指函数与其词法作用域（lexical scope）的组合。简单来说，**一个内部函数可以访问其外部函数作用域中的变量**，即使外部函数已经执行完毕。
+
+## 核心特点
+
+1. **内部函数引用外部函数的变量**
+2. **外部函数执行后，其变量不会被垃圾回收**
+3. **每次调用外部函数都会创建新的闭包**
+
+## 经典示例
+
+### 示例 1：基本闭包
+```javascript
+function createCounter() {
+    let count = 0;  // 外部函数的局部变量
+    
+    return function() {  // 返回内部函数（闭包）
+        count++;
+        return count;
+    };
+}
+
+const counter = createCounter();
+console.log(counter());  // 1
+console.log(counter());  // 2
+console.log(counter());  // 3
+
+// 即使 createCounter 执行完毕，count 仍然存在
+```
+
+### 示例 2：多个闭包实例
+```javascript
+function createGreeting(greeting) {
+    return function(name) {
+        return `${greeting}, ${name}!`;
+    };
+}
+
+const sayHello = createGreeting("Hello");
+const sayGoodbye = createGreeting("Goodbye");
+
+console.log(sayHello("Alice"));   // Hello, Alice!
+console.log(sayGoodbye("Bob"));   // Goodbye, Bob!
+```
+
+## 实际应用场景
+
+### 1. 数据私有化（封装）
+```javascript
+function createPerson(name) {
+    let age = 0;  // 私有变量
+    
+    return {
+        getName: function() {
+            return name;
+        },
+        getAge: function() {
+            return age;
+        },
+        birthday: function() {
+            age++;
+            console.log(`${name} is now ${age} years old`);
+        }
+    };
+}
+
+const person = createPerson("Tom");
+person.birthday();  // Tom is now 1 years old
+person.birthday();  // Tom is now 2 years old
+// console.log(person.age)  // undefined，无法直接访问
+```
+
+### 2. 防抖/节流函数
+```javascript
+function debounce(fn, delay) {
+    let timer = null;
+    
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
+    };
+}
+
+// 使用
+const search = debounce((query) => {
+    console.log(`Searching for: ${query}`);
+}, 500);
+
+search("JavaScript");
+search("JavaScript Closures");
+// 只有最后一次调用会在500ms后执行
+```
+
+## 注意事项
+
+### ⚠️ 常见陷阱
+```javascript
+// 循环中的闭包问题
+for (var i = 0; i < 5; i++) {
+    setTimeout(() => {
+        console.log(i);  // 打印 5 次 5，而不是 0,1,2,3,4
+    }, 100);
+}
+
+// 解决方案1：使用 let
+for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+        console.log(i);  // 打印 0,1,2,3,4
+    }, 100);
+}
+
+// 解决方案2：使用立即执行函数
+for (var i = 0; i < 5; i++) {
+    ((j) => {
+        setTimeout(() => {
+            console.log(j);  // 打印 0,1,2,3,4
+        }, 100);
+    })(i);
+}
+```
+
+### 内存管理
+```javascript
+function createLargeData() {
+    const largeData = new Array(1000000).fill("data");
+    
+    return function() {
+        console.log(largeData[0]);
+    };
+}
+
+// 如果不使用，应手动释放
+const fn = createLargeData();
+fn();  // 使用
+fn = null;  // 解除引用，让垃圾回收可以工作
+```
+
+## 关键概念总结
+
+1. **词法作用域**：函数在定义时确定作用域，而非调用时
+2. **闭包形成条件**：内部函数引用外部函数的变量
+3. **闭包生命周期**：只要还有引用，闭包就不会被垃圾回收
+4. **实用价值**：实现私有变量、柯里化、事件监听器、函数工厂等
+
+闭包是 JavaScript 中最强大的特性之一，理解它能帮你写出更优雅、更模块化的代码。

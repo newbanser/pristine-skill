@@ -1,0 +1,19 @@
+两处重复：`new Date(date)` 和月/日补零逻辑。
+
+```javascript
+const pad = n => String(n).padStart(2, '0');
+
+function formatDate(date, sep = '-') {
+  const d = new Date(date);
+  return `${d.getFullYear()}${sep}${pad(d.getMonth()+1)}${sep}${pad(d.getDate())}`;
+}
+
+function displayDate(date) {
+  const d = new Date(date);
+  return `${d.getMonth()+1}月${d.getDate()}日`;
+}
+```
+
+`formatDate2` 调用 `formatDate(date, '/')` 即可。`displayDate` 无补零需求，保留原样。
+
+下一步：搜索调用点确认无 `formatDate2` 直接引用后删除该函数。
