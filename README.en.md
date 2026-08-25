@@ -76,8 +76,6 @@ Humans spontaneously fight entropy with intuition and common sense: seeing two c
 
 ### AI has three unhealable defects
 
-Entropy alone is not dangerous — the inability to self-heal is.
-
 | Defect | Consequence |
 |---|---|
 | **Memory loss** | No persistent memory; survives across sessions via files. Files rot (paths move, counts change, old names linger), and AI reads files whole, not diffs — one stale entry is a false premise for the next session |
@@ -88,7 +86,7 @@ These three problems AI cannot fix itself. An external discipline is required to
 
 ### Pristine = the counterforce
 
-The seven laws are concrete counter-measures. The four-layer framework is the scope of the fight (from thought to output). Mechanical verification is the landing mechanism (evaluator = executor, self-assessment is unreliable).
+The eight laws are concrete counter-measures. The four-layer framework is the scope of the fight (from thought to output). Mechanical verification is the landing mechanism (evaluator = executor, self-assessment is unreliable).
 
 Core maxim: "Write everything as if for the first time" — reset entropy on every change, accumulate no historical baggage. Economy forces reliability.
 
@@ -104,30 +102,33 @@ It also does not fit every scenario: exploratory prototypes, one-off scripts, an
 
 ## What your AI needs to know
 
-### The seven laws
+### The eight laws (v2.1)
+
+Ordered by layer + causal chain: 1–2 foundations → 3–4 daily → 5–7 high-frequency scenarios → 8 specific timing.
 
 | Law | Meaning |
 |---|---|
-| **No patching — 追溯根源** | Fix the root, not the symptom. No special-case `if`s, no copied-and-tweaked logic, no switches that route around a problem. Rewrite when the patch pile is worse than a clean rewrite |
-| **Code explains itself — 代码自释** | Names carry the "what". Comments only say "why": business rules, constraints, deliberate trade-offs. No explanatory comments, no commented-out code |
-| **No residue — 不留残渣** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes |
-| **Deployment parity — 部署如一** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes |
-| **Nothing extra — 单一真源** | One source for every behavior. Reuse what exists first; what doesn't need to exist, don't write |
-| **Session cost — 会话成本** | An unbounded session is the same entropy as an unbounded file. Reset on context water level, not turn count; write a checkpoint before every reset |
-| **First draft before launch — 上线初稿** | No installed base before launch. Change the definition, not the compat. No migrations, no compatibility layers |
+| **1. No patching — 追溯根源** | Fix the root, not the symptom. No special-case `if`s, no copied-and-tweaked logic, no switches that route around a problem. Rewrite when the patch pile is worse than a clean rewrite |
+| **2. Nothing extra — 单一真源** | Purity means no duplication. Reuse existing helpers/utils/patterns — stdlib, platform, installed deps — before writing your own. Climb the reuse ladder, stop at the first rung that holds |
+| **3. No residue — 不留残渣** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes |
+| **4. Code explains itself — 代码自释** | Names carry the "what". Comments only say what code cannot: business rules, constraints, historical traps. No explanatory comments, no commented-out code |
+| **5. Deployment parity — 部署如一** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes |
+| **6. Session cost — 会话成本** | An unbounded session is the same entropy as an unbounded file. Reset on context water level, not turn count; write a checkpoint before every reset |
+| **7. Conversation purity — 对话纯净** | Every reply is the highest-frequency output and the main entry point for entropy. 9 rules: lead with the answer, number multi-step tasks, end with one concrete next step, suppress tangents, matter-of-fact tone, cap lists at 5, no preamble/recap/closers, specific time estimates, make wins visible |
+| **8. First draft before launch — 上线初稿** | No installed base before launch. Change the definition, not the compat. No migrations, no compatibility layers |
 
-### Four-layer framework (v2)
+### Four-layer framework (v2.1)
 
-v2 extends purity from code to four layers, forming a causal chain: impure thought → impure planning → impure execution → impure output. Fixing output without fixing the layer above is patching.
+Four layers form a causal chain: impure thought → impure planning → impure execution → impure output. Fixing output without fixing the layer above is patching.
 
 | Layer | Governs | Maps to laws |
 |---|---|---|
-| **Thought purity** (input) | What premises to accept, reject, and not carry forward | 1, 5 |
-| **Planning purity** (decision) | How goals decompose, what to include/exclude, how to validate before execution | 7 |
-| **Execution purity** (action) | How actions are performed, what tools to use, how state is tracked, how sessions are managed | 1, 3, 4, 6 |
-| **Output purity** (delivery) | Form and density of artifacts and conversation | 2, 5, 7 |
+| **Thought purity** (input) | What premises to accept, reject, and not carry forward | 1, 2 |
+| **Planning purity** (decision) | How goals decompose, what to include/exclude, how to validate before execution | 8 |
+| **Execution purity** (action) | How actions are performed, what tools to use, how state is tracked | 1, 3, 5, 6 |
+| **Output purity** (delivery) | Form and density of artifacts (code/docs/files) and conversation (every reply) | 2, 4, 7, 8 |
 
-The output layer adds **conversation purity** — 9 rules: lead with the answer, number multi-step tasks, end with one concrete next step, suppress tangents, matter-of-fact tone, cap lists at 5, no preamble/recap/closers, specific time estimates, make wins visible. Full rules in `SKILL.md`.
+Full conversation purity 9 rules, meta-rules, Pre-send check, and decision table are in `SKILL.md`.
 
 ## Install
 
@@ -168,7 +169,7 @@ Three trigger levels:
 
 ## Companion tools
 
-The seven laws are intent, not mechanism. Intent is executed by people (models), and people's reminders and self-assessments are unreliable — so purity lands on the codebase through scripts.
+The eight laws are intent, not mechanism. Intent is executed by people (models), and people's reminders and self-assessments are unreliable — so purity lands on the codebase through scripts.
 
 ### Pristine scan (pristine-scan)
 
@@ -203,6 +204,15 @@ Wired as a hook, mechanically monitors context water level. 70% soft reminder, 8
 }
 ```
 
+### Multi-location sync (sync-skills)
+
+Change SKILL.md in one place, sync to global skill and project skill with one command — no manual copying. Source of truth is the repo, targets are the skill directories.
+
+```bash
+node scripts/sync-skills.js           # sync to all target locations
+node scripts/sync-skills.js --verify  # verify drift only, don't sync
+```
+
 ## One line
 
 Self-checks are a habit for humans, not a mechanism for AI. Keeping an AI pristine is not discipline — it is system.
@@ -212,5 +222,3 @@ Self-checks are a habit for humans, not a mechanism for AI. Keeping an AI pristi
 Brought to you by [Bailu](https://github.com/bailu-agent).
 
 MIT License. Star if it saved you one patch.
-
-[简体中文](README.md) | **English**
