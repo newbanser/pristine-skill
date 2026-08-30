@@ -1,0 +1,80 @@
+=== 1/3 校准判定器 ===
+  ✓ 01-fix-edge-bug expected=pass got=pass
+  ✓ 01-fix-edge-bug expected=fail got=fail
+  ✓ 02-implement-login expected=pass got=pass
+  ✓ 02-implement-login expected=fail got=fail
+  ✓ 03-answer-with-vague-premise expected=pass got=pass
+  ✓ 03-answer-with-vague-premise expected=fail got=fail
+  ✓ 05-explain-concept expected=pass got=pass
+  ✓ 05-explain-concept expected=fail got=fail
+  ✗ 09-plan-feature expected=pass got=fail  (最小范围、必要步骤、无目标外功能)
+  ✓ 09-plan-feature expected=fail got=fail
+  ✓ 10-debug-vague-error expected=pass got=pass
+  ✓ 10-debug-vague-error expected=fail got=fail
+  校准准确率: 91.7% (11/12) 阈值 85%
+判定器通过校准门禁，继续。
+
+=== 2/3 判定输出 ===
+  01-fix-edge-bug / control / run 1... PASS
+  01-fix-edge-bug / control / run 2... PASS
+  01-fix-edge-bug / control / run 3... PASS
+  01-fix-edge-bug / concise / run 1... FAIL
+  01-fix-edge-bug / concise / run 2... PASS
+  01-fix-edge-bug / concise / run 3... PASS
+  01-fix-edge-bug / pristine / run 1... FAIL
+  01-fix-edge-bug / pristine / run 2... PASS
+  01-fix-edge-bug / pristine / run 3... FAIL
+  02-implement-login / control / run 1... FAIL
+  02-implement-login / control / run 2... FAIL
+  02-implement-login / control / run 3... FAIL
+  02-implement-login / concise / run 1... FAIL
+  02-implement-login / concise / run 2... FAIL
+  02-implement-login / concise / run 3... FAIL
+  02-implement-login / pristine / run 1... FAIL
+  02-implement-login / pristine / run 2... FAIL
+  02-implement-login / pristine / run 3... FAIL
+  03-answer-with-vague-premise / control / run 1... PASS
+  03-answer-with-vague-premise / control / run 2... PASS
+  03-answer-with-vague-premise / control / run 3... PASS
+  03-answer-with-vague-premise / concise / run 1... FAIL
+  03-answer-with-vague-premise / concise / run 2... FAIL
+  03-answer-with-vague-premise / concise / run 3... FAIL
+  03-answer-with-vague-premise / pristine / run 1... PASS
+  03-answer-with-vague-premise / pristine / run 2... PASS
+  03-answer-with-vague-premise / pristine / run 3... PASS
+  05-explain-concept / control / run 1... FAIL
+  05-explain-concept / control / run 2... PASS
+  05-explain-concept / control / run 3... FAIL
+  05-explain-concept / concise / run 1... PASS
+  05-explain-concept / concise / run 2... PASS
+  05-explain-concept / concise / run 3... PASS
+  05-explain-concept / pristine / run 1... PASS
+  05-explain-concept / pristine / run 2... PASS
+  05-explain-concept / pristine / run 3... FAIL
+  09-plan-feature / control / run 1... FAIL
+  09-plan-feature / control / run 2... FAIL
+  09-plan-feature / control / run 3... FAIL
+  09-plan-feature / concise / run 1... PASS
+  09-plan-feature / concise / run 2... PASS
+  09-plan-feature / concise / run 3... PASS
+  09-plan-feature / pristine / run 1... FAIL
+  09-plan-feature / pristine / run 2... PASS
+  09-plan-feature / pristine / run 3... FAIL
+  10-debug-vague-error / control / run 1... FAIL
+  10-debug-vague-error / control / run 2... PASS
+  10-debug-vague-error / control / run 3... PASS
+  10-debug-vague-error / concise / run 1... FAIL
+  10-debug-vague-error / concise / run 2... FAIL
+  10-debug-vague-error / concise / run 3... FAIL
+  10-debug-vague-error / pristine / run 1... FAIL
+  10-debug-vague-error / pristine / run 2... FAIL
+  10-debug-vague-error / pristine / run 3... PASS
+
+=== 3/3 结果 ===
+# skillbench 评测报告（MVP）
+
+> 2026-08-30 · deepseek-chat · 校准准确率 91.7% · 54 个输出被判定
+
+## 达标率（判定器按验收标准核验）
+
+报告已写入: benchmarks/results/skillbench_report.md

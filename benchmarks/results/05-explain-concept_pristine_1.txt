@@ -1,17 +1,49 @@
-闭包是函数与其声明时所在作用域的绑定。函数记住并访问定义时的变量，即使该作用域已执行完毕。
+闭包是函数与其词法作用域的组合。即使函数在其定义的作用域之外执行，它仍能访问并记住定义时的变量。
 
 ```javascript
-function counter() {
-  let count = 0;
+function createCounter() {
+  let count = 0;  // 自由变量
   return function() {
-    count++;
+    count++;      // 访问并修改外部函数的变量
     return count;
   };
 }
 
-const increment = counter();
-console.log(increment()); // 1
-console.log(increment()); // 2
+const counter = createCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
 ```
 
-`increment` 闭包住了 `counter` 内的 `count`，每次调用访问并修改它。
+核心机制：`createCounter` 执行后，`count` 本应被垃圾回收，但内部函数仍引用它，形成了闭包 —— 内部函数持有对整个作用域链的引用，使 `count` 得以存续。
+
+**实际用途**：
+
+1. **数据私有化**：模拟私有变量
+```javascript
+function createPerson(name) {
+  return {
+    getName: () => name,
+    setName: (newName) => name = newName
+  };
+}
+```
+
+2. **函数工厂**：固定参数
+```javascript
+const multiply = (a) => (b) => a * b;
+const double = multiply(2);
+console.log(double(5)); // 10
+```
+
+3. **事件处理**：保存状态
+```javascript
+function setupButton(id) {
+  let clicks = 0;
+  document.getElementById(id).addEventListener('click', () => {
+    clicks++;
+    console.log(`已点击 ${clicks} 次`);
+  });
+}
+```
+
+**注意事项**：闭包会持续占用内存，避免在大型循环中无必要创建。

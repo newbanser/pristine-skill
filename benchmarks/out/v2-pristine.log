@@ -1,0 +1,19 @@
+输出目录: benchmarks/out/v2-pristine
+
+=== 1/4 校准判定器 ===
+  ✓ 01-fix-edge-bug expected=pass got=pass [2pass/1fail]
+  ✓ 01-fix-edge-bug expected=fail got=fail [0pass/3fail]
+  ✓ 02-implement-login expected=pass got=pass [2pass/1fail]
+  ✓ 02-implement-login expected=fail got=fail [0pass/3fail]
+  ✓ 03-answer-with-vague-premise expected=pass got=pass [3pass/0fail]
+  ✓ 03-answer-with-vague-premise expected=fail got=fail [0pass/3fail]
+  ✓ 05-explain-concept expected=pass got=pass [3pass/0fail]
+  ✓ 05-explain-concept expected=fail got=fail [0pass/3fail]
+  ✓ 09-plan-feature expected=pass got=pass [2pass/1fail]
+  ✓ 09-plan-feature expected=fail got=fail [0pass/3fail]
+  ✓ 10-debug-vague-error expected=pass got=pass [3pass/0fail]
+  ✓ 10-debug-vague-error expected=fail got=fail [0pass/3fail]
+  校准准确率: 100.0% (12/12, 3 次观测/样例) 阈值 85%
+判定器通过校准门禁，继续。
+
+=== 2/4 生成输出 ===

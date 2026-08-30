@@ -1,21 +1,37 @@
-闭包是函数与其声明时所在作用域的绑定。它让内部函数能访问外部函数的变量，即使外部函数已执行完毕。
+闭包是函数记住并访问其词法作用域的能力，即使函数在其定义作用域之外执行。
 
 ```javascript
 function createCounter() {
-  let count = 0;  // 外部函数的局部变量
-  return function() {  // 内部函数（闭包）
-    count++;          // 访问并修改外部变量
-    return count;
-  };
+  let count = 0
+  return function() {
+    count++
+    return count
+  }
 }
 
-const counter = createCounter();
-console.log(counter());  // 1
-console.log(counter());  // 2
+const counter = createCounter()
+counter() // 1
+counter() // 2
 ```
 
-**关键点**：
-- `count` 在 `createCounter` 执行完后本应销毁，但闭包使其存活
-- 每次调用 `createCounter()` 创建独立的闭包（计数器互不影响）
+内层函数访问了外层函数的 `count` 变量，而 `count` 在 `createCounter` 执行后本应被回收，但闭包让它存活下来。
 
-**实际用途**：数据私有化、函数柯里化、事件处理中保存状态。
+**核心机制**：
+- 词法作用域在**定义时**确定，不在调用时
+- 内部函数持有对外部变量引用的"背包"
+- 每个闭包独立保留自己的变量副本
+
+**实际用途**：
+1. 数据私有化：模拟私有变量
+2. 回调/事件处理器中捕获上下文
+3. 函数工厂（如上例）
+4. 记忆化（缓存函数结果）
+
+**典型错误**：循环中创建闭包，变量被共享。
+```javascript
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), i * 100)
+}
+// 3 3 3（var 无块级作用域）
+```
+用 `let` 声明 `i` 即可修复。

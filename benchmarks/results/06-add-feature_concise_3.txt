@@ -1,0 +1,20 @@
+在App.jsx中添加state：`const [sortBy, setSortBy] = useState('createdAt')`
+
+修改TodoList.jsx，接收sortBy prop，在渲染前排序：
+
+```jsx
+const sortedTodos = [...todos].sort((a, b) => 
+  sortBy === 'priority' 
+    ? a.priority - b.priority 
+    : new Date(a.createdAt) - new Date(b.createdAt)
+);
+```
+
+在App.jsx的JSX中，TodoList组件前加：
+
+```jsx
+<button onClick={() => setSortBy('priority')}>按优先级排序</button>
+<button onClick={() => setSortBy('createdAt')}>按时间排序</button>
+```
+
+将sortBy传入TodoList：`<TodoList todos={sortedTodos} />`

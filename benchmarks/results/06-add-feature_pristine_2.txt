@@ -1,26 +1,41 @@
-答案：修改 `src/TodoList.jsx` 的排序逻辑，并新增 `src/utils.js` 的优先级权重函数。
+先给出核心方案，再给出具体实现。
 
-1. **`src/utils.js`**：新增优先级权重函数
-```js
-// src/utils.js
-export const PRIORITY = { LOW: 0, MEDIUM: 1, HIGH: 2 };
+---
 
-export function priorityWeight(todo) {
-  return PRIORITY[todo.priority] ?? 0;
-}
+**结论：在 `TodoList.jsx` 中增加排序逻辑，将其从"创建顺序"改为按优先级排序。**
+
+---
+
+**具体修改步骤：**
+
+1. **修改 `TodoList.jsx`**
+   - 找到渲染 `todoList` 的位置
+   - 将排序从"按创建时间"改为"按优先级"排序
+   - 优先级从高到低排序
+
+2. **修改后的核心代码（`TodoList.jsx` 中）：**
+
+```javascript
+import { TodoItem } from './TodoItem';
+
+// 排序逻辑：按优先级从高到低（假设 priority 字段，数字越大优先级越高）
+const sortedTodos = [...todoList].sort((a, b) => b.priority - a.priority);
+
+// 渲染
+return (
+  <div>
+    {sortedTodos.map(todo => (
+      <TodoItem key={todo.id} todo={todo} />
+    ))}
+  </div>
+);
 ```
 
-2. **`src/TodoList.jsx`**：改用 `priorityWeight` 排序
-```jsx
-import { priorityWeight } from './utils';
+3. **前提确认：**
+   - 假设 `todoList` 中已有 `priority` 字段（如 `1-3` 或 `1-5`）
+   - 若字段名为 `priority` 或 `level`，请按实际字段名调整
+   - 若字段缺失，需先在数据源（如 `App.jsx` 或 `utils.js`）补充
 
-// 原：todos.sort((a, b) => a.createdAt - b.createdAt)
-// 改：
-todos.sort((a, b) => priorityWeight(b) - priorityWeight(a));
-```
+---
 
-3. **版本控制**：提交后重建依赖树，无其他改动。
-
-**验证**：创建三个测试 todo（高/中/低优先级），确认列表按高→中→低显示。若 `todo.priority` 缺失，`priorityWeight` 返回 0（低优先级）。
-
-下一步（可选）：在 `App.jsx` 添加优先级筛选器 UI，需要 10 分钟左右的实现工作量。
+**下一步：** 请确认 `priority` 字段的实际名称和取值，我立即按其调整排序代码。

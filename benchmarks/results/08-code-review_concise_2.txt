@@ -1,0 +1,15 @@
+**问题**：重复的`result.push`逻辑，可读性差；`flag`字段冗余。
+
+**修改**：
+```javascript
+function process(items) {
+  return items
+    .filter(item => item.active)
+    .map(item => {
+      const val = item.value * 2;
+      return { id: item.id, val, flag: val > 100 };
+    });
+}
+```
+
+**说明**：用`filter`+`map`替代for循环，简化flag为直接比较表达式，消除重复push。

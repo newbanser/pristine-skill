@@ -1,0 +1,38 @@
+在 HTML 响应中返回了 JSON，而不是实际的 API 响应。
+
+最可能的原因是反向代理配置错误，导致请求返回了 `index.html` 而不是 API 端点。
+
+**检查顺序：**
+
+1. **确认代理路径**（最可能）：
+
+```bash
+# 检查 nginx 配置
+nano /etc/nginx/sites-available/your-site
+# 确认 /api/ 位置有 proxy_pass，且没有多余的重写规则
+```
+
+2. **本地测试 API**：
+
+```bash
+# 在服务器上直接测试，绕过代理
+curl -H "Host: your-domain.com" http://localhost:3000/api/your-endpoint
+
+# 对比通过代理测试
+curl -H "Host: your-domain.com" http://localhost/api/your-endpoint
+```
+
+3. **检查部署版本**：
+
+```bash
+# 确认新版本是否真的部署上了
+cd /path/to/app
+git log --oneline -3
+git status
+```
+
+**最可能的根因**：新版本改了 API 路径前缀，但 nginx 的 `location` 块没更新。
+
+---
+
+**下一步动作**：在服务器上运行上面的 `curl` 命令，把两处输出都贴给我，我来判断是代理问题还是版本问题。

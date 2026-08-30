@@ -1,19 +1,27 @@
-两处重复：`new Date(date)` 和月/日补零逻辑。
+**问题**：`formatDate` 和 `formatDate2` 重复度最高。`displayDate` 也重复了解析逻辑。修复：抽出 `parseDate` 和接受分隔符的 `formatYMD`。
 
-```javascript
-const pad = n => String(n).padStart(2, '0');
-
-function formatDate(date, sep = '-') {
-  const d = new Date(date);
-  return `${d.getFullYear()}${sep}${pad(d.getMonth()+1)}${sep}${pad(d.getDate())}`;
+```typescript
+function parseDate(date: string | Date): Date {
+  return date instanceof Date ? date : new Date(date);
 }
 
-function displayDate(date) {
-  const d = new Date(date);
+function formatYMD(date: string | Date, sep = '-'): string {
+  const d = parseDate(date);
+  return `${d.getFullYear()}${sep}${String(d.getMonth()+1).padStart(2,'0')}${sep}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function formatDate(date: string | Date): string {
+  return formatYMD(date);
+}
+
+function formatDate2(date: string | Date): string {
+  return formatYMD(date, '/');
+}
+
+function displayDate(date: string | Date): string {
+  const d = parseDate(date);
   return `${d.getMonth()+1}月${d.getDate()}日`;
 }
 ```
 
-`formatDate2` 调用 `formatDate(date, '/')` 即可。`displayDate` 无补零需求，保留原样。
-
-下一步：搜索调用点确认无 `formatDate2` 直接引用后删除该函数。
+**下一步**：删除对旧函数签名（仅接受 `string`）的引用后跑测试，确认无回归。

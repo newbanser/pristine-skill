@@ -1,4 +1,4 @@
-我来帮你创建一个基于 Node.js + Express + SQLite 的用户登录功能。这是一个完整的示例，包含注册和登录功能。
+我来帮你创建一个完整的用户登录功能。这个项目将包含用户注册、登录、会话管理等功能。
 
 ## 项目结构
 
@@ -7,35 +7,33 @@ login-app/
 ├── package.json
 ├── server.js
 ├── database.js
-└── public/
-    ├── login.html
-    ├── register.html
-    └── dashboard.html
+├── middleware/
+│   └── auth.js
+├── public/
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   └── dashboard.html
+└── routes/
+    └── auth.js
 ```
 
 ## 1. 初始化项目
-
-首先创建项目目录并初始化：
 
 ```bash
 mkdir login-app
 cd login-app
 npm init -y
+npm install express sqlite3 bcrypt express-session cookie-parser
 ```
 
-## 2. 安装依赖
-
-```bash
-npm install express sqlite3 bcrypt express-session
-```
-
-## 3. package.json 配置
+## 2. package.json
 
 ```json
 {
   "name": "login-app",
   "version": "1.0.0",
-  "description": "Simple login system with Node.js and SQLite",
+  "description": "User login system with Node.js, Express and SQLite",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -45,286 +43,419 @@ npm install express sqlite3 bcrypt express-session
     "express": "^4.18.2",
     "sqlite3": "^5.1.6",
     "bcrypt": "^5.1.1",
-    "express-session": "^1.17.3"
+    "express-session": "^1.17.3",
+    "cookie-parser": "^1.4.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
 ```
 
-## 4. database.js - 数据库连接和初始化
+## 3. database.js - 数据库配置
 
 ```javascript
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 // 创建数据库连接
-const db = new sqlite3.Database(path.join(__dirname, 'users.db'), (err) => {
-  if (err) {
-    console.error('数据库连接失败:', err.message);
-  } else {
-    console.log('已连接到 SQLite 数据库');
-    initDatabase();
-  }
+const db = new sqlite3.Database(path.join(__dirname, 'user.db'), (err) => {
+    if (err) {
+        console.error('数据库连接失败:', err.message);
+    } else {
+        console.log('已连接到SQLite数据库');
+        initDatabase();
+    }
 });
 
-// 初始化数据库表
+// 初始化数据库
 function initDatabase() {
-  const createTable = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_login DATETIME
-    )
-  `;
+    db.serialize(() => {
+        // 创建用户表
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                email TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                last_login DATETIME,
+                is_active INTEGER DEFAULT 1
+            )
+        `, (err) => {
+            if (err) {
+                console.error('创建表失败:', err.message);
+            } else {
+                console.log('用户表已准备好');
+                // 创建默认管理员账户（可选）
+                createDefaultAdmin();
+            }
+        });
+    });
+}
 
-  db.run(createTable, (err) => {
-    if (err) {
-      console.error('创建表失败:', err.message);
-    } else {
-      console.log('用户表准备就绪');
-    }
-  });
+// 创建默认管理员账户
+async function createDefaultAdmin() {
+    const username = 'admin';
+    const email = 'admin@example.com';
+    const password = 'admin123';
+    
+    db.get('SELECT id FROM users WHERE username = ?', [username], async (err, row) => {
+        if (!row) {
+            try {
+                const salt = await bcrypt.genSalt(10);
+                const hash = await bcrypt.hash(password, salt);
+                
+                db.run(
+                    'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+                    [username, email, hash],
+                    (err) => {
+                        if (err) {
+                            console.error('创建默认管理员失败:', err.message);
+                        } else {
+                            console.log('默认管理员已创建 (admin/admin123)');
+                        }
+                    }
+                );
+            } catch (err) {
+                console.error('生成密码哈希失败:', err.message);
+            }
+        }
+    });
 }
 
 module.exports = db;
 ```
 
-## 5. server.js - 主服务器文件
+## 4. middleware/auth.js - 认证中间件
+
+```javascript
+// 检查用户是否已登录
+const isAuthenticated = (req, res, next) => {
+    if (req.session && req.session.userId) {
+        return next();
+    }
+    res.redirect('/login');
+};
+
+// 检查用户是否已登录（用于登录/注册页面）
+const isNotAuthenticated = (req, res, next) => {
+    if (!req.session || !req.session.userId) {
+        return next();
+    }
+    res.redirect('/dashboard');
+};
+
+module.exports = { isAuthenticated, isNotAuthenticated };
+```
+
+## 5. routes/auth.js - 认证路由
 
 ```javascript
 const express = require('express');
-const path = require('path');
-const session = require('express-session');
+const router = express.Router();
 const bcrypt = require('bcrypt');
+const db = require('../database');
+const { isAuthenticated, isNotAuthenticated } = require('../middleware/auth');
+
+// 显示登录页面
+router.get('/login', isNotAuthenticated, (req, res) => {
+    res.sendFile('login.html', { root: './public' });
+});
+
+// 处理登录请求
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ 
+            success: false, 
+            message: '请提供用户名和密码' 
+        });
+    }
+    
+    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+        if (err) {
+            console.error('数据库查询错误:', err);
+            return res.status(500).json({ 
+                success: false, 
+                message: '服务器错误' 
+            });
+        }
+        
+        if (!user) {
+            return res.status(401).json({ 
+                success: false, 
+                message: '用户名或密码不正确' 
+            });
+        }
+        
+        if (!user.is_active) {
+            return res.status(403).json({ 
+                success: false, 
+                message: '账户已被禁用' 
+            });
+        }
+        
+        try {
+            // 验证密码
+            const isMatch = await bcrypt.compare(password, user.password_hash);
+            
+            if (!isMatch) {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: '用户名或密码不正确' 
+                });
+            }
+            
+            // 更新最后登录时间
+            db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', 
+                [user.id], (updateErr) => {
+                if (updateErr) console.error('更新登录时间失败:', updateErr);
+            });
+            
+            // 设置会话
+            req.session.userId = user.id;
+            req.session.username = user.username;
+            
+            res.json({ 
+                success: true, 
+                message: '登录成功',
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                }
+            });
+            
+        } catch (bcryptErr) {
+            console.error('密码验证错误:', bcryptErr);
+            res.status(500).json({ 
+                success: false, 
+                message: '服务器错误' 
+            });
+        }
+    });
+});
+
+// 显示注册页面
+router.get('/register', isNotAuthenticated, (req, res) => {
+    res.sendFile('register.html', { root: './public' });
+});
+
+// 处理注册请求
+router.post('/register', async (req, res) => {
+    const { username, email, password, confirmPassword } = req.body;
+    
+    // 验证输入
+    if (!username || !email || !password || !confirmPassword) {
+        return res.status(400).json({ 
+            success: false, 
+            message: '请填写所有字段' 
+        });
+    }
+    
+    if (password.length < 6) {
+        return res.status(400).json({ 
+            success: false, 
+            message: '密码长度至少6个字符' 
+        });
+    }
+    
+    if (password !== confirmPassword) {
+        return res.status(400).json({ 
+            success: false, 
+            message: '两次输入的密码不一致' 
+        });
+    }
+    
+    // 检查用户名是否已存在
+    db.get('SELECT id FROM users WHERE username = ?', [username], async (err, user) => {
+        if (user) {
+            return res.status(409).json({ 
+                success: false, 
+                message: '用户名已存在' 
+            });
+        }
+        
+        // 检查邮箱是否已存在
+        db.get('SELECT id FROM users WHERE email = ?', [email], async (err, user) => {
+            if (user) {
+                return res.status(409).json({ 
+                    success: false, 
+                    message: '邮箱已被注册' 
+                });
+            }
+            
+            try {
+                // 加密密码
+                const salt = await bcrypt.genSalt(10);
+                const hash = await bcrypt.hash(password, salt);
+                
+                // 插入新用户
+                db.run(
+                    'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+                    [username, email, hash],
+                    function(err) {
+                        if (err) {
+                            console.error('注册失败:', err);
+                            return res.status(500).json({ 
+                                success: false, 
+                                message: '注册失败，请稍后重试' 
+                            });
+                        }
+                        
+                        res.status(201).json({ 
+                            success: true, 
+                            message: '注册成功！',
+                            userId: this.lastID
+                        });
+                    }
+                );
+            } catch (hashErr) {
+                console.error('密码加密失败:', hashErr);
+                res.status(500).json({ 
+                    success: false, 
+                    message: '服务器错误' 
+                });
+            }
+        });
+    });
+});
+
+// 退出登录
+router.post('/logout', (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                return res.status(500).json({ 
+                    success: false, 
+                    message: '退出失败' 
+                });
+            }
+            res.clearCookie('connect.sid');
+            res.json({ 
+                success: true, 
+                message: '已成功退出登录' 
+            });
+        });
+    } else {
+        res.json({ 
+            success: true, 
+            message: '已成功退出登录' 
+        });
+    }
+});
+
+// 获取当前登录用户信息
+router.get('/current-user', isAuthenticated, (req, res) => {
+    db.get(
+        'SELECT id, username, email, created_at, last_login FROM users WHERE id = ?',
+        [req.session.userId],
+        (err, user) => {
+            if (err || !user) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: '用户不存在' 
+                });
+            }
+            res.json({ 
+                success: true, 
+                user 
+            });
+        }
+    );
+});
+
+// 显示仪表盘
+router.get('/dashboard', isAuthenticated, (req, res) => {
+    res.sendFile('dashboard.html', { root: './public' });
+});
+
+module.exports = router;
+```
+
+## 6. server.js - 主服务器文件
+
+```javascript
+const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const authRoutes = require('./routes/auth');
 const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 中间件配置
+// 中间件
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+
+// 配置会话
 app.use(session({
-  secret: 'your-secret-key-change-this-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // 在生产环境使用 HTTPS 时设为 true
-    maxAge: 24 * 60 * 60 * 1000 // 会话有效期 24 小时
-  }
+    secret: 'your-secret-key-change-this-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // 在生产环境设置为true（HTTPS）
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24小时
+    }
 }));
 
-// 中间件：检查用户是否已登录
-const requireLogin = (req, res, next) => {
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
-};
+// 静态文件
+app.use(express.static('public'));
 
-// 中间件：检查用户是否已登录（用于登录/注册页面）
-const checkNotLoggedIn = (req, res, next) => {
-  if (req.session.user) {
-    res.redirect('/dashboard');
-  } else {
-    next();
-  }
-};
+// 认证路由
+app.use('/', authRoutes);
 
-// 路由：首页
+// 首页
 app.get('/', (req, res) => {
-  res.redirect('/login');
-});
-
-// 路由：登录页面
-app.get('/login', checkNotLoggedIn, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// 路由：注册页面
-app.get('/register', checkNotLoggedIn, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
-// 路由：仪表盘页面（需要登录）
-app.get('/dashboard', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-// API：处理注册
-app.post('/api/register', async (req, res) => {
-  const { username, email, password } = req.body;
-
-  // 验证输入
-  if (!username || !email || !password) {
-    return res.status(400).json({ 
-      message: '请填写所有必填字段' 
-    });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ 
-      message: '密码长度至少 6 个字符' 
-    });
-  }
-
-  // 邮箱格式验证
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ 
-      message: '邮箱格式不正确' 
-    });
-  }
-
-  try {
-    // 检查用户名或邮箱是否已存在
-    const checkUser = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT id FROM users WHERE username = ? OR email = ?',
-        [username, email],
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
-
-    if (checkUser) {
-      return res.status(409).json({ 
-        message: '用户名或邮箱已存在' 
-      });
+    if (req.session && req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.redirect('/login');
     }
-
-    // 加密密码
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // 创建新用户
-    await new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-        [username, email, hashedPassword],
-        function(err) {
-          if (err) reject(err);
-          else resolve(this);
-        }
-      );
-    });
-
-    res.status(201).json({ 
-      message: '注册成功，请登录' 
-    });
-
-  } catch (error) {
-    console.error('注册错误:', error);
-    res.status(500).json({ 
-      message: '服务器错误，请稍后再试' 
-    });
-  }
 });
 
-// API：处理登录
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // 验证输入
-  if (!username || !password) {
-    return res.status(400).json({ 
-      message: '请填写所有必填字段' 
-    });
-  }
-
-  try {
-    // 查找用户
-    const user = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM users WHERE username = ? OR email = ?',
-        [username, username],
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
-
-    if (!user) {
-      return res.status(401).json({ 
-        message: '用户名或密码错误' 
-      });
-    }
-
-    // 验证密码
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ 
-        message: '用户名或密码错误' 
-      });
-    }
-
-    // 更新最后登录时间
-    await new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
-        [user.id],
-        (err) => {
-          if (err) reject(err);
-          else resolve();
-        }
-      );
-    });
-
-    // 保存用户信息到会话
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      email: user.email
-    };
-
+// API 健康检查
+app.get('/api/health', (req, res) => {
     res.json({ 
-      message: '登录成功',
-      user: req.session.user
+        status: 'ok', 
+        message: '服务器运行正常' 
     });
+});
 
-  } catch (error) {
-    console.error('登录错误:', error);
+// 错误处理中间件
+app.use((err, req, res, next) => {
+    console.error('服务器错误:', err);
     res.status(500).json({ 
-      message: '服务器错误，请稍后再试' 
+        success: false, 
+        message: '服务器内部错误' 
     });
-  }
-});
-
-// API：获取当前用户信息
-app.get('/api/me', requireLogin, (req, res) => {
-  res.json({
-    user: req.session.user
-  });
-});
-
-// API：登出
-app.post('/api/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ 
-        message: '登出失败' 
-      });
-    }
-    res.json({ 
-      message: '登出成功' 
-    });
-  });
 });
 
 // 启动服务器
 app.listen(PORT, () => {
-  console.log(`服务器运行在 http://localhost:${PORT}`);
+    console.log(`服务器已启动: http://localhost:${PORT}`);
+});
+
+// 关闭数据库连接
+process.on('SIGINT', () => {
+    db.close((err) => {
+        if (err) {
+            console.error('关闭数据库失败:', err.message);
+        }
+        console.log('数据库连接已关闭');
+        process.exit(0);
+    });
 });
 ```
 
-## 6. public/login.html - 登录页面
+## 7. public/login.html - 登录页面
 
 ```html
 <!DOCTYPE html>
@@ -339,44 +470,43 @@ app.listen(PORT, () => {
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
-
-        .container {
+        
+        .login-container {
             background: white;
-            border-radius: 10px;
             padding: 40px;
-            width: 100%;
-            max-width: 420px;
+            border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
         }
-
-        h2 {
-            text-align: center;
+        
+        h1 {
             color: #333;
             margin-bottom: 30px;
+            text-align: center;
             font-size: 28px;
         }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #555;
             font-weight: 500;
         }
-
+        
         input {
             width: 100%;
             padding: 12px;
@@ -385,16 +515,16 @@ app.listen(PORT, () => {
             font-size: 16px;
             transition: border-color 0.3s;
         }
-
+        
         input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
         }
-
+        
         button {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: #667eea;
             color: white;
             border: none;
@@ -404,56 +534,51 @@ app.listen(PORT, () => {
             cursor: pointer;
             transition: background 0.3s;
         }
-
+        
         button:hover {
-            background: #5a67d8;
+            background: #5a6fe0;
         }
-
-        .message {
-            padding: 12px;
+        
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
             border-radius: 5px;
+            padding: 10px;
             margin-bottom: 20px;
             display: none;
         }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-
-        .auth-links {
+        
+        .links {
             text-align: center;
             margin-top: 20px;
-            color: #666;
         }
-
-        .auth-links a {
+        
+        .links a {
             color: #667eea;
             text-decoration: none;
-            font-weight: 500;
+            transition: color 0.3s;
         }
-
-        .auth-links a:hover {
-            text-decoration: underline;
+        
+        .links a:hover {
+            color: #5a6fe0;
+        }
+        
+        .divider {
+            color: #999;
+            margin: 0 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>用户登录</h2>
+    <div class="login-container">
+        <h1>用户登录</h1>
         
-        <div id="message" class="message"></div>
+        <div class="error-message" id="errorMessage"></div>
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">用户名或邮箱</label>
+                <label for="username">用户名</label>
                 <input type="text" id="username" name="username" required>
             </div>
             
@@ -465,20 +590,21 @@ app.listen(PORT, () => {
             <button type="submit">登录</button>
         </form>
         
-        <div class="auth-links">
-            还没有账号？<a href="/register">立即注册</a>
+        <div class="links">
+            <a href="/register">注册新账户</a>
         </div>
     </div>
-
+    
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
             
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -487,38 +613,28 @@ app.listen(PORT, () => {
                 });
                 
                 const data = await response.json();
-                const messageDiv = document.getElementById('message');
                 
-                if (response.ok) {
-                    showMessage('success', '登录成功，正在跳转...');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1000);
+                if (data.success) {
+                    window.location.href = '/dashboard';
                 } else {
-                    showMessage('error', data.message);
+                    errorMessage.textContent = data.message;
+                    errorMessage.style.display = 'block';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 3000);
                 }
             } catch (error) {
-                console.error('错误:', error);
-                showMessage('error', '网络错误，请稍后再试');
+                console.error('登录失败:', error);
+                errorMessage.textContent = '网络错误，请稍后重试';
+                errorMessage.style.display = 'block';
             }
         });
-        
-        function showMessage(type, text) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            messageDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
-        }
     </script>
 </body>
 </html>
 ```
 
-## 7. public/register.html - 注册页面
+## 8. public/register.html - 注册页面
 
 ```html
 <!DOCTYPE html>
@@ -533,147 +649,17 @@ app.listen(PORT, () => {
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
-
-        .container {
+        
+        .register-container {
             background: white;
-            border-radius: 10px;
             padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: #5a67d8;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-
-        .auth-links {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-        }
-
-        .auth-links a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .auth-links a:hover {
-            text-decoration: underline;
-        }
-
-        .password-hint {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>用户注册</h2>
-        
-        <div id="message" class="message"></div>
-        
-        <form id="registerForm">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">邮箱</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" required>
-                <div class="password-hint">密码长度至少 6 个字符</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmPassword">确认密码</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
-            </div>
-            
-            <button type="submit">注册</button>
-        </form>
-        
+            border-radius:

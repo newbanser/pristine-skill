@@ -1,0 +1,90 @@
+# calculateShipping 使用文档
+
+## 函数概述
+
+`calculateShipping` 是一个用于计算国际运输费用的函数。它根据商品的基础价格、重量和目的地国家/地区，计算出最终的运费金额。
+
+## 函数签名
+
+```javascript
+function calculateShipping(basePrice, weight, country)
+```
+
+## 参数说明
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| `basePrice` | number | 是 | 商品的原始价格（不含运费），必须为**正数** |
+| `weight` | number | 是 | 商品的重量（单位：kg），必须为**非负数** |
+| `country` | string | 是 | 目的地国家/地区代码，目前支持：`'US'`（美国）、`'CA'`（加拿大）、`'EU'`（欧盟） |
+
+## 返回值
+
+- **类型**：`number`
+- **说明**：计算得出的运费金额（单位与 `basePrice` 一致）
+
+## 运费计算规则
+
+1. **费率表**：
+   - 美国（`'US'`）：基础价格的 10%
+   - 加拿大（`'CA'`）：基础价格的 12%
+   - 欧盟（`'EU'`）：基础价格的 15%
+   - **其他国家/地区**：基础价格的 20%（默认费率）
+
+2. **费用组成**：
+   - 运费 = 基础运费（按上述费率计算） + 重量附加费（重量 × 2）
+
+## 使用示例
+
+### 示例 1：美国订单
+
+```javascript
+const shipping = calculateShipping(100, 2, 'US');
+console.log(shipping); // 输出：14 (100 × 0.1 + 2 × 2 = 10 + 4)
+```
+
+### 示例 2：加拿大订单
+
+```javascript
+const shipping = calculateShipping(200, 5, 'CA');
+console.log(shipping); // 输出：34 (200 × 0.12 + 5 × 2 = 24 + 10)
+```
+
+### 示例 3：欧盟订单
+
+```javascript
+const shipping = calculateShipping(50, 1.5, 'EU');
+console.log(shipping); // 输出：10.5 (50 × 0.15 + 1.5 × 2 = 7.5 + 3)
+```
+
+### 示例 4：未列出的国家/地区（默认费率）
+
+```javascript
+const shipping = calculateShipping(80, 3, 'JP');
+console.log(shipping); // 输出：22 (80 × 0.2 + 3 × 2 = 16 + 6)
+```
+
+## 边界情况说明
+
+- 如果 `country` 不是字符串，或 `basePrice`、`weight` 不是数字，函数将返回 `NaN`（JavaScript 隐式转换结果）。
+- 如果 `country` 为 `undefined` 或空字符串，会落入默认费率（20%）。
+- 该函数**不进行输入验证**，请确保在调用前确认参数类型正确。
+
+## 注意事项
+
+1. 该函数假定所有输入均为合法数字，未对负数或非数值做专门处理。
+2. 重量附加费率为固定的 `2`（单位货币/kg），无法通过参数调整。
+3. 如果要扩展支持更多国家/地区，需要修改函数内部的 `rate` 对象。
+
+## 调用建议
+
+在实际项目中，建议调用前进行参数校验，例如：
+
+```javascript
+function safeCalculateShipping(basePrice, weight, country) {
+  if (typeof basePrice !== 'number' || typeof weight !== 'number' || typeof country !== 'string') {
+    throw new Error('Invalid parameters');
+  }
+  return calculateShipping(basePrice, weight, country);
+}
+```

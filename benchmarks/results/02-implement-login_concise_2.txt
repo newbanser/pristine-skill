@@ -1,0 +1,68 @@
+```javascript
+// server.js
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcrypt');
+const session = require('express-session');
+const app = express();
+
+// 数据库
+const db = new sqlite3.Database('./users.db');
+db.run(`CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE,
+  password TEXT
+)`);
+
+// 中间件
+app.use(express.json());
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// 注册
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  const hashed = await bcrypt.hash(password, 10);
+  db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashed], err => {
+    if (err) return res.status(400).json({ error: '用户已存在' });
+    res.json({ message: '注册成功' });
+  });
+});
+
+// 登录
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+    if (!user) return res.status(401).json({ error: '用户不存在' });
+    if (await bcrypt.compare(password, user.password)) {
+      req.session.userId = user.id;
+      res.json({ message: '登录成功' });
+    } else {
+      res.status(401).json({ error: '密码错误' });
+    }
+  });
+});
+
+// 验证登录状态
+app.get('/profile', (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: '未登录' });
+  res.json({ userId: req.session.userId });
+});
+
+// 登出
+app.post('/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ message: '已退出' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+运行命令：
+```bash
+npm install express sqlite3 bcrypt express-session
+node server.js
+```

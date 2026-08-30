@@ -1,57 +1,81 @@
-POST /api/login 开始。这个接口接收 `{ username, password }`，校验通过返回 `{ ok: true, token }`，否则 401。
-
-**1. 初始化依赖**
-
-```bash
-npm init -y
-npm install express sqlite3
-```
-
-**2. 启动服务（`server.js`）**
-
 ```js
-// SOURCE: server.js
+// server.js
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
+const crypto = require('crypto');
 
 const app = express();
 const db = new sqlite3.Database('./users.db');
 
 app.use(express.json());
 
-// 初始化表：用户名唯一，密码明文（仅作为演示）
+// 创建表
 db.run(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE,
-  password TEXT
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  salt TEXT NOT NULL
 )`);
 
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-    if (err) return res.status(500).json({ ok: false, error: err.message });
-    if (!row || row.password !== password) {
-      return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+// 注册接口
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+  
+  // 生成盐和哈希
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  
+  db.run(
+    'INSERT INTO users (email, password_hash, salt) VALUES (?, ?, ?)',
+    [email, hash, salt],
+    function(err) {
+      if (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          return res.status(409).json({ error: '邮箱已注册' });
+        }
+        return res.status(500).json({ error: '服务器错误' });
+      }
+      res.status(201).json({ id: this.lastID, email });
     }
-    res.json({ ok: true, token: `token-${row.id}` });
+  );
+});
+
+// 登录接口
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({ error: '邮箱或密码错误' });
+    }
+    
+    const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('hex');
+    
+    if (hash === user.password_hash) {
+      const token = crypto.randomBytes(32).toString('hex');
+      res.json({ token, email: user.email });
+    } else {
+      res.status(401).json({ error: '邮箱或密码错误' });
+    }
   });
 });
 
-app.listen(3000, () => console.log('Server on :3000'));
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 ```
 
-**3. 插入测试用户**
+## 依赖
 
 ```bash
-sqlite3 users.db "INSERT INTO users (username, password) VALUES ('admin', 'secret');"
+npm install express sqlite3
 ```
 
-**4. 测试**
+## 使用
 
-```bash
-curl -X POST http://localhost:3000/api/login -H "Content-Type: application/json" -d '{"username":"admin","password":"secret"}'
-```
+1. 保存为 `server.js`
+2. 运行 `node server.js`
+3. 注册：`POST /register`，body：`{"email":"test@test.com","password":"123456"}`
+4. 登录：`POST /login`，body 同上
 
-**5. 下一步**
+## 下一步
 
-加密码哈希（`bcrypt`）和 JWT 签发替换 `token-${row.id}`，需要的话说一声。
+给登录接口加 JWT 鉴权中间件（约 20 分钟工作量）。

@@ -1,0 +1,72 @@
+这个错误通常是因为服务器返回了HTML而不是预期的JavaScript/JSON格式。常见原因有两个：**部署文件路径错误**或**服务器配置问题**。
+
+我建议按以下顺序排查：
+
+## 1. 立即检查（最快定位）
+```bash
+# 查看服务器当前返回的实际内容
+curl -I https://你的域名/主入口文件.js
+curl -s https://你的域名/主入口文件.js | head -50
+```
+如果返回的是HTML（包含`<html>`标签），说明请求被重定向到了错误页面（如404或维护页）。
+
+## 2. 检查部署文件路径
+对比新旧版本的文件结构：
+```bash
+# 检查实际部署的文件
+ls -la /你的部署目录/dist/  # 或 /var/www/项目名/
+# 确认 index.html、bundle.js 等文件是否存在且路径正确
+```
+
+## 3. 服务器配置检查（根据你的服务器类型选择）
+
+**Nginx 常见问题：**
+```bash
+# 打开配置文件
+sudo nano /etc/nginx/sites-available/你的站点
+
+# 重点检查：
+# 1. root 路径是否指向了正确的构建输出目录
+# 2. location 块是否正确处理了静态资源
+# 3. 是否有 try_files 配置支持前端路由
+```
+
+**Apache 常见问题：**
+```bash
+# 检查 .htaccess 文件是否存在且内容正确
+cat /你的部署目录/.htaccess
+
+# 常见正确配置（支持前端路由）：
+# RewriteEngine On
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule . /index.html [L]
+```
+
+## 4. 快速验证方案
+如果你确认文件都在，可能是构建输出路径问题。可以临时在服务器上手动测试：
+```bash
+cd /你的部署目录
+python3 -m http.server 8080  # 临时测试
+# 然后访问 http://服务器IP:8080 看是否正常
+```
+
+## 5. 如果这是构建问题（最近改了构建配置）
+```bash
+# 检查构建配置
+cat vite.config.js 或 webpack.config.js
+
+# 确保 base/ publicPath 设置正确：
+# Vite: base: '/' 或 './'（静态托管用./）
+# Webpack: output.publicPath: '/' 或 './'
+```
+
+---
+
+**告诉我以下信息**，我可以帮你进一步定位：
+1. 你用的服务器是什么？（Nginx / Apache / Node.js / 其他）
+2. 部署方式是？（直接复制构建文件 / 使用CI/CD / 云平台部署）
+3. 错误是发生在首页还是某个特定路由？
+4. 最近改了哪些配置或代码？
+
+这样我可以给你更精确的解决方案。如果紧急，你也可以先把服务器返回的HTML内容截图发给我看看。

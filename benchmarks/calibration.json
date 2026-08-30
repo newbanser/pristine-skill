@@ -1,0 +1,131 @@
+[
+  {
+    "task_id": "01-fix-edge-bug",
+    "task_prompt": "下面这段代码有个 bug：当 user.id === 5 时，返回的用户名是 undefined。帮我修一下。\n\nfunction getUserName(user) {\n  if (user.id === 5) {\n    return user.profile.name;\n  }\n  return user.name;\n}\n\nconst users = [\n  { id: 1, name: \"Alice\" },\n  { id: 5, name: \"Bob\", profile: {} },\n  { id: 3, name: \"Charlie\" }\n];",
+    "criteria": [
+      "修复后 user.id===5 且 profile.name 存在时返回 profile.name",
+      "修复后 user.id===5 且 profile.name 不存在时回退返回 user.name，不再是 undefined",
+      "修复没有破坏其它 id 的正常返回",
+      "没有用堆叠特殊分支的方式打补丁"
+    ],
+    "samples": [
+      {
+        "output": "function getUserName(user) {\n  return user.profile?.name ?? user.name;\n}\n\n根因：原代码对 id===5 强制走 user.profile.name，但 Bob 的 profile 是空对象。改为：profile.name 存在时用它，否则回退到 user.name。",
+        "expected": "pass",
+        "reason": "保留语义、回退正确、无堆叠分支"
+      },
+      {
+        "output": "function getUserName(user) {\n  return user.name;\n}\n\n原因：所有用户都有 name，直接返回 name 就行。",
+        "expected": "fail",
+        "reason": "丢掉了 profile.name 存在时应优先返回它的语义"
+      }
+    ]
+  },
+  {
+    "task_id": "02-implement-login",
+    "task_prompt": "帮我做一个用户登录功能。用 Node.js + Express + SQLite。",
+    "criteria": [
+      "包含创建 users 表的代码（含用户名和密码字段）",
+      "包含登录接口：接收用户名和密码并校验",
+      "包含可运行的 Express 应用骨架（app 实例与路由）",
+      "密码不以明文存储（有哈希处理或明确说明）",
+      "没有混入目标外功能（注册、忘记密码、第三方登录、个人中心等）"
+    ],
+    "samples": [
+      {
+        "output": "const express = require('express');\nconst sqlite3 = require('sqlite3').verbose();\nconst crypto = require('crypto');\nconst app = express();\napp.use(express.json());\nconst db = new sqlite3.Database('users.db');\ndb.run('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, salt TEXT NOT NULL)');\nfunction hash(pw, salt) { return crypto.pbkdf2Sync(pw, salt, 100000, 64, 'sha512').toString('hex'); }\napp.post('/login', (req, res) => {\n  const { username, password } = req.body;\n  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {\n    if (!user || user.password_hash !== hash(password, user.salt)) return res.status(401).json({ error: 'invalid' });\n    res.json({ success: true });\n  });\n});\napp.listen(3000);",
+        "expected": "pass",
+        "reason": "建表、登录接口、哈希、Express 齐全，无目标外功能"
+      },
+      {
+        "output": "npm install express sqlite3\n\n先安装依赖，然后写代码。",
+        "expected": "fail",
+        "reason": "没有实现任何登录功能，只给了安装命令"
+      }
+    ]
+  },
+  {
+    "task_id": "03-answer-with-vague-premise",
+    "task_prompt": "我们的接口总是返回 500，应该是数据库慢了。怎么优化？",
+    "criteria": [
+      "质疑了'数据库慢了'这个前提，要求先确认根因",
+      "给出了确认根因的具体方法（查日志/慢查询/连接池等）",
+      "优化建议基于根因而非泛泛罗列"
+    ],
+    "samples": [
+      {
+        "output": "先确认：返回 500 不一定是数据库慢。先看应用日志确认错误堆栈，再看慢查询（EXPLAIN ANALYZE）和连接池（SHOW PROCESSLIST）。确认根因后再对症：缺索引加索引、连接池满调池上限、锁竞争查 innodb_trx。把日志和慢查询给我，我给具体修复。",
+        "expected": "pass",
+        "reason": "质疑前提、给确认方法、基于根因"
+      },
+      {
+        "output": "数据库慢的优化方法：1. 加索引 2. 分库分表 3. 加缓存 4. 升级硬件 5. 减少查询次数 6. 读写分离。",
+        "expected": "fail",
+        "reason": "直接接受'数据库慢'前提，泛泛罗列，无确认步骤"
+      }
+    ]
+  },
+  {
+    "task_id": "05-explain-concept",
+    "task_prompt": "什么是闭包？用 JavaScript 举例说明。",
+    "criteria": [
+      "第一句就给出闭包的准确定义（答案先行）",
+      "包含一个 JavaScript 闭包示例",
+      "没有开场客套和收尾客套"
+    ],
+    "samples": [
+      {
+        "output": "闭包是函数能访问其定义时作用域的机制，即使函数在外部执行。\nfunction counter() {\n  let n = 0;\n  return () => ++n;\n}\nconst c = counter();\nc(); // 1\nc(); // 2",
+        "expected": "pass",
+        "reason": "答案先行、有例子、无客套"
+      },
+      {
+        "output": "好问题！闭包是 JavaScript 中一个非常重要的概念，很多面试都会考。要理解闭包，首先要理解作用域和作用域链……（长篇铺垫，始终没给出清晰定义和例子）",
+        "expected": "fail",
+        "reason": "开场客套、无准确定义、无完整例子"
+      }
+    ]
+  },
+  {
+    "task_id": "09-plan-feature",
+    "task_prompt": "用户要加一个\"导出 CSV\"功能到已有的报表系统。给我一个实施计划。",
+    "criteria": [
+      "实施计划只覆盖'导出当前视图为 CSV'的最小范围",
+      "列出了完成该功能必要的步骤（导出入口、生成 CSV、下载）",
+      "没有混入目标外功能（导出设置页、批量导出、定时导出、权限系统等）"
+    ],
+    "samples": [
+      {
+        "output": "最小实施计划：1. 报表页加'导出 CSV'按钮 2. 后端加导出接口，把当前视图数据转成 CSV（列名用当前表头）3. 前端触发下载 4. 加一个导出日志记录。不含批量、定时、权限。",
+        "expected": "pass",
+        "reason": "最小范围、必要步骤、无目标外功能"
+      },
+      {
+        "output": "实施计划：1. 导出设置页（选择字段、格式、编码）2. 批量导出 3. 定时自动导出 4. 导出权限系统 5. 导出历史管理 6. 前端按钮 7. 后端接口。",
+        "expected": "fail",
+        "reason": "过度设计，混入大量目标外功能"
+      }
+    ]
+  },
+  {
+    "task_id": "10-debug-vague-error",
+    "task_prompt": "服务器报错\"SyntaxError: Unexpected token <\"，应该是我部署的新版本有问题。帮我查一下。",
+    "criteria": [
+      "质疑了'部署新版本导致报错'这个前提，不急于下结论",
+      "给出了确认报错来源的具体方法（检查返回内容是否为 HTML、确认哪个请求 404 等）",
+      "给出了针对根因的修复方向"
+    ],
+    "samples": [
+      {
+        "output": "先别急着回滚。Unexpected token < 常见是服务器把 HTML 当 JS 返回——前端引用了不存在的 JS，nginx 把 404 页面（HTML）当作资源返回了。确认方法：curl -I 检查该 JS 的 Content-Type 是不是 text/html；看是哪个资源 404。修复：nginx 加 try_files 规则让静态资源 404 返回 404 而不是 index.html。",
+        "expected": "pass",
+        "reason": "质疑前提、给确认方法、给修复方向"
+      },
+      {
+        "output": "新版本有问题，建议立即回滚到上一个稳定版本，然后逐行检查新版本里的 JS 代码哪里有语法错误。",
+        "expected": "fail",
+        "reason": "接受'新版本有问题'前提，建议回滚，无确认步骤"
+      }
+    ]
+  }
+]

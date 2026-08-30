@@ -1,19 +1,23 @@
-数据库慢导致 500，加一层 Redis 缓存。
+数据库慢不是 500 的唯一可能。在动数据库前，先确认瓶颈在哪。
 
-具体步骤：
+## 立即做
 
-1. 在 `src/services/UserService.ts` 里，`getUser(id)` 方法上新增缓存逻辑：
-   ```ts
-   async getUser(id: string) {
-     const cached = await redis.get(`user:${id}`);
-     if (cached) return JSON.parse(cached);
-     
-     const user = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-     await redis.set(`user:${id}`, JSON.stringify(user), 'EX', 60);
-     return user;
-   }
-   ```
-2. 确认 Redis 已安装并在本地运行（`brew services start redis`）。
-3. 部署后，相同请求会命中缓存，不再打到数据库。
+1. **看错误日志**：500 的具体异常是什么？超时、连接池耗尽、还是 SQL 报错？这决定方向。
+2. **查慢查询日志**：数据库是否真的有慢查询，还是应用层在等别的东西（如锁、网络）？
+3. **确认连接池状态**：连接池耗尽也会返回 500，但不是数据库"慢"，是应用拿不到连接。
 
-下一步：在 `UserService` 里加这个缓存，然后测试 `GET /users/1` 两次，第二次延迟应显著下降。
+如果确认是慢查询，再做优化：
+
+## 数据库优化
+
+1. **加索引**：explain 慢 SQL，看是否全表扫描。
+2. **查 N+1 查询**：循环里逐条查库最常见，改批量查询。
+3. **加缓存**：热数据上 Redis，别让数据库扛全部读压力。
+
+具体方案需要你提供：
+
+- 500 的具体堆栈
+- 正在执行的 SQL
+- 表结构和数据量
+
+先跑第一步，告诉我错误日志里写什么。

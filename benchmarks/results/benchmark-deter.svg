@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 400" font-family="-apple-system, 'Segoe UI', 'PingFang SC', sans-serif">
+  <rect width="780" height="400" fill="#ffffff"/>
+  <text x="390" y="34" text-anchor="middle" font-size="17" font-weight="700" fill="#1a1a1a">确定性评测 · 三组对比（8 任务，代码执行验证）</text>
+  <text x="390" y="56" text-anchor="middle" font-size="12" fill="#888">以无约束（empty）为 100% 基准 · 数值越低越省 · 柱上为达标率</text>
+
+  <!-- grid + y-axis -->
+  <line x1="70" y1="80" x2="70" y2="320" stroke="#ddd" stroke-width="1"/>
+  <line x1="70" y1="320" x2="740" y2="320" stroke="#ddd" stroke-width="1"/>
+  <g font-size="11" fill="#aaa">
+    <text x="62" y="324" text-anchor="end">0%</text>
+    <text x="62" y="204" text-anchor="end">50%</text>
+    <text x="62" y="88" text-anchor="end">100%</text>
+  </g>
+  <line x1="70" y1="200" x2="740" y2="200" stroke="#eee" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="70" y1="80" x2="740" y2="80" stroke="#eee" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- legend -->
+  <g font-size="12" fill="#555">
+    <rect x="250" y="66" width="14" height="14" rx="2" fill="#8B5CF6"/>
+    <text x="270" y="78">代码行数 LOC</text>
+    <rect x="370" y="66" width="14" height="14" rx="2" fill="#8B5CF6" opacity="0.4"/>
+    <text x="390" y="78">输出 token</text>
+  </g>
+
+  <!-- empty group -->
+  <g>
+    <rect x="110" y="80" width="58" height="240" rx="3" fill="#bbb"/>
+    <rect x="178" y="80" width="58" height="240" rx="3" fill="#bbb" opacity="0.5"/>
+    <text x="139" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#555">100%</text>
+    <text x="207" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#555">100%</text>
+    <text x="173" y="342" text-anchor="middle" font-size="14" font-weight="700" fill="#333">无约束 empty</text>
+    <text x="173" y="360" text-anchor="middle" font-size="12" fill="#22a06b">8/8 达标 · 零翻车</text>
+  </g>
+
+  <!-- ponytail group -->
+  <g>
+    <rect x="350" y="188" width="58" height="132" rx="3" fill="#D97706"/>
+    <rect x="418" y="171" width="58" height="149" rx="3" fill="#D97706" opacity="0.5"/>
+    <text x="379" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706">55%</text>
+    <text x="447" y="163" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706">62%</text>
+    <text x="413" y="342" text-anchor="middle" font-size="13" font-weight="700" fill="#333">某热门极简 skill</text>
+    <text x="413" y="360" text-anchor="middle" font-size="12" fill="#c0392b">7/8 达标 · csv-sum 翻车</text>
+  </g>
+
+  <!-- pristine group -->
+  <g>
+    <rect x="590" y="152" width="58" height="168" rx="3" fill="#8B5CF6"/>
+    <rect x="658" y="155" width="58" height="165" rx="3" fill="#8B5CF6" opacity="0.5"/>
+    <text x="619" y="144" text-anchor="middle" font-size="12" font-weight="700" fill="#8B5CF6">70%</text>
+    <text x="687" y="147" text-anchor="middle" font-size="12" font-weight="700" fill="#8B5CF6">69%</text>
+    <text x="653" y="342" text-anchor="middle" font-size="14" font-weight="700" fill="#333">纯净原则 pristine</text>
+    <text x="653" y="360" text-anchor="middle" font-size="12" fill="#22a06b">8/8 达标 · 零翻车</text>
+  </g>
+
+  <text x="390" y="388" text-anchor="middle" font-size="11" fill="#aaa">数据：DeepSeek V4-Flash · 8 任务 × 3 组 × 3 runs = 72 cells · 完整数据见 benchmarks/results/REPORT.md</text>
+</svg>

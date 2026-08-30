@@ -1,0 +1,42 @@
+```markdown
+# calculateShipping 使用文档
+
+## 功能
+根据基础价格、重量和国家/地区计算运费。
+
+## 语法
+```javascript
+calculateShipping(basePrice, weight, country);
+```
+
+## 参数
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `basePrice` | Number | 商品基础价格（货币单位） |
+| `weight` | Number | 包裹重量（重量单位） |
+| `country` | String | 国家/地区代码（`US`、`CA`、`EU`，其余视为默认） |
+
+## 返回值
+Number：运费 = 基础运费 + 重量费（重量 × 2）。
+
+## 基础运费规则
+- **US**：基础价格的 10%
+- **CA**：基础价格的 12%
+- **EU**：基础价格的 15%
+- **其他**：基础价格的 20%
+
+## 示例
+```javascript
+// 美国，基础价 100，重量 5 → 10 + 10 = 20
+calculateShipping(100, 5, 'US');
+
+// 加拿大，基础价 100，重量 2 → 12 + 4 = 16
+calculateShipping(100, 2, 'CA');
+
+// 未列国家，基础价 100，重量 3 → 20 + 6 = 26
+calculateShipping(100, 3, 'JP');
+```
+
+## 注意事项
+- 国家/地区代码区分大小写。
+- 若 `basePrice` 或 `weight` 为负数，结果可为负数（未校验）。

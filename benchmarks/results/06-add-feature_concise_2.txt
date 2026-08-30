@@ -1,0 +1,19 @@
+```javascript
+// src/utils.js
+export const sortByPriority = (todos) => 
+  [...todos].sort((a, b) => (a.priority || 0) - (b.priority || 0));
+```
+
+```javascript
+// src/App.jsx 中
+import { sortByPriority } from './utils';
+
+// 将排序逻辑改为（假设已有优先级状态）
+const sortedTodos = sortByPriority(todos);
+// 传 sortedTodos 给 TodoList 代替 todos
+```
+
+```javascript
+// src/TodoList.jsx
+// 接收 sortedTodos 作为 props 即可，无需内部改动
+```

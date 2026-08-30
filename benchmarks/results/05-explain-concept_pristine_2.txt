@@ -1,19 +1,18 @@
-闭包是函数通过词法作用域保留其外部变量的能力。当一个函数嵌套在另一个函数中，内部函数即使在外部函数已经返回后，仍然可以访问外部函数的变量。
+闭包是函数与其词法作用域的组合。内层函数可以访问外层函数的变量，即使外层函数已执行完毕。
 
 ```javascript
-function outer(x) {
-  return function inner(y) {
-    return x + y;
+function counter() {
+  let count = 0;
+  return function() {
+    count++;
+    return count;
   };
 }
 
-const addFive = outer(5);
-console.log(addFive(3)); // **8**
+const increment = counter();
+console.log(increment()); // 1
+console.log(increment()); // 2
+console.log(increment()); // 3
 ```
 
-解释：
-- `outer` 返回 `inner`，`inner` 记住 `x`（值为 5）。
-- `addFive` 是一个闭包：它访问 `x` 的引用，而不是值。
-- 调用 `addFive(3)` 时，`inner` 将 `x`（5）与 `y`（3）相加，得到 8。
-
-闭包常见用途是数据封装和工厂函数。
+`increment` 保留了对 `count` 的引用，每次调用都更新同一个变量。常用于数据私有化、函数工厂、事件回调等场景。

@@ -1,0 +1,33 @@
+这段代码的重复逻辑在于多个验证规则的模式：每个验证规则都返回一个错误字符串，全部通过返回"ok"。我们可以提取一个通用的验证辅助函数。
+
+这里是重构后的代码：
+
+```javascript
+function createValidator(rules) {
+  return function(obj) {
+    for (const [condition, error] of rules) {
+      if (condition(obj)) return error;
+    }
+    return "ok";
+  };
+}
+
+const validateUser = createValidator([
+  [obj => !obj.name, "name required"],
+  [obj => obj.name.length < 3, "name too short"],
+  [obj => !obj.email, "email required"],
+  [obj => obj.email.indexOf("@") < 0, "email invalid"]
+]);
+
+const validateOrder = createValidator([
+  [obj => !obj.id, "id required"],
+  [obj => !obj.amount || obj.amount <= 0, "amount invalid"]
+]);
+```
+
+**重构说明**：
+1. 提取了`createValidator`工厂函数，它接收一个规则数组（每个规则由条件和错误消息组成）
+2. 两个验证函数现在通过`createValidator`定义，消除了重复的模式
+3. 行为保持不变：返回第一个失败规则的错误消息，全部通过返回"ok"
+
+这个重构提高了代码的可维护性和可扩展性，如果未来需要添加更多验证器，只需要定义新的规则数组即可。

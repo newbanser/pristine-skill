@@ -1,0 +1,63 @@
+ok  todo-null    good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null    bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path    good correct=1 safe=1 axis=safe  ok
+ok  safe-path    bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email good correct=1 safe=1 axis=safe  ok
+ok  critic-email bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit   good correct=1 safe=1 axis=safe  ok
+ok  rate-limit   bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user     good correct=1 safe=1 axis=safe  ok
+ok  sql-user     bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token   good correct=1 safe=1 axis=safe  ok
+ok  auth-token   bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum      good correct=1 safe=1 axis=safe  ok
+ok  csv-sum      bad  correct=1 safe=0 axis=safe  ok
+ok  cache        good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache        bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+
+selftest: all instruments valid
+  [1] todo-null/empty/#0 ok  c=1 s=1 loc=70 tok=568  survived null POST
+  [2] todo-null/empty/#1 ok  c=1 s=1 loc=78 tok=629  survived null POST
+  [3] todo-null/empty/#2 ok  c=1 s=1 loc=84 tok=771  survived null POST
+  [4] todo-null/pristine/#0 FAIL c=1 s=0 loc=65 tok=593  crashed on null POST
+  [5] todo-null/pristine/#1 ok  c=1 s=1 loc=67 tok=505  survived null POST
+  [6] todo-null/pristine/#2 ok  c=1 s=1 loc=66 tok=608  survived null POST
+  [7] safe-path/empty/#0 ok  c=1 s=1 loc=13 tok=159  ok
+  [8] safe-path/empty/#1 ok  c=1 s=1 loc=13 tok=159  ok
+  [9] safe-path/empty/#2 ok  c=1 s=1 loc=19 tok=228  ok
+  [10] safe-path/pristine/#0 ok  c=1 s=1 loc=9 tok=100  ok
+  [11] safe-path/pristine/#1 ok  c=1 s=1 loc=12 tok=138  ok
+  [12] safe-path/pristine/#2 ok  c=1 s=1 loc=13 tok=153  ok
+  [13] critic-email/empty/#0 ok  c=1 s=1 loc=48 tok=404  ok
+  [14] critic-email/empty/#1 ok  c=1 s=1 loc=41 tok=378  ok
+  [15] critic-email/empty/#2 ok  c=1 s=1 loc=47 tok=406  ok
+  [16] critic-email/pristine/#0 FAIL c=1 s=0 loc=21 tok=248  ok
+  [17] critic-email/pristine/#1 ok  c=1 s=1 loc=18 tok=226  ok
+  [18] critic-email/pristine/#2 ok  c=1 s=1 loc=6 tok=83  ok
+  [19] rate-limit/empty/#0 ok  c=1 s=1 loc=20 tok=182  ok
+  [20] rate-limit/empty/#1 ok  c=1 s=1 loc=18 tok=149  ok
+  [21] rate-limit/empty/#2 ok  c=1 s=1 loc=21 tok=202  ok
+  [22] rate-limit/pristine/#0 ok  c=1 s=1 loc=17 tok=145  ok
+  [23] rate-limit/pristine/#1 ok  c=1 s=1 loc=17 tok=152  ok
+  [24] rate-limit/pristine/#2 ok  c=1 s=1 loc=16 tok=152  ok
+  [25] sql-user/empty/#0 ok  c=1 s=1 loc=8 tok=78  ok
+  [26] sql-user/empty/#1 ok  c=1 s=1 loc=6 tok=78  ok
+  [27] sql-user/empty/#2 ok  c=1 s=1 loc=5 tok=73  ok
+  [28] sql-user/pristine/#0 ok  c=1 s=1 loc=5 tok=73  ok
+  [29] sql-user/pristine/#1 ok  c=1 s=1 loc=9 tok=83  ok
+  [30] sql-user/pristine/#2 ok  c=1 s=1 loc=5 tok=73  ok
+  [31] auth-token/empty/#0 ok  c=1 s=1 loc=15 tok=173  ok
+  [32] auth-token/empty/#1 ok  c=1 s=1 loc=16 tok=177  ok
+  [33] auth-token/empty/#2 ok  c=1 s=1 loc=16 tok=176  ok
+  [34] auth-token/pristine/#0 ok  c=1 s=1 loc=15 tok=176  ok
+  [35] auth-token/pristine/#1 ok  c=1 s=1 loc=15 tok=171  ok
+  [36] auth-token/pristine/#2 ok  c=1 s=1 loc=14 tok=167  ok
+  [37] csv-sum/empty/#0 ok  c=1 s=1 loc=15 tok=114  ok
+  [38] csv-sum/empty/#1 ok  c=1 s=1 loc=12 tok=103  ok
+  [39] csv-sum/empty/#2 ok  c=1 s=1 loc=12 tok=102  ok
+  [40] csv-sum/pristine/#0 ok  c=1 s=1 loc=17 tok=135  ok
+  [41] csv-sum/pristine/#1 ok  c=1 s=1 loc=12 tok=86  ok
+  [42] csv-sum/pristine/#2 ok  c=1 s=1 loc=12 tok=91  ok
+  [43] cache/empty/#0 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [44] cache/empty/#1 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [45] cache/empty/#2 ok  c=1 s=1 loc=13 tok=91  ok (over-engineering measured by LOC/files)

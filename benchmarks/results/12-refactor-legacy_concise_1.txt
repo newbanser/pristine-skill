@@ -1,0 +1,23 @@
+```javascript
+function validate(requiredFields, validators) {
+  for (const { field, message, check } of rules) {
+    if (check()) return message;
+  }
+}
+
+function validateUser(user) {
+  return validate([
+    { check: () => !user.name, message: "name required" },
+    { check: () => user.name.length < 3, message: "name too short" },
+    { check: () => !user.email, message: "email required" },
+    { check: () => user.email.indexOf("@") < 0, message: "email invalid" }
+  ]);
+}
+
+function validateOrder(order) {
+  return validate([
+    { check: () => !order.id, message: "id required" },
+    { check: () => !order.amount || order.amount <= 0, message: "amount invalid" }
+  ]);
+}
+```

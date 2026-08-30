@@ -1,52 +1,103 @@
-我来帮你重构这段代码，提取公共逻辑并减少重复：
+这里有几个不同层次的重构方案，从简单到更灵活：
+
+## 方案1：使用参数控制分隔符
 
 ```javascript
 function formatDate(date, separator = '-') {
   const d = new Date(date);
-  const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}${separator}${month}${separator}${day}`;
+  return `${d.getFullYear()}${separator}${month}${separator}${day}`;
 }
+
+// 使用
+formatDate(date);              // '2024-01-01'
+formatDate(date, '/');         // '2024/01/01'
 
 function displayDate(date) {
   const d = new Date(date);
   return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
-
-// 如果还需要保留原来的函数名，可以这样包装：
-const formatDate1 = (date) => formatDate(date, '-');
-const formatDate2 = (date) => formatDate(date, '/');
 ```
 
-如果想把 `displayDate` 也统一起来，可以进一步重构：
+## 方案2：使用配置对象（最灵活）
 
 ```javascript
 function formatDate(date, options = {}) {
   const d = new Date(date);
-  const { separator = '-', includeYear = true, showMonthOnly = false } = options;
+  const { separator = '-', yearFirst = true, showYear = true } = options;
   
-  if (showMonthOnly) {
-    return `${d.getMonth() + 1}月${d.getDate()}日`;
-  }
+  const month = `${d.getMonth() + 1}月`;
+  const day = `${d.getDate()}日`;
+  const year = `${d.getFullYear()}年`;
   
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  
-  return includeYear 
-    ? `${year}${separator}${month}${separator}${day}`
-    : `${month}${separator}${day}`;
+  if (!showYear) return `${month}${day}`;
+  return yearFirst 
+    ? `${year}${separator}${String(d.getMonth() + 1).padStart(2, '0')}${separator}${String(d.getDate()).padStart(2, '0')}`
+    : `${month}${day}`;
 }
-
-// 使用示例：
-formatDate('2024-01-15');                          // "2024-01-15"
-formatDate('2024-01-15', { separator: '/' });      // "2024/01/15"
-formatDate('2024-01-15', { showMonthOnly: true }); // "1月15日"
 ```
 
-**推荐方案**：使用第一个重构方案，因为它：
-1. 简单清晰，易于理解和维护
-2. 保持了原有功能不变
-3. 通过参数化 `separator` 消除了重复
-4. 保留了 `displayDate` 作为独立函数（因为它的格式完全不同）
+## 方案3：使用Intl.DateTimeFormat（推荐）
+
+```javascript
+// 最简单的方案，利用浏览器内置功能
+const formatDate = (date, separator = '-') => {
+  const d = new Date(date);
+  const parts = {
+    year: d.getFullYear(),
+    month: String(d.getMonth() + 1).padStart(2, '0'),
+    day: String(d.getDate()).padStart(2, '0')
+  };
+  return `${parts.year}${separator}${parts.month}${separator}${parts.day}`;
+};
+
+const formatDisplayDate = (date) => {
+  const d = new Date(date);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+};
+```
+
+## 方案4：工具函数组合（最优雅）
+
+```javascript
+// 基础工具函数
+const pad = (num) => String(num).padStart(2, '0');
+
+// 统一的日期解析函数
+const parseDate = (date) => {
+  const d = new Date(date);
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+    day: d.getDate()
+  };
+};
+
+// 格式化函数
+const formatDate = (date, separator = '-') => {
+  const { year, month, day } = parseDate(date);
+  return `${year}${separator}${pad(month)}${separator}${pad(day)}`;
+};
+
+const displayDate = (date) => {
+  const { month, day } = parseDate(date);
+  return `${month}月${day}日`;
+};
+
+// 使用方式保持不变
+```
+
+## 推荐方案
+
+**如果只是解决重复问题**，推荐**方案1**，简单直接：
+```javascript
+function formatDate(date, separator = '-') {
+  const d = new Date(date);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}${separator}${month}${separator}${day}`;
+}
+```
+
+**如果需要更全面的日期处理**，推荐**方案3**或**方案4**，特别是方案4的代码组织方式更清晰，且便于后续扩展更多日期格式。

@@ -1,0 +1,12 @@
+```javascript
+function formatDate(date, sep = '-') {
+  const d = new Date(date);
+  const [m, day] = [d.getMonth()+1, d.getDate()].map(n => String(n).padStart(2,'0'));
+  return `${d.getFullYear()}${sep}${m}${sep}${day}`;
+}
+
+function displayDate(date) {
+  const d = new Date(date);
+  return `${d.getMonth()+1}月${d.getDate()}日`;
+}
+```

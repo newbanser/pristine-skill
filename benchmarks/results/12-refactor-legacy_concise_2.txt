@@ -1,0 +1,20 @@
+```javascript
+function validate(validators, obj) {
+  for (const [cond, msg] of validators) {
+    if (cond(obj)) return msg;
+  }
+  return "ok";
+}
+
+const validateUser = user => validate([
+  [u => !u.name, "name required"],
+  [u => u.name.length < 3, "name too short"],
+  [u => !u.email, "email required"],
+  [u => u.email.indexOf("@") < 0, "email invalid"],
+], user);
+
+const validateOrder = order => validate([
+  [o => !o.id, "id required"],
+  [o => !o.amount || o.amount <= 0, "amount invalid"],
+], order);
+```

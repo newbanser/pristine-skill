@@ -1,0 +1,28 @@
+问题：该函数仅处理 `active` 项目，对 `value` 做了两步计算，且每次 push 都重复 `id` 与 `flag`。`val` 字段命名模糊且硬编码阈值 100，整体冗长且不易维护。
+
+修改后：
+
+```javascript
+const DOUBLE_AMOUNT_THRESHOLD = 100;
+
+function processActiveItems(items) {
+  return items
+    .filter(item => item.active)
+    .map(item => {
+      const doubledValue = item.value * 2;
+      return {
+        id: item.id,
+        value: doubledValue,
+        exceedsThreshold: doubledValue > DOUBLE_AMOUNT_THRESHOLD
+      };
+    });
+}
+```
+
+具体改动：
+1. **语义澄清**：`filter` + `map` 替代循环与条件嵌套，`exceedsThreshold` 字段名直接表达含义。
+2. **命名改进**：`val` → `value`（保持原意），`flag` → `exceedsThreshold`，函数名明确 `processActiveItems`。
+3. **消除冗余**：移除 `if/else` 对同一 `result.push` 的重复分支，用布尔表达式直接赋值。
+4. **常量提取**：阈值 `100` 声明为命名常量，便于维护。
+
+下一步：若后续需处理非 active 项或调整阈值，可直接修改对应部分，无需触碰其他逻辑。

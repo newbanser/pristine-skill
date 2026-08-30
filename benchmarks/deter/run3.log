@@ -1,0 +1,119 @@
+ok  todo-null    good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null    bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path    good correct=1 safe=1 axis=safe  ok
+ok  safe-path    bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email good correct=1 safe=1 axis=safe  ok
+ok  critic-email bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit   good correct=1 safe=1 axis=safe  ok
+ok  rate-limit   bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user     good correct=1 safe=1 axis=safe  ok
+ok  sql-user     bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token   good correct=1 safe=1 axis=safe  ok
+ok  auth-token   bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum      good correct=1 safe=1 axis=safe  ok
+ok  csv-sum      bad  correct=1 safe=0 axis=safe  ok
+ok  cache        good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache        bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+
+selftest: all instruments valid
+  [1] todo-null/empty/#0 ok  c=1 s=1 loc=98 tok=893  survived null POST
+  [2] todo-null/empty/#1 ok  c=1 s=1 loc=89 tok=815  survived null POST
+  [3] todo-null/empty/#2 ok  c=1 s=1 loc=67 tok=606  survived null POST
+  [4] todo-null/pristine/#0 ok  c=1 s=1 loc=65 tok=471  survived null POST
+  [5] todo-null/pristine/#1 ok  c=1 s=1 loc=65 tok=585  survived null POST
+  [6] todo-null/pristine/#2 ok  c=1 s=1 loc=72 tok=586  survived null POST
+  [7] todo-null/ponytail/#0 ok  c=1 s=1 loc=45 tok=561  survived null POST
+  [8] todo-null/ponytail/#1 ok  c=1 s=1 loc=45 tok=508  survived null POST
+  [9] todo-null/ponytail/#2 ok  c=1 s=1 loc=58 tok=620  survived null POST
+  [10] safe-path/empty/#0 ok  c=1 s=1 loc=18 tok=214  ok
+  [11] safe-path/empty/#1 ok  c=1 s=1 loc=17 tok=214  ok
+  [12] safe-path/empty/#2 ok  c=1 s=1 loc=20 tok=228  ok
+  [13] safe-path/pristine/#0 ok  c=1 s=1 loc=8 tok=88  ok
+  [14] safe-path/pristine/#1 ok  c=1 s=1 loc=8 tok=96  ok
+  [15] safe-path/pristine/#2 ok  c=1 s=1 loc=10 tok=122  ok
+  [16] safe-path/ponytail/#0 ok  c=1 s=1 loc=5 tok=57  ok
+  [17] safe-path/ponytail/#1 ok  c=1 s=1 loc=4 tok=47  ok
+  [18] safe-path/ponytail/#2 ok  c=1 s=1 loc=4 tok=43  ok
+  [19] critic-email/empty/#0 ok  c=1 s=1 loc=35 tok=286  ok
+  [20] critic-email/empty/#1 ok  c=1 s=1 loc=40 tok=351  ok
+  [21] critic-email/empty/#2 ok  c=1 s=1 loc=39 tok=436  ok
+  [22] critic-email/pristine/#0 ok  c=1 s=1 loc=5 tok=73  ok
+  [23] critic-email/pristine/#1 ok  c=1 s=1 loc=5 tok=71  ok
+  [24] critic-email/pristine/#2 ok  c=1 s=1 loc=5 tok=73  ok
+  [25] critic-email/ponytail/#0 ok  c=1 s=1 loc=4 tok=55  ok
+  [26] critic-email/ponytail/#1 ok  c=1 s=1 loc=4 tok=54  ok
+  [27] critic-email/ponytail/#2 ok  c=1 s=1 loc=4 tok=55  ok
+  [28] rate-limit/empty/#0 ok  c=1 s=1 loc=16 tok=154  ok
+  [29] rate-limit/empty/#1 ok  c=1 s=1 loc=17 tok=180  ok
+  [30] rate-limit/empty/#2 ok  c=1 s=1 loc=20 tok=173  ok
+  [31] rate-limit/pristine/#0 ok  c=1 s=1 loc=17 tok=157  ok
+  [32] rate-limit/pristine/#1 ok  c=1 s=1 loc=17 tok=152  ok
+  [33] rate-limit/pristine/#2 ok  c=1 s=1 loc=17 tok=149  ok
+  [34] rate-limit/ponytail/#0 ok  c=1 s=1 loc=15 tok=142  ok
+  [35] rate-limit/ponytail/#1 ok  c=1 s=1 loc=18 tok=141  ok
+  [36] rate-limit/ponytail/#2 ok  c=1 s=1 loc=18 tok=156  ok
+  [37] sql-user/empty/#0 ok  c=1 s=1 loc=7 tok=77  ok
+  [38] sql-user/empty/#1 ok  c=1 s=1 loc=6 tok=82  ok
+  [39] sql-user/empty/#2 ok  c=1 s=1 loc=9 tok=87  ok
+  [40] sql-user/pristine/#0 ok  c=1 s=1 loc=15 tok=153  ok
+  [41] sql-user/pristine/#1 ok  c=1 s=1 loc=9 tok=87  ok
+  [42] sql-user/pristine/#2 ok  c=1 s=1 loc=9 tok=87  ok
+  [43] sql-user/ponytail/#0 ok  c=1 s=1 loc=4 tok=38  ok
+  [44] sql-user/ponytail/#1 ok  c=1 s=1 loc=9 tok=83  ok
+  [45] sql-user/ponytail/#2 ok  c=1 s=1 loc=6 tok=78  ok
+  [46] auth-token/empty/#0 ok  c=1 s=1 loc=16 tok=179  ok
+  [47] auth-token/empty/#1 ok  c=1 s=1 loc=15 tok=170  ok
+  [48] auth-token/empty/#2 ok  c=1 s=1 loc=16 tok=192  ok
+  [49] auth-token/pristine/#0 ok  c=1 s=1 loc=15 tok=170  ok
+  [50] auth-token/pristine/#1 ok  c=1 s=1 loc=15 tok=168  ok
+  [51] auth-token/pristine/#2 ok  c=1 s=1 loc=18 tok=198  ok
+  [52] auth-token/ponytail/#0 ok  c=1 s=1 loc=15 tok=164  ok
+  [53] auth-token/ponytail/#1 ok  c=1 s=1 loc=13 tok=166  ok
+  [54] auth-token/ponytail/#2 ok  c=1 s=1 loc=15 tok=168  ok
+  [55] csv-sum/empty/#0 ok  c=1 s=1 loc=12 tok=100  ok
+  [56] csv-sum/empty/#1 ok  c=1 s=1 loc=12 tok=97  ok
+  [57] csv-sum/empty/#2 ok  c=1 s=1 loc=17 tok=146  ok
+  [58] csv-sum/pristine/#0 ok  c=1 s=1 loc=16 tok=111  ok
+  [59] csv-sum/pristine/#1 ok  c=1 s=1 loc=20 tok=127  ok
+  [60] csv-sum/pristine/#2 ok  c=1 s=1 loc=12 tok=92  ok
+  [61] csv-sum/ponytail/#0 ok  c=1 s=1 loc=11 tok=79  ok
+  [62] csv-sum/ponytail/#1 FAIL c=0 s=0 loc=13 tok=100  ok
+  [63] csv-sum/ponytail/#2 ok  c=1 s=1 loc=11 tok=79  ok
+  [64] cache/empty/#0 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [65] cache/empty/#1 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [66] cache/empty/#2 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [67] cache/pristine/#0 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [68] cache/pristine/#1 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [69] cache/pristine/#2 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [70] cache/ponytail/#0 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [71] cache/ponytail/#1 ok  c=1 s=1 loc=13 tok=88  ok (over-engineering measured by LOC/files)
+  [72] cache/ponytail/#2 ok  c=1 s=1 loc=20 tok=130  ok (over-engineering measured by LOC/files)
+
+=== 确定性评测结果（correct/safe 为执行验证）===
+task           arm         correct   safe   LOC     tok
+auth-token     empty           1.0    1.0    16     180
+auth-token     ponytail        1.0    1.0    15     166
+auth-token     pristine        1.0    1.0    15     179
+cache          empty           1.0    1.0    13      88
+cache          ponytail        1.0    1.0    13     102
+cache          pristine        1.0    1.0    13      88
+critic-email   empty           1.0    1.0    39     358
+critic-email   ponytail        1.0    1.0     4      55
+critic-email   pristine        1.0    1.0     5      72
+csv-sum        empty           1.0    1.0    12     114
+csv-sum        ponytail      0.667  0.667    11      86
+csv-sum        pristine        1.0    1.0    16     110
+rate-limit     empty           1.0    1.0    17     169
+rate-limit     ponytail        1.0    1.0    18     146
+rate-limit     pristine        1.0    1.0    17     153
+safe-path      empty           1.0    1.0    18     219
+safe-path      ponytail        1.0    1.0     4      49
+safe-path      pristine        1.0    1.0     8     102
+sql-user       empty           1.0    1.0     7      82
+sql-user       ponytail        1.0    1.0     6      66
+sql-user       pristine        1.0    1.0     9     109
+todo-null      empty           1.0    1.0    89     771
+todo-null      ponytail        1.0    1.0    45     563
+todo-null      pristine        1.0    1.0    65     547
+
+wrote /Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/deter/runs/20260830-194356/results.json + summary.json

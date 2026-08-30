@@ -1,0 +1,22 @@
+## calculateShipping 使用文档
+
+**功能**：计算国际运费（基础费 + 重量费）
+
+**参数**：
+- `basePrice`（Number）：商品基础价格（必填，正数）
+- `weight`（Number）：包裹重量，单位kg（必填，正数）
+- `country`（String）：目标国家代码，支持 `'US'`、`'CA'`、`'EU'`（必填）
+
+**返回值**：
+- Number：总运费 = 基础费率×基础价 + 2×重量
+
+**示例**：
+```javascript
+calculateShipping(100, 2, 'US')  // 返回 14 (100*0.1 + 4)
+calculateShipping(100, 2, 'CA')  // 返回 16
+calculateShipping(100, 2, 'XX')  // 返回 24 (默认0.2费率)
+```
+
+**注意**：
+- 不支持的`country`使用默认费率0.2（当前逻辑，无需修改）
+- 输入非数字时可能返回`NaN`，请自行校验

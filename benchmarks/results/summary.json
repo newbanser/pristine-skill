@@ -4,8 +4,8 @@
     "group": "control",
     "run": 1,
     "input_tokens": 107,
-    "output_tokens": 332,
-    "total_tokens": 439,
+    "output_tokens": 559,
+    "total_tokens": 666,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_control_1.txt"
   },
   {
@@ -13,8 +13,8 @@
     "group": "control",
     "run": 2,
     "input_tokens": 107,
-    "output_tokens": 359,
-    "total_tokens": 466,
+    "output_tokens": 374,
+    "total_tokens": 481,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_control_2.txt"
   },
   {
@@ -22,35 +22,62 @@
     "group": "control",
     "run": 3,
     "input_tokens": 107,
-    "output_tokens": 356,
-    "total_tokens": 463,
+    "output_tokens": 224,
+    "total_tokens": 331,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_control_3.txt"
+  },
+  {
+    "task": "01-fix-edge-bug",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 126,
+    "output_tokens": 44,
+    "total_tokens": 170,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_concise_1.txt"
+  },
+  {
+    "task": "01-fix-edge-bug",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 126,
+    "output_tokens": 18,
+    "total_tokens": 144,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_concise_2.txt"
+  },
+  {
+    "task": "01-fix-edge-bug",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 126,
+    "output_tokens": 10,
+    "total_tokens": 136,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_concise_3.txt"
   },
   {
     "task": "01-fix-edge-bug",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2902,
-    "output_tokens": 90,
-    "total_tokens": 2992,
+    "input_tokens": 1365,
+    "output_tokens": 141,
+    "total_tokens": 1506,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_pristine_1.txt"
   },
   {
     "task": "01-fix-edge-bug",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2902,
-    "output_tokens": 218,
-    "total_tokens": 3120,
+    "input_tokens": 1365,
+    "output_tokens": 93,
+    "total_tokens": 1458,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_pristine_2.txt"
   },
   {
     "task": "01-fix-edge-bug",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2902,
-    "output_tokens": 98,
-    "total_tokens": 3000,
+    "input_tokens": 1365,
+    "output_tokens": 72,
+    "total_tokens": 1437,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/01-fix-edge-bug_pristine_3.txt"
   },
   {
@@ -82,29 +109,56 @@
   },
   {
     "task": "02-implement-login",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 38,
+    "output_tokens": 444,
+    "total_tokens": 482,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_concise_1.txt"
+  },
+  {
+    "task": "02-implement-login",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 38,
+    "output_tokens": 499,
+    "total_tokens": 537,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_concise_2.txt"
+  },
+  {
+    "task": "02-implement-login",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 38,
+    "output_tokens": 543,
+    "total_tokens": 581,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_concise_3.txt"
+  },
+  {
+    "task": "02-implement-login",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2814,
-    "output_tokens": 1387,
-    "total_tokens": 4201,
+    "input_tokens": 1277,
+    "output_tokens": 477,
+    "total_tokens": 1754,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_pristine_1.txt"
   },
   {
     "task": "02-implement-login",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2814,
-    "output_tokens": 795,
-    "total_tokens": 3609,
+    "input_tokens": 1277,
+    "output_tokens": 593,
+    "total_tokens": 1870,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_pristine_2.txt"
   },
   {
     "task": "02-implement-login",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2814,
-    "output_tokens": 424,
-    "total_tokens": 3238,
+    "input_tokens": 1277,
+    "output_tokens": 602,
+    "total_tokens": 1879,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/02-implement-login_pristine_3.txt"
   },
   {
@@ -112,8 +166,8 @@
     "group": "control",
     "run": 1,
     "input_tokens": 18,
-    "output_tokens": 1216,
-    "total_tokens": 1234,
+    "output_tokens": 1616,
+    "total_tokens": 1634,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_control_1.txt"
   },
   {
@@ -121,8 +175,8 @@
     "group": "control",
     "run": 2,
     "input_tokens": 18,
-    "output_tokens": 1495,
-    "total_tokens": 1513,
+    "output_tokens": 1318,
+    "total_tokens": 1336,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_control_2.txt"
   },
   {
@@ -130,35 +184,62 @@
     "group": "control",
     "run": 3,
     "input_tokens": 18,
-    "output_tokens": 1212,
-    "total_tokens": 1230,
+    "output_tokens": 1545,
+    "total_tokens": 1563,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_control_3.txt"
+  },
+  {
+    "task": "03-answer-with-vague-premise",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 37,
+    "output_tokens": 13,
+    "total_tokens": 50,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_concise_1.txt"
+  },
+  {
+    "task": "03-answer-with-vague-premise",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 37,
+    "output_tokens": 71,
+    "total_tokens": 108,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_concise_2.txt"
+  },
+  {
+    "task": "03-answer-with-vague-premise",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 37,
+    "output_tokens": 21,
+    "total_tokens": 58,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_concise_3.txt"
   },
   {
     "task": "03-answer-with-vague-premise",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2813,
-    "output_tokens": 156,
-    "total_tokens": 2969,
+    "input_tokens": 1276,
+    "output_tokens": 256,
+    "total_tokens": 1532,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_pristine_1.txt"
   },
   {
     "task": "03-answer-with-vague-premise",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2813,
-    "output_tokens": 196,
-    "total_tokens": 3009,
+    "input_tokens": 1276,
+    "output_tokens": 226,
+    "total_tokens": 1502,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_pristine_2.txt"
   },
   {
     "task": "03-answer-with-vague-premise",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2813,
-    "output_tokens": 212,
-    "total_tokens": 3025,
+    "input_tokens": 1276,
+    "output_tokens": 184,
+    "total_tokens": 1460,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/03-answer-with-vague-premise_pristine_3.txt"
   },
   {
@@ -166,8 +247,8 @@
     "group": "control",
     "run": 1,
     "input_tokens": 155,
-    "output_tokens": 703,
-    "total_tokens": 858,
+    "output_tokens": 709,
+    "total_tokens": 864,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_control_1.txt"
   },
   {
@@ -175,8 +256,8 @@
     "group": "control",
     "run": 2,
     "input_tokens": 155,
-    "output_tokens": 617,
-    "total_tokens": 772,
+    "output_tokens": 510,
+    "total_tokens": 665,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_control_2.txt"
   },
   {
@@ -184,35 +265,62 @@
     "group": "control",
     "run": 3,
     "input_tokens": 155,
-    "output_tokens": 494,
-    "total_tokens": 649,
+    "output_tokens": 845,
+    "total_tokens": 1000,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_control_3.txt"
+  },
+  {
+    "task": "04-refactor-duplicate-code",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 174,
+    "output_tokens": 109,
+    "total_tokens": 283,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_concise_1.txt"
+  },
+  {
+    "task": "04-refactor-duplicate-code",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 174,
+    "output_tokens": 105,
+    "total_tokens": 279,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_concise_2.txt"
+  },
+  {
+    "task": "04-refactor-duplicate-code",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 174,
+    "output_tokens": 124,
+    "total_tokens": 298,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_concise_3.txt"
   },
   {
     "task": "04-refactor-duplicate-code",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2950,
-    "output_tokens": 171,
-    "total_tokens": 3121,
+    "input_tokens": 1413,
+    "output_tokens": 253,
+    "total_tokens": 1666,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_pristine_1.txt"
   },
   {
     "task": "04-refactor-duplicate-code",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2950,
-    "output_tokens": 375,
-    "total_tokens": 3325,
+    "input_tokens": 1413,
+    "output_tokens": 230,
+    "total_tokens": 1643,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_pristine_2.txt"
   },
   {
     "task": "04-refactor-duplicate-code",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2950,
-    "output_tokens": 252,
-    "total_tokens": 3202,
+    "input_tokens": 1413,
+    "output_tokens": 127,
+    "total_tokens": 1540,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/04-refactor-duplicate-code_pristine_3.txt"
   },
   {
@@ -220,8 +328,8 @@
     "group": "control",
     "run": 1,
     "input_tokens": 14,
-    "output_tokens": 969,
-    "total_tokens": 983,
+    "output_tokens": 1071,
+    "total_tokens": 1085,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_control_1.txt"
   },
   {
@@ -229,8 +337,8 @@
     "group": "control",
     "run": 2,
     "input_tokens": 14,
-    "output_tokens": 995,
-    "total_tokens": 1009,
+    "output_tokens": 1220,
+    "total_tokens": 1234,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_control_2.txt"
   },
   {
@@ -238,35 +346,62 @@
     "group": "control",
     "run": 3,
     "input_tokens": 14,
-    "output_tokens": 922,
-    "total_tokens": 936,
+    "output_tokens": 1256,
+    "total_tokens": 1270,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_control_3.txt"
+  },
+  {
+    "task": "05-explain-concept",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 33,
+    "output_tokens": 101,
+    "total_tokens": 134,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_concise_1.txt"
+  },
+  {
+    "task": "05-explain-concept",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 33,
+    "output_tokens": 78,
+    "total_tokens": 111,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_concise_2.txt"
+  },
+  {
+    "task": "05-explain-concept",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 33,
+    "output_tokens": 73,
+    "total_tokens": 106,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_concise_3.txt"
   },
   {
     "task": "05-explain-concept",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2809,
-    "output_tokens": 105,
-    "total_tokens": 2914,
+    "input_tokens": 1272,
+    "output_tokens": 331,
+    "total_tokens": 1603,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_pristine_1.txt"
   },
   {
     "task": "05-explain-concept",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2809,
-    "output_tokens": 177,
-    "total_tokens": 2986,
+    "input_tokens": 1272,
+    "output_tokens": 123,
+    "total_tokens": 1395,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_pristine_2.txt"
   },
   {
     "task": "05-explain-concept",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2809,
-    "output_tokens": 178,
-    "total_tokens": 2987,
+    "input_tokens": 1272,
+    "output_tokens": 280,
+    "total_tokens": 1552,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/05-explain-concept_pristine_3.txt"
   },
   {
@@ -274,8 +409,8 @@
     "group": "control",
     "run": 1,
     "input_tokens": 83,
-    "output_tokens": 1933,
-    "total_tokens": 2016,
+    "output_tokens": 1871,
+    "total_tokens": 1954,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_control_1.txt"
   },
   {
@@ -283,8 +418,8 @@
     "group": "control",
     "run": 2,
     "input_tokens": 83,
-    "output_tokens": 1703,
-    "total_tokens": 1786,
+    "output_tokens": 1917,
+    "total_tokens": 2000,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_control_2.txt"
   },
   {
@@ -292,35 +427,548 @@
     "group": "control",
     "run": 3,
     "input_tokens": 83,
-    "output_tokens": 2148,
-    "total_tokens": 2231,
+    "output_tokens": 2036,
+    "total_tokens": 2119,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_control_3.txt"
+  },
+  {
+    "task": "06-add-feature",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 102,
+    "output_tokens": 56,
+    "total_tokens": 158,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_concise_1.txt"
+  },
+  {
+    "task": "06-add-feature",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 102,
+    "output_tokens": 135,
+    "total_tokens": 237,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_concise_2.txt"
+  },
+  {
+    "task": "06-add-feature",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 102,
+    "output_tokens": 170,
+    "total_tokens": 272,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_concise_3.txt"
   },
   {
     "task": "06-add-feature",
     "group": "pristine",
     "run": 1,
-    "input_tokens": 2878,
-    "output_tokens": 189,
-    "total_tokens": 3067,
+    "input_tokens": 1341,
+    "output_tokens": 128,
+    "total_tokens": 1469,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_pristine_1.txt"
   },
   {
     "task": "06-add-feature",
     "group": "pristine",
     "run": 2,
-    "input_tokens": 2878,
-    "output_tokens": 267,
-    "total_tokens": 3145,
+    "input_tokens": 1341,
+    "output_tokens": 325,
+    "total_tokens": 1666,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_pristine_2.txt"
   },
   {
     "task": "06-add-feature",
     "group": "pristine",
     "run": 3,
-    "input_tokens": 2878,
-    "output_tokens": 450,
-    "total_tokens": 3328,
+    "input_tokens": 1341,
+    "output_tokens": 471,
+    "total_tokens": 1812,
     "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/06-add-feature_pristine_3.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 89,
+    "output_tokens": 1158,
+    "total_tokens": 1247,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_control_1.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 89,
+    "output_tokens": 811,
+    "total_tokens": 900,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_control_2.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 89,
+    "output_tokens": 865,
+    "total_tokens": 954,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_control_3.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 108,
+    "output_tokens": 234,
+    "total_tokens": 342,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_concise_1.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 108,
+    "output_tokens": 279,
+    "total_tokens": 387,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_concise_2.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 108,
+    "output_tokens": 295,
+    "total_tokens": 403,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_concise_3.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1347,
+    "output_tokens": 541,
+    "total_tokens": 1888,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_pristine_1.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1347,
+    "output_tokens": 339,
+    "total_tokens": 1686,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_pristine_2.txt"
+  },
+  {
+    "task": "07-write-documentation",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1347,
+    "output_tokens": 426,
+    "total_tokens": 1773,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/07-write-documentation_pristine_3.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 125,
+    "output_tokens": 695,
+    "total_tokens": 820,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_control_1.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 125,
+    "output_tokens": 524,
+    "total_tokens": 649,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_control_2.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 125,
+    "output_tokens": 662,
+    "total_tokens": 787,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_control_3.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 144,
+    "output_tokens": 186,
+    "total_tokens": 330,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_concise_1.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 144,
+    "output_tokens": 111,
+    "total_tokens": 255,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_concise_2.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 144,
+    "output_tokens": 134,
+    "total_tokens": 278,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_concise_3.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1383,
+    "output_tokens": 182,
+    "total_tokens": 1565,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_pristine_1.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1383,
+    "output_tokens": 300,
+    "total_tokens": 1683,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_pristine_2.txt"
+  },
+  {
+    "task": "08-code-review",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1383,
+    "output_tokens": 332,
+    "total_tokens": 1715,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/08-code-review_pristine_3.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 23,
+    "output_tokens": 2051,
+    "total_tokens": 2074,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_control_1.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 23,
+    "output_tokens": 1604,
+    "total_tokens": 1627,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_control_2.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 23,
+    "output_tokens": 1131,
+    "total_tokens": 1154,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_control_3.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 42,
+    "output_tokens": 148,
+    "total_tokens": 190,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_concise_1.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 42,
+    "output_tokens": 114,
+    "total_tokens": 156,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_concise_2.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 42,
+    "output_tokens": 57,
+    "total_tokens": 99,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_concise_3.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1281,
+    "output_tokens": 219,
+    "total_tokens": 1500,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_pristine_1.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1281,
+    "output_tokens": 207,
+    "total_tokens": 1488,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_pristine_2.txt"
+  },
+  {
+    "task": "09-plan-feature",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1281,
+    "output_tokens": 456,
+    "total_tokens": 1737,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/09-plan-feature_pristine_3.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 26,
+    "output_tokens": 612,
+    "total_tokens": 638,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_control_1.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 26,
+    "output_tokens": 714,
+    "total_tokens": 740,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_control_2.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 26,
+    "output_tokens": 710,
+    "total_tokens": 736,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_control_3.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 45,
+    "output_tokens": 31,
+    "total_tokens": 76,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_concise_1.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 45,
+    "output_tokens": 212,
+    "total_tokens": 257,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_concise_2.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 45,
+    "output_tokens": 52,
+    "total_tokens": 97,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_concise_3.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1284,
+    "output_tokens": 270,
+    "total_tokens": 1554,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_pristine_1.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1284,
+    "output_tokens": 100,
+    "total_tokens": 1384,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_pristine_2.txt"
+  },
+  {
+    "task": "10-debug-vague-error",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1284,
+    "output_tokens": 216,
+    "total_tokens": 1500,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/10-debug-vague-error_pristine_3.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 50,
+    "output_tokens": 458,
+    "total_tokens": 508,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_control_1.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 50,
+    "output_tokens": 446,
+    "total_tokens": 496,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_control_2.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 50,
+    "output_tokens": 287,
+    "total_tokens": 337,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_control_3.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 69,
+    "output_tokens": 41,
+    "total_tokens": 110,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_concise_1.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 69,
+    "output_tokens": 28,
+    "total_tokens": 97,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_concise_2.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 69,
+    "output_tokens": 33,
+    "total_tokens": 102,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_concise_3.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1308,
+    "output_tokens": 27,
+    "total_tokens": 1335,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_pristine_1.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1308,
+    "output_tokens": 133,
+    "total_tokens": 1441,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_pristine_2.txt"
+  },
+  {
+    "task": "11-analyze-data",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1308,
+    "output_tokens": 125,
+    "total_tokens": 1433,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/11-analyze-data_pristine_3.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "control",
+    "run": 1,
+    "input_tokens": 126,
+    "output_tokens": 614,
+    "total_tokens": 740,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_control_1.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "control",
+    "run": 2,
+    "input_tokens": 126,
+    "output_tokens": 442,
+    "total_tokens": 568,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_control_2.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "control",
+    "run": 3,
+    "input_tokens": 126,
+    "output_tokens": 287,
+    "total_tokens": 413,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_control_3.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "concise",
+    "run": 1,
+    "input_tokens": 145,
+    "output_tokens": 185,
+    "total_tokens": 330,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_concise_1.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "concise",
+    "run": 2,
+    "input_tokens": 145,
+    "output_tokens": 155,
+    "total_tokens": 300,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_concise_2.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "concise",
+    "run": 3,
+    "input_tokens": 145,
+    "output_tokens": 141,
+    "total_tokens": 286,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_concise_3.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "pristine",
+    "run": 1,
+    "input_tokens": 1384,
+    "output_tokens": 319,
+    "total_tokens": 1703,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_pristine_1.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "pristine",
+    "run": 2,
+    "input_tokens": 1384,
+    "output_tokens": 221,
+    "total_tokens": 1605,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_pristine_2.txt"
+  },
+  {
+    "task": "12-refactor-legacy",
+    "group": "pristine",
+    "run": 3,
+    "input_tokens": 1384,
+    "output_tokens": 198,
+    "total_tokens": 1582,
+    "output_file": "/Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/results/12-refactor-legacy_pristine_3.txt"
   }
 ]

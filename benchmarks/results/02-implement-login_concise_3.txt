@@ -1,0 +1,77 @@
+```javascript
+// 1. 安装依赖
+// npm install express sqlite3 express-session bcrypt
+
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+
+const app = express();
+const db = new sqlite3.Database('users.db');
+
+// 中间件
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// 初始化数据库
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT
+  )`);
+});
+
+// 注册接口
+app.post('/api/register', (req, res) => {
+  const { username, password } = req.body;
+  const hash = bcrypt.hashSync(password, 10);
+  
+  db.run('INSERT INTO users (username, password) VALUES (?, ?)', 
+    [username, hash], 
+    (err) => {
+      if (err) return res.status(400).json({ error: '用户名已存在' });
+      res.json({ message: '注册成功' });
+    });
+});
+
+// 登录接口
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  db.get('SELECT * FROM users WHERE username = ?', 
+    [username], 
+    (err, user) => {
+      if (!user) return res.status(401).json({ error: '用户不存在' });
+      if (!bcrypt.compareSync(password, user.password)) 
+        return res.status(401).json({ error: '密码错误' });
+      
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      res.json({ message: '登录成功', username });
+    });
+});
+
+// 登出接口
+app.post('/api/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ message: '已登出' });
+});
+
+// 检查登录态
+app.get('/api/check', (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true, username: req.session.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```

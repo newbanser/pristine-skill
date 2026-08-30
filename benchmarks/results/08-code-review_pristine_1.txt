@@ -1,0 +1,25 @@
+问题：`flag` 仅反映 `value * 2 > 100`，重复计算、冗余分支，且命名抽象。
+
+改为：
+
+```js
+function process(items) {
+  return items
+    .filter(item => item.active)
+    .map(item => {
+      const doubled = item.value * 2;
+      return {
+        id: item.id,
+        val: doubled,
+        flag: doubled > 100
+      };
+    });
+}
+```
+
+修改要点：
+1. 直接用 `doubled > 100` 赋值 `flag`，去掉 if/else。
+2. 用 `filter` + `map` 替代循环，消除重复取值。
+3. `x` 改名为 `doubled`，语义明确。
+
+若 `items` 可能为 `null`/`undefined`，先加防护：`if (!items) return []`。

@@ -1,0 +1,6 @@
+在TodoList.jsx中：
+
+```jsx
+// 排序改为按优先级（从高到低）
+const sortedTodos = [...todos].sort((a, b) => (b.priority || 0) - (a.priority || 0));
+```

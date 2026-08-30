@@ -1,0 +1,23 @@
+```js
+function validateUser(user) {
+  const rules = [
+    [!user.name, "name required"],
+    [user.name && user.name.length < 3, "name too short"],
+    [!user.email, "email required"],
+    [user.email && user.email.indexOf("@") < 0, "email invalid"]
+  ];
+  const violation = rules.find(([failed]) => failed);
+  return violation ? violation[1] : "ok";
+}
+
+const validateOrder = (order) =>
+  (!order.id && "id required") ||
+  ((!order.amount || order.amount <= 0) && "amount invalid") ||
+  "ok";
+```
+
+**选择说明**：
+- `user` 输入格式未知（可能为空），保留原检查顺序避免报错。
+- `order` 输入结构明确（存在 `id`/`amount` 字段），改用表达式直接返回。
+
+**下一步**：跑测试确认行为一致。

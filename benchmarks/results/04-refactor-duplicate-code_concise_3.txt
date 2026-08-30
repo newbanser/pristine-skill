@@ -1,0 +1,14 @@
+```js
+function formatDate(date, separator = '-') {
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${separator}${m}${separator}${day}`;
+}
+
+function displayDate(date) {
+  const d = new Date(date);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
+```

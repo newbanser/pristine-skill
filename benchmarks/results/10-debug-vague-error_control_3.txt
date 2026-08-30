@@ -1,0 +1,107 @@
+我来帮你排查这个错误。`SyntaxError: Unexpected token <` 通常意味着服务器返回了HTML而不是预期的JSON或JavaScript，最常见的情况是：
+
+## 可能的原因和排查步骤：
+
+### 1. **检查是否返回了错误页面**
+当服务器返回404、500等错误时，可能会返回HTML页面而不是API数据。
+
+**验证方法：**
+```bash
+# 在服务器上直接请求API端点的响应头
+curl -I https://your-domain.com/api/your-endpoint
+
+# 查看实际响应内容
+curl https://your-domain.com/api/your-endpoint | head -20
+```
+
+如果返回的是HTML页面（包含`<!DOCTYPE html>`），说明服务器没有正确路由到API。
+
+### 2. **检查新版本部署的文件路径**
+```bash
+# 确认部署的静态文件路径是否正确
+ls -la /var/www/your-app/  # 或你的部署目录
+
+# 检查nginx/apache配置文件中的路由规则
+cat /etc/nginx/sites-enabled/your-site.conf
+```
+
+### 3. **检查前端构建产物是否正确**
+如果是前端项目：
+
+```bash
+# 检查构建产物是否存在
+cd your-frontend-app
+ls -la dist/  # 或 build/
+
+# 确认index.html是否正确生成
+cat dist/index.html | head -20
+```
+
+### 4. **后端API地址配置问题**
+检查前端代码中API请求的地址：
+```javascript
+// 检查是否路径拼接错误
+// 例如访问了错误的URL导致返回HTML
+const apiUrl = 'http://your-server/api/data';  // 确认这个地址是正确的
+```
+
+### 5. **检查服务器日志**
+```bash
+# Nginx日志
+sudo tail -f /var/log/nginx/error.log
+
+# 应用日志（如果是Node.js/PM2）
+pm2 logs your-app-name
+
+# 如果是Java应用
+tail -f /var/log/tomcat/catalina.out
+```
+
+## 快速诊断命令：
+```bash
+# 查看最近部署的文件是否有权限问题
+ls -la /path/to/your/deployed/app/
+
+# 直接测试API端点
+curl http://localhost:3000/api/test
+
+# 如果返回HTML，可能是：
+# - 路由配置错误（nginx/apache）
+# - 应用端口配置不对
+# - 文件权限不足
+```
+
+## 常用修复方案：
+
+1. **如果是nginx配置问题**：
+```nginx
+# 确保API请求正确的指向后端服务
+location /api/ {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+}
+```
+
+2. **如果是文件权限问题**：
+```bash
+sudo chown -R www-data:www-data /path/to/your/app/
+sudo chmod 755 /path/to/your/app/
+```
+
+3. **如果是后端服务未启动**：
+```bash
+# 重启你的应用服务
+pm2 restart all  # Node.js
+systemctl restart nginx  # Nginx
+sudo systemctl restart apache2  # Apache
+```
+
+---
+
+**请先提供以下信息帮我进一步定位：**
+1. 你的技术栈是什么？（Node.js、Python、Java等）
+2. 部署方式？（Docker、直接上传、CI/CD）
+3. 是前端还是后端报的错？
+4. 最近部署了什么改动？
+
+有了这些信息我可以给出更具体的解决方案。

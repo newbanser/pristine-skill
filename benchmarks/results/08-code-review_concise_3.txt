@@ -1,0 +1,16 @@
+**问题**：  
+1. 重复的 `push` 逻辑，可简化。  
+2. `items` 可能不是数组（如 `null` 或 `undefined`），会报错。  
+3. `items[i].value` 可能不是数字，导致 `NaN` 或异常。  
+
+**修改后**：  
+```javascript
+function process(items = []) {
+  return items
+    .filter(item => item && item.active)
+    .map(item => {
+      const val = item.value * 2;
+      return { id: item.id, val, flag: val > 100 };
+    });
+}
+```

@@ -1,0 +1,13 @@
+```js
+const pad = n => String(n).padStart(2, '0');
+
+const formatDate = (date, sep = '-') => {
+  const d = new Date(date);
+  return `${d.getFullYear()}${sep}${pad(d.getMonth()+1)}${sep}${pad(d.getDate())}`;
+};
+
+const displayDate = date => {
+  const d = new Date(date);
+  return `${d.getMonth()+1}月${d.getDate()}日`;
+};
+```

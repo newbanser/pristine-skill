@@ -1,0 +1,64 @@
+我来重构这段代码，提取共同的验证逻辑：
+
+```javascript
+function createValidator(rules) {
+  return function validate(data) {
+    for (const rule of rules) {
+      const error = rule(data);
+      if (error) return error;
+    }
+    return "ok";
+  };
+}
+
+const nameRule = (user) => {
+  if (!user.name) return "name required";
+  if (user.name.length < 3) return "name too short";
+};
+
+const emailRule = (user) => {
+  if (!user.email) return "email required";
+  if (user.email.indexOf("@") < 0) return "email invalid";
+};
+
+const validateUser = createValidator([nameRule, emailRule]);
+
+const validateOrder = createValidator([
+  (order) => {
+    if (!order.id) return "id required";
+  },
+  (order) => {
+    if (!order.amount || order.amount <= 0) return "amount invalid";
+  }
+]);
+```
+
+或者用更简洁的方式：
+
+```javascript
+function validateWithRules(data, rules) {
+  for (const rule of rules) {
+    const error = rule(data);
+    if (error) return error;
+  }
+  return "ok";
+}
+
+const validateUser = (user) => validateWithRules(user, [
+  (u) => !u.name ? "name required" : 
+         u.name.length < 3 ? "name too short" : undefined,
+  (u) => !u.email ? "email required" : 
+         u.email.indexOf("@") < 0 ? "email invalid" : undefined
+]);
+
+const validateOrder = (order) => validateWithRules(order, [
+  (o) => !o.id ? "id required" : undefined,
+  (o) => !o.amount || o.amount <= 0 ? "amount invalid" : undefined
+]);
+```
+
+重构要点：
+1. 提取了共同的"遍历规则并返回第一个错误"的模式
+2. 将验证规则改为独立的函数
+3. 使用`undefined`表示规则通过（遵循JavaScript习惯）
+4. 保持了原有的返回值和验证顺序不变

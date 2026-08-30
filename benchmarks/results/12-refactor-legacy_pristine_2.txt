@@ -1,0 +1,26 @@
+```js
+function validate(fields) {
+  for (const { check, message } of fields) {
+    if (!check()) return message;
+  }
+  return "ok";
+}
+
+function validateUser(user) {
+  return validate([
+    { check: () => user.name, message: "name required" },
+    { check: () => user.name.length >= 3, message: "name too short" },
+    { check: () => user.email, message: "email required" },
+    { check: () => user.email.includes("@"), message: "email invalid" },
+  ]);
+}
+
+function validateOrder(order) {
+  return validate([
+    { check: () => order.id, message: "id required" },
+    { check: () => order.amount > 0, message: "amount invalid" },
+  ]);
+}
+```
+
+空值检查合并进各自校验：`!user.name` 在 `user.name` 为 falsy 时触发，`order.amount <= 0` 在 0/负数/缺失时触发，行为不变。

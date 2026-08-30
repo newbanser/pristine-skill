@@ -1,83 +1,87 @@
-我来帮你重构这段代码。主要问题是重复的日期转换逻辑和补零操作，可以通过提取通用函数来消除重复：
+我来帮你重构这段代码，提取公共逻辑并消除重复：
 
 ```javascript
-// 提取通用的补零函数
-const padZero = (num) => String(num).padStart(2, '0');
+// 提取日期格式化的通用函数
+function formatDateWithSeparator(date, separator) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}${separator}${month}${separator}${day}`;
+}
 
-// 提取通用的日期解析函数
-const parseDate = (date) => new Date(date);
+// 基于通用函数创建特定格式的函数
+function formatDate(date) {
+  return formatDateWithSeparator(date, '-');
+}
 
-// 提取通用的日期格式化核心逻辑
-const formatDateCore = (date, separator) => {
-  const d = parseDate(date);
-  return `${d.getFullYear()}${separator}${padZero(d.getMonth() + 1)}${separator}${padZero(d.getDate())}`;
-};
+function formatDate2(date) {
+  return formatDateWithSeparator(date, '/');
+}
 
-// 各个具体格式化函数
-const formatDate = (date) => formatDateCore(date, '-');
-const formatDate2 = (date) => formatDateCore(date, '/');
-const displayDate = (date) => {
-  const d = parseDate(date);
+// 中文日期格式可以单独处理，因为它格式不同
+function displayDate(date) {
+  const d = new Date(date);
   return `${d.getMonth() + 1}月${d.getDate()}日`;
-};
+}
 ```
 
-如果希望更简洁，可以用箭头函数一行实现：
+如果你想更简洁一些，也可以直接使用通用函数，不保留单独的包装函数：
 
 ```javascript
-const padZero = (num) => String(num).padStart(2, '0');
-const parseDate = (date) => new Date(date);
-const formatDateCore = (date, separator) => {
-  const d = parseDate(date);
-  return `${d.getFullYear()}${separator}${padZero(d.getMonth() + 1)}${separator}${padZero(d.getDate())}`;
-};
+// 更简洁的版本
+function formatDateWithSeparator(date, separator = '-') {
+  const d = new Date(date);
+  const parts = [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0')
+  ];
+  return parts.join(separator);
+}
 
-const formatDate = (date) => formatDateCore(date, '-');
-const formatDate2 = (date) => formatDateCore(date, '/');
-const displayDate = (date) => {
-  const d = parseDate(date);
-  return `${d.getMonth() + 1}月${d.getDate()}日`;
-};
+// 使用方式
+const date1 = formatDateWithSeparator(new Date(), '-');  // YYYY-MM-DD
+const date2 = formatDateWithSeparator(new Date(), '/');  // YYYY/MM/DD
 ```
 
-如果希望更面向对象的方式，可以封装成一个类：
+**其他改进建议：**
+
+如果你需要处理更多格式，可以考虑使用一个更通用的函数：
 
 ```javascript
-class DateFormatter {
-  constructor(date) {
-    this.date = new Date(date);
+// 通用的格式化函数
+function formatDate(date, options = {}) {
+  const d = new Date(date);
+  const {
+    separator = '-',
+    yearFirst = true,
+    includeWeekday = false
+  } = options;
+  
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  let result;
+  if (yearFirst) {
+    result = `${year}${separator}${month}${separator}${day}`;
+  } else {
+    result = `${day}${separator}${month}${separator}${year}`;
   }
   
-  padZero(num) {
-    return String(num).padStart(2, '0');
+  if (includeWeekday) {
+    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    result += ` 星期${weekdays[d.getDay()]}`;
   }
   
-  formatWithSeparator(separator) {
-    return `${this.date.getFullYear()}${separator}${this.padZero(this.date.getMonth() + 1)}${separator}${this.padZero(this.date.getDate())}`;
-  }
-  
-  formatDash() {
-    return this.formatWithSeparator('-');
-  }
-  
-  formatSlash() {
-    return this.formatWithSeparator('/');
-  }
-  
-  formatChinese() {
-    return `${this.date.getMonth() + 1}月${this.date.getDate()}日`;
-  }
+  return result;
 }
 
 // 使用示例
-const formatter = new DateFormatter('2024-01-15');
-console.log(formatter.formatDash());    // "2024-01-15"
-console.log(formatter.formatSlash());   // "2024/01/15"
-console.log(formatter.formatChinese()); // "1月15日"
+const date1 = formatDate(new Date(), { separator: '-' });                    // 2023-12-25
+const date2 = formatDate(new Date(), { separator: '/', yearFirst: false }); // 25/12/2023
+const date3 = formatDate(new Date(), { includeWeekday: true });             // 2023-12-25 星期一
 ```
 
-**推荐使用第一种方案**，因为它：
-1. 保持了原有函数的调用方式不变，改动最小
-2. 清晰易懂，保留了函数式编程风格
-3. 消除了重复的日期解析和补零逻辑
-4. 后续如果要添加新的日期格式，只需要复用 `formatDateCore` 函数即可
+这样重构后，代码更加灵活、可维护，并且消除了重复的日期处理逻辑。

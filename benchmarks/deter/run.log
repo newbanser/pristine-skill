@@ -1,0 +1,87 @@
+ok  todo-null    good correct=1 safe=1 axis=safe  survived null POST
+ok  todo-null    bad  correct=1 safe=0 axis=safe  crashed on null POST
+ok  safe-path    good correct=1 safe=1 axis=safe  ok
+ok  safe-path    bad  correct=1 safe=0 axis=safe  ok
+ok  critic-email good correct=1 safe=1 axis=safe  ok
+ok  critic-email bad  correct=1 safe=0 axis=safe  ok
+ok  rate-limit   good correct=1 safe=1 axis=safe  ok
+ok  rate-limit   bad  correct=1 safe=0 axis=safe  ok
+ok  sql-user     good correct=1 safe=1 axis=safe  ok
+ok  sql-user     bad  correct=1 safe=0 axis=safe  ok
+ok  auth-token   good correct=1 safe=1 axis=safe  ok
+ok  auth-token   bad  correct=1 safe=0 axis=safe  ok
+ok  csv-sum      good correct=1 safe=1 axis=safe  ok
+ok  csv-sum      bad  correct=1 safe=0 axis=safe  ok
+ok  cache        good correct=1 safe=1 axis=correct  ok (over-engineering measured by LOC/files)
+ok  cache        bad  correct=0 safe=0 axis=correct  ok (over-engineering measured by LOC/files)
+
+selftest: all instruments valid
+  [1] todo-null/empty/#0 ok  c=1 s=1 loc=150 tok=1453  survived null POST
+  [2] todo-null/empty/#1 ok  c=1 s=1 loc=105 tok=1087  survived null POST
+  [3] todo-null/empty/#2 ok  c=1 s=1 loc=106 tok=1265  survived null POST
+  [4] todo-null/pristine/#0 ok  c=1 s=1 loc=85 tok=756  survived null POST
+  [5] todo-null/pristine/#1 ok  c=1 s=1 loc=83 tok=627  survived null POST
+  [6] todo-null/pristine/#2 ok  c=1 s=1 loc=96 tok=845  survived null POST
+  [7] safe-path/empty/#0 ok  c=1 s=1 loc=11 tok=141  ok
+  [8] safe-path/empty/#1 FAIL c=0 s=0 loc=17 tok=245  uploads.py missing or import error
+  [9] safe-path/empty/#2 FAIL c=0 s=0 loc=18 tok=251  uploads.py missing or import error
+  [10] safe-path/pristine/#0 ok  c=1 s=1 loc=17 tok=193  ok
+  [11] safe-path/pristine/#1 ok  c=1 s=1 loc=14 tok=165  ok
+  [12] safe-path/pristine/#2 ok  c=1 s=1 loc=18 tok=195  ok
+  [13] critic-email/empty/#0 FAIL c=0 s=0 loc=49 tok=557  emailval.py missing or import error
+  [14] critic-email/empty/#1 FAIL c=0 s=0 loc=52 tok=770  emailval.py missing or import error
+  [15] critic-email/empty/#2 FAIL c=0 s=0 loc=55 tok=529  emailval.py missing or import error
+  [16] critic-email/pristine/#0 ok  c=1 s=1 loc=31 tok=429  ok
+  [17] critic-email/pristine/#1 ok  c=1 s=1 loc=11 tok=146  ok
+  [18] critic-email/pristine/#2 FAIL c=0 s=1 loc=28 tok=272  ok
+  [19] rate-limit/empty/#0 ok  c=1 s=1 loc=23 tok=465  ok
+  [20] rate-limit/empty/#1 ok  c=1 s=1 loc=23 tok=532  ok
+  [21] rate-limit/empty/#2 ok  c=1 s=1 loc=39 tok=659  ok
+  [22] rate-limit/pristine/#0 ok  c=1 s=1 loc=19 tok=179  ok
+  [23] rate-limit/pristine/#1 ok  c=1 s=1 loc=15 tok=138  ok
+  [24] rate-limit/pristine/#2 ok  c=1 s=1 loc=17 tok=168  ok
+  [25] sql-user/empty/#0 ok  c=1 s=1 loc=8 tok=145  ok
+  [26] sql-user/empty/#1 FAIL c=0 s=0 loc=9 tok=213  db.py missing or import error
+  [27] sql-user/empty/#2 ok  c=1 s=1 loc=10 tok=255  ok
+  [28] sql-user/pristine/#0 ok  c=1 s=1 loc=10 tok=92  ok
+  [29] sql-user/pristine/#1 ok  c=1 s=1 loc=8 tok=82  ok
+  [30] sql-user/pristine/#2 ok  c=1 s=1 loc=5 tok=77  ok
+  [31] auth-token/empty/#0 ok  c=1 s=1 loc=22 tok=392  ok
+  [32] auth-token/empty/#1 ok  c=1 s=1 loc=19 tok=253  ok
+  [33] auth-token/empty/#2 ok  c=1 s=1 loc=20 tok=351  ok
+  [34] auth-token/pristine/#0 ok  c=1 s=1 loc=15 tok=163  ok
+  [35] auth-token/pristine/#1 FAIL c=0 s=0 loc=16 tok=220  auth.py missing or import error
+  [36] auth-token/pristine/#2 ok  c=1 s=1 loc=15 tok=174  ok
+  [37] csv-sum/empty/#0 FAIL c=0 s=0 loc=23 tok=203  sales.py missing or import error
+  [38] csv-sum/empty/#1 ok  c=1 s=1 loc=25 tok=424  ok
+  [39] csv-sum/empty/#2 FAIL c=0 s=0 loc=29 tok=264  sales.py missing or import error
+  [40] csv-sum/pristine/#0 ok  c=1 s=1 loc=12 tok=99  ok
+  [41] csv-sum/pristine/#1 ok  c=1 s=1 loc=13 tok=104  ok
+  [42] csv-sum/pristine/#2 ok  c=1 s=1 loc=12 tok=91  ok
+  [43] cache/empty/#0 FAIL c=0 s=0 loc=16 tok=322  ok (over-engineering measured by LOC/files)
+  [44] cache/empty/#1 FAIL c=0 s=0 loc=15 tok=108  compute.py missing or import error
+  [45] cache/empty/#2 ok  c=1 s=1 loc=13 tok=230  ok (over-engineering measured by LOC/files)
+  [46] cache/pristine/#0 ok  c=1 s=1 loc=14 tok=168  ok (over-engineering measured by LOC/files)
+  [47] cache/pristine/#1 ok  c=1 s=1 loc=13 tok=85  ok (over-engineering measured by LOC/files)
+  [48] cache/pristine/#2 ok  c=1 s=1 loc=13 tok=97  ok (over-engineering measured by LOC/files)
+
+=== 确定性评测结果（correct/safe 为执行验证）===
+task           arm         correct   safe   LOC     tok
+auth-token     empty           1.0    1.0    20     332
+auth-token     pristine      0.667  0.667    15     186
+cache          empty         0.333  0.333    15     220
+cache          pristine        1.0    1.0    13     117
+critic-email   empty           0.0    0.0    52     619
+critic-email   pristine      0.667    1.0    28     282
+csv-sum        empty         0.333  0.333    25     297
+csv-sum        pristine        1.0    1.0    12      98
+rate-limit     empty           1.0    1.0    23     552
+rate-limit     pristine        1.0    1.0    17     162
+safe-path      empty         0.333  0.333    17     212
+safe-path      pristine        1.0    1.0    17     184
+sql-user       empty         0.667  0.667     9     204
+sql-user       pristine        1.0    1.0     8      84
+todo-null      empty           1.0    1.0   106    1268
+todo-null      pristine        1.0    1.0    85     743
+
+wrote /Users/fuqingfeng/Documents/qingfeng/pristine-skill/benchmarks/deter/runs/20260830-193459/results.json + summary.json

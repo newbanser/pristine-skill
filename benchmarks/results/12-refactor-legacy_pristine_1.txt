@@ -1,0 +1,33 @@
+先给结论：这两个函数各自的字段校验差异大，强行抽取公共逻辑会增加间接层，不划算。唯一真正重复的是"每个字段检查后返回错误或继续"的结构，但这用**校验器数组**即可收敛，行为完全不变。
+
+```javascript
+const validateUser = createValidator([
+  (u) => !u.name && "name required",
+  (u) => u.name && u.name.length < 3 && "name too short",
+  (u) => !u.email && "email required",
+  (u) => u.email && u.email.indexOf("@") < 0 && "email invalid",
+]);
+
+const validateOrder = createValidator([
+  (o) => !o.id && "id required",
+  (o) => !o.amount || o.amount <= 0 && "amount invalid",
+]);
+
+function createValidator(checks) {
+  return (input) => {
+    for (const check of checks) {
+      const error = check(input);
+      if (error) return error;
+    }
+    return "ok";
+  };
+}
+```
+
+无行为改变：
+
+- 短路逻辑保留（每条规则独立返回）
+- 返回顺序与原文一致
+- 对 `null`/`undefined` 输入的行为与原函数相同（会抛错，因为访问属性）
+
+理由：**单一真源**——不为此造一个字段描述 DSL。校验器数组是 JS 里最轻量的复用方式。若未来有 5+ 个校验对象，再引入独立校验层，现在不值得。

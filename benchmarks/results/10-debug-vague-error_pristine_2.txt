@@ -1,0 +1,10 @@
+我先检查部署目录里最新的文件，确认是否是编译产物问题。
+
+```bash
+ls -la /var/www/app/ && tail -n 20 /var/log/nginx/error.log 2>/dev/null || echo "无nginx日志，尝试应用日志"
+```
+
+请告诉我：
+
+1. 这是前端静态文件请求报错，还是后端 API 请求报错？
+2. 最近部署用了什么构建命令（如 `npm run build`）？构建是否成功？

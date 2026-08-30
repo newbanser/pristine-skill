@@ -1,4 +1,4 @@
-我来帮你创建一个完整的用户登录功能。这个项目将包含用户注册、登录、会话管理和数据库操作。
+我来帮你创建一个完整的用户登录功能。我会提供后端代码、数据库设计和前端页面。
 
 ## 项目结构
 
@@ -7,13 +7,12 @@ login-app/
 ├── package.json
 ├── server.js
 ├── database.js
-└── views/
-    ├── login.html
-    ├── register.html
-    └── dashboard.html
+├── public/
+│   ├── index.html
+│   └── login.html
 ```
 
-## 第一步：初始化项目
+## 1. 初始化项目
 
 ```bash
 mkdir login-app
@@ -22,263 +21,245 @@ npm init -y
 npm install express sqlite3 bcrypt express-session
 ```
 
-## 第二步：package.json
-
-```json
-{
-  "name": "login-app",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6",
-    "bcrypt": "^5.1.1",
-    "express-session": "^1.17.3"
-  }
-}
-```
-
-## 第三步：数据库模块 (database.js)
+## 2. 创建数据库模块 (database.js)
 
 ```javascript
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
-const path = require('path');
 
 // 创建数据库连接
-const db = new sqlite3.Database(path.join(__dirname, 'users.db'));
+const db = new sqlite3.Database('./users.db', (err) => {
+  if (err) {
+    console.error('数据库连接失败:', err.message);
+  } else {
+    console.log('数据库连接成功');
+    initDatabase();
+  }
+});
 
 // 初始化数据库表
-db.serialize(() => {
+function initDatabase() {
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
+      password TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
-});
+  `, (err) => {
+    if (err) {
+      console.error('创建表失败:', err.message);
+    } else {
+      console.log('用户表创建成功');
+    }
+  });
+}
 
 // 创建用户
-function createUser(username, email, password) {
-  return new Promise((resolve, reject) => {
-    const passwordHash = bcrypt.hashSync(password, 10);
-    
-    db.run(
-      'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-      [username, email, passwordHash],
-      (err) => {
-        if (err) {
-          if (err.code === 'SQLITE_CONSTRAINT') {
-            reject(new Error('用户名或邮箱已存在'));
-          } else {
+async function createUser(username, email, password) {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return new Promise((resolve, reject) => {
+      db.run(
+        'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+        [username, email, hashedPassword],
+        (err) => {
+          if (err) {
             reject(err);
+          } else {
+            resolve({ success: true, message: '用户创建成功' });
           }
-        } else {
-          resolve({ success: true });
         }
-      }
-    );
-  });
+      );
+    });
+  } catch (error) {
+    console.error('创建用户错误:', error);
+    throw error;
+  }
 }
 
 // 查找用户
-function findUserByUsername(username) {
+async function findUser(username) {
   return new Promise((resolve, reject) => {
-    db.get(
-      'SELECT * FROM users WHERE username = ?',
-      [username],
-      (err, row) => {
-        if (err) reject(err);
+    db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
         resolve(row);
       }
-    );
-  });
-}
-
-// 验证密码
-function verifyPassword(password, hash) {
-  return bcrypt.compareSync(password, hash);
-}
-
-// 获取所有用户（测试用）
-function getAllUsers() {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT id, username, email, created_at FROM users', (err, rows) => {
-      if (err) reject(err);
-      resolve(rows);
     });
   });
 }
 
-module.exports = {
-  createUser,
-  findUserByUsername,
-  verifyPassword,
-  getAllUsers
-};
+// 验证用户
+async function verifyUser(username, password) {
+  try {
+    const user = await findUser(username);
+    if (!user) {
+      return { success: false, message: '用户不存在' };
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      return { 
+        success: true, 
+        message: '登录成功',
+        user: { id: user.id, username: user.username, email: user.email }
+      };
+    } else {
+      return { success: false, message: '密码错误' };
+    }
+  } catch (error) {
+    console.error('验证用户错误:', error);
+    throw error;
+  }
+}
+
+module.exports = { createUser, verifyUser, findUser };
 ```
 
-## 第四步：主服务器文件 (server.js)
+## 3. 创建主服务器 (server.js)
 
 ```javascript
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const dbModule = require('./database');
+const database = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 中间件配置
+// 中间件
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// 会话配置
+// 会话管理
 app.use(session({
-  secret: 'your-secret-key-here-change-in-production',
+  secret: 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24小时
+    maxAge: 1000 * 60 * 60, // 1小时
     httpOnly: true
   }
 }));
 
-// 路由处理
-// 注册页
-app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'register.html'));
-});
-
-// 注册处理
+// 注册路由
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, email, password, confirmPassword } = req.body;
-    
-    // 基础验证
-    if (!username || !email || !password || !confirmPassword) {
-      return res.status(400).json({ error: '所有字段都是必填的' });
+    const { username, email, password } = req.body;
+
+    // 验证输入
+    if (!username || !email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '请填写所有字段' 
+      });
     }
-    
-    if (password !== confirmPassword) {
-      return res.status(400).json({ error: '两次输入的密码不一致' });
+
+    if (username.length < 3) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '用户名至少需要3个字符' 
+      });
     }
-    
+
     if (password.length < 6) {
-      return res.status(400).json({ error: '密码长度至少6位' });
+      return res.status(400).json({ 
+        success: false, 
+        message: '密码至少需要6个字符' 
+      });
     }
-    
+
+    // 检查用户是否已存在
+    const existingUser = await database.findUser(username);
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '用户名已存在' 
+      });
+    }
+
     // 创建用户
-    await dbModule.createUser(username, email, password);
-    
-    res.status(201).json({ 
-      message: '注册成功！',
-      redirect: '/login' 
-    });
-    
+    const result = await database.createUser(username, email, password);
+    res.status(201).json(result);
+
   } catch (error) {
     console.error('注册错误:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: '服务器错误，请稍后再试' 
+    });
   }
 });
 
-// 登录页
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
-});
-
-// 登录处理
+// 登录路由
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     if (!username || !password) {
-      return res.status(400).json({ error: '请输入用户名和密码' });
+      return res.status(400).json({ 
+        success: false, 
+        message: '请填写用户名和密码' 
+      });
     }
+
+    // 验证用户
+    const result = await database.verifyUser(username, password);
     
-    // 查找用户
-    const user = await dbModule.findUserByUsername(username);
-    
-    if (!user) {
-      return res.status(401).json({ error: '用户不存在' });
+    if (result.success) {
+      // 保存用户会话
+      req.session.userId = result.user.id;
+      req.session.username = result.user.username;
+      
+      res.json(result);
+    } else {
+      res.status(401).json(result);
     }
-    
-    // 验证密码
-    const isValid = dbModule.verifyPassword(password, user.password_hash);
-    
-    if (!isValid) {
-      return res.status(401).json({ error: '密码错误' });
-    }
-    
-    // 设置会话
-    req.session.userId = user.id;
-    req.session.username = user.username;
-    
-    res.json({ 
-      message: '登录成功！',
-      redirect: '/dashboard'
-    });
-    
+
   } catch (error) {
     console.error('登录错误:', error);
-    res.status(500).json({ error: '服务器错误' });
+    res.status(500).json({ 
+      success: false, 
+      message: '服务器错误，请稍后再试' 
+    });
   }
 });
 
-// 仪表盘（受保护的路由）
-app.get('/dashboard', (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
-});
-
-// 获取用户信息 API
-app.get('/api/user', (req, res) => {
+// 检查登录状态
+app.get('/api/check-auth', (req, res) => {
   if (req.session.userId) {
     res.json({
-      id: req.session.userId,
-      username: req.session.username
+      loggedIn: true,
+      user: {
+        id: req.session.userId,
+        username: req.session.username
+      }
     });
   } else {
-    res.status(401).json({ error: '未授权' });
+    res.json({ loggedIn: false });
   }
 });
 
-// 登出
+// 登出路由
 app.post('/api/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).json({ error: '登出失败' });
+      return res.status(500).json({ 
+        success: false, 
+        message: '登出失败' 
+      });
     }
-    res.json({ message: '已退出登录', redirect: '/login' });
+    res.json({ success: true, message: '登出成功' });
   });
 });
 
-// 首页重定向
+// 首页
 app.get('/', (req, res) => {
-  if (req.session.userId) {
-    res.redirect('/dashboard');
-  } else {
-    res.redirect('/login');
-  }
-});
-
-// 获取所有用户（测试接口）
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await dbModule.getAllUsers();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: '服务器错误' });
-  }
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 // 启动服务器
@@ -287,7 +268,7 @@ app.listen(PORT, () => {
 });
 ```
 
-## 第五步：登录页面 (views/login.html)
+## 4. 创建登录页面 (public/login.html)
 
 ```html
 <!DOCTYPE html>
@@ -302,156 +283,213 @@ app.listen(PORT, () => {
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
-
-        .login-container {
+        .container {
             background: white;
+            padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 40px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             width: 400px;
-            max-width: 95%;
         }
-
-        h1 {
+        .container h2 {
             text-align: center;
+            margin-bottom: 2rem;
             color: #333;
-            margin-bottom: 30px;
         }
-
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+            display: none;
         }
-
-        label {
+        .form-group.active {
             display: block;
-            color: #555;
-            margin-bottom: 5px;
         }
-
-        input {
+        .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: 0.75rem;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            font-size: 1rem;
         }
-
-        input:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
         .btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.75rem;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 1rem;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: background 0.3s;
         }
-
         .btn:hover {
-            opacity: 0.9;
+            background: #5a6fd6;
         }
-
-        .link-group {
-            margin-top: 20px;
+        .toggle-link {
             text-align: center;
-        }
-
-        .link-group a {
+            margin-top: 1rem;
             color: #667eea;
-            text-decoration: none;
+            cursor: pointer;
         }
-
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
         .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
+            color: #dc3545;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
         }
-
-        .error-message.show {
-            display: block;
+        .success-message {
+            color: #28a745;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>用户登录</h1>
+    <div class="container">
+        <h2 id="formTitle">用户登录</h2>
         
-        <div id="errorMessage" class="error-message"></div>
-        
+        <!-- 登录表单 -->
         <form id="loginForm">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+            <div class="form-group active">
+                <input type="text" id="loginUsername" placeholder="用户名" required>
             </div>
-            
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            <div class="form-group active">
+                <input type="password" id="loginPassword" placeholder="密码" required>
             </div>
-            
             <button type="submit" class="btn">登录</button>
         </form>
-        
-        <div class="link-group">
-            <span>还没有账号？</span>
-            <a href="/register">立即注册</a>
-        </div>
+
+        <!-- 注册表单 -->
+        <form id="registerForm" style="display: none;">
+            <div class="form-group active">
+                <input type="text" id="registerUsername" placeholder="用户名" required>
+            </div>
+            <div class="form-group active">
+                <input type="email" id="registerEmail" placeholder="邮箱" required>
+            </div>
+            <div class="form-group active">
+                <input type="password" id="registerPassword" placeholder="密码" required>
+            </div>
+            <button type="submit" class="btn">注册</button>
+        </form>
+
+        <div class="toggle-link" id="toggleLink">没有账号？立即注册</div>
+        <div id="message"></div>
     </div>
 
     <script>
+        let isLogin = true;
+
+        // 切换登录/注册
+        document.getElementById('toggleLink').addEventListener('click', () => {
+            isLogin = !isLogin;
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const title = document.getElementById('formTitle');
+            const toggleLink = document.getElementById('toggleLink');
+            const message = document.getElementById('message');
+
+            if (isLogin) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                title.textContent = '用户登录';
+                toggleLink.textContent = '没有账号？立即注册';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                title.textContent = '用户注册';
+                toggleLink.textContent = '已有账号？立即登录';
+            }
+            message.textContent = '';
+        });
+
+        // 登录
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.classList.remove('show');
-            
-            const formData = {
-                username: document.getElementById('username').value.trim(),
-                password: document.getElementById('password').value
-            };
-            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const message = document.getElementById('message');
+
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ username, password })
                 });
-                
+
                 const data = await response.json();
-                
-                if (response.ok) {
-                    // 登录成功，跳转到仪表盘
-                    window.location.href = data.redirect;
+
+                if (data.success) {
+                    message.textContent = '登录成功！';
+                    message.className = 'success-message';
+                    // 可以在这里跳转到用户首页
+                    setTimeout(() => {
+                        alert(`欢迎回来，${data.user.username}！`);
+                        // window.location.href = '/dashboard.html';
+                    }, 1000);
                 } else {
-                    // 显示错误信息
-                    errorMessage.textContent = data.error || '登录失败，请重试';
-                    errorMessage.classList.add('show');
+                    message.textContent = data.message;
+                    message.className = 'error-message';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = '网络错误，请稍后重试';
-                errorMessage.classList.add('show');
+                message.textContent = '请求失败，请检查网络连接';
+                message.className = 'error-message';
+            }
+        });
+
+        // 注册
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const message = document.getElementById('message');
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    message.textContent = '注册成功！请登录';
+                    message.className = 'success-message';
+                    // 切换到登录模式
+                    setTimeout(() => {
+                        document.getElementById('toggleLink').click();
+                        document.getElementById('loginUsername').value = username;
+                    }, 1500);
+                } else {
+                    message.textContent = data.message;
+                    message.className = 'error-message';
+                }
+            } catch (error) {
+                message.textContent = '请求失败，请检查网络连接';
+                message.className = 'error-message';
             }
         });
     </script>
@@ -459,7 +497,7 @@ app.listen(PORT, () => {
 </html>
 ```
 
-## 第六步：注册页面 (views/register.html)
+## 5. 创建用户主页 (public/dashboard.html)
 
 ```html
 <!DOCTYPE html>
@@ -467,193 +505,148 @@ app.listen(PORT, () => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户注册</title>
+    <title>用户主页</title>
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .register-container {
+        .dashboard {
+            max-width: 800px;
+            margin: 50px auto;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            width: 400px;
-            max-width: 95%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 2rem;
         }
-
-        h1 {
-            text-align: center;
+        .dashboard h1 {
             color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
         }
-
-        .form-group {
-            margin-bottom: 20px;
+        .welcome-message {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
         }
-
-        label {
-            display: block;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .logout-btn {
+            background: #dc3545;
             color: white;
             border: none;
+            padding: 0.5rem 1rem;
             border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
-            transition: opacity 0.3s;
         }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .link-group {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .link-group a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: #efe;
-            color: #3a3;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
+        .logout-btn:hover {
+            background: #c82333;
         }
     </style>
 </head>
 <body>
-    <div class="register-container">
-        <h1>用户注册</h1>
-        
-        <div id="errorMessage" class="error-message"></div>
-        <div id="successMessage" class="success-message"></div>
-        
-        <form id="registerForm">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">邮箱</label>
-                <input type="email" id="email" name="email" placeholder="请输入邮箱" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" id="password" name="password" placeholder="请输入密码（至少6位）" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmPassword">确认密码</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" required>
-            </div>
-            
-            <button type="submit" class="btn">注册</button>
-        </form>
-        
-        <div class="link-group">
-            <span>已有账号？</span>
-            <a href="/login">立即登录</a>
-        </div>
+    <div class="dashboard">
+        <h1>用户控制面板</h1>
+        <div class="welcome-message" id="welcomeMessage"></div>
+        <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const errorMessage = document.getElementById('errorMessage');
-            const successMessage = document.getElementById('successMessage');
-            errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
-            
-            const formData = {
-                username: document.getElementById('username').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value,
-                confirmPassword: document.getElementById('confirmPassword').value
-            };
-            
+        // 检查登录状态
+        async function checkAuth() {
             try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
+                const response = await fetch('/api/check-auth');
                 const data = await response.json();
                 
-                if (response.ok) {
-                    // 注册成功
-                    successMessage.textContent = data.message || '注册成功！即将跳转到登录页...';
-                    successMessage.classList.add('show');
-                    
-                    // 2秒后跳转到登录页
-                    setTimeout(() => {
-                        window.location.href = data.redirect || '/login';
-                    }, 2000);
+                if (data.loggedIn) {
+                    document.getElementById('welcomeMessage').textContent = 
+                        `欢迎回来，${data.user.username}！`;
                 } else {
-                    // 显示错误信息
-                    errorMessage.textContent = data.error || '注册失败，请重试';
-                    errorMessage.classList.add('show');
+                    window.location.href = '/';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                errorMessage.textContent = '网络错误，请稍后重试
+                console.error('检查登录状态失败:', error);
+            }
+        }
+
+        // 退出登录
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('退出登录失败:', error);
+            }
+        }
+
+        // 页面加载时检查登录状态
+        checkAuth();
+    </script>
+</body>
+</html>
+```
+
+## 6. 创建用户主页 (public/index.html)
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 10px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>欢迎使用用户登录系统</h1>
+    <a href="/login">去登录</a>
+    <a href="/register">去注册</a>
+</body>
+</html>
+```
+
+## 7. 更新 package.json
+
+更新 `package.json` 的 scripts 部分：
+
+```json
+{
+  "name": "login-app",
+  "version": "1.0.0",
+  "description": "简单的用户登录系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "bcrypt": "^5.1.1",
+    "express-session": "^1.17.3"
+  }
+}
+```
+
+## 8. 启动和测试
+
+```

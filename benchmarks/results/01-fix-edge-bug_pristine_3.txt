@@ -1,13 +1,5 @@
-返回 `user.profile?.name || user.name`。
+return user.name;
 
-```javascript
-function getUserName(user) {
-  return user.profile?.name || user.name;
-}
-```
+**原因**：`profile.name` 在 `profile` 为空对象时访问 `undefined`，且该分支无兜底。
 
-根因：id 为 5 的用户假设 `profile.name` 存在，但 `profile` 为空对象。
-
-1. 删除条件分支，统一路径。
-2. 用可选链和 `||` 回退到 `user.name`。
-3. 清理未使用的条件判断。
+**修复**：删除特殊分支，统一返回 `user.name`（数据中所有用户均有 `name`，`profile` 仅 `id:5` 存在且为空）。

@@ -1,0 +1,11 @@
+闭包是函数与其定义时所在作用域的组合，使函数能访问外部变量。
+
+```javascript
+function outer(x) {
+  return function inner(y) {
+    return x + y; // 内层函数引用外层变量 x
+  };
+}
+const add5 = outer(5);
+console.log(add5(3)); // 8
+```

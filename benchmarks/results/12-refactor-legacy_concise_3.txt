@@ -1,0 +1,24 @@
+```javascript
+function validateUser(user) {
+  return validateRules([
+    [!user.name, "name required"],
+    [user.name.length < 3, "name too short"],
+    [!user.email, "email required"],
+    [user.email.indexOf("@") < 0, "email invalid"]
+  ]);
+}
+
+function validateOrder(order) {
+  return validateRules([
+    [!order.id, "id required"],
+    [!order.amount || order.amount <= 0, "amount invalid"]
+  ]);
+}
+
+function validateRules(rules) {
+  for (const [condition, message] of rules) {
+    if (condition) return message;
+  }
+  return "ok";
+}
+```

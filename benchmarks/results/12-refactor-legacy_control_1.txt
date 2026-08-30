@@ -1,0 +1,84 @@
+这段代码的重复逻辑在于每个验证函数都遵循相同的模式：依次检查每个字段，如果某个字段不满足条件就返回错误信息，最后返回"ok"。
+
+我可以通过提取一个通用验证函数来消除重复：
+
+```javascript
+function validateFields(validators) {
+  for (const [condition, errorMessage] of validators) {
+    if (condition()) return errorMessage;
+  }
+  return "ok";
+}
+
+function validateUser(user) {
+  return validateFields([
+    [() => !user.name, "name required"],
+    [() => user.name.length < 3, "name too short"],
+    [() => !user.email, "email required"],
+    [() => user.email.indexOf("@") < 0, "email invalid"]
+  ]);
+}
+
+function validateOrder(order) {
+  return validateFields([
+    [() => !order.id, "id required"],
+    [() => !order.amount || order.amount <= 0, "amount invalid"]
+  ]);
+}
+```
+
+或者使用更简洁的对象形式：
+
+```javascript
+function validateFields(rules) {
+  for (const rule of rules) {
+    if (rule.condition) return rule.message;
+  }
+  return "ok";
+}
+
+function validateUser(user) {
+  return validateFields([
+    { condition: !user.name, message: "name required" },
+    { condition: user.name.length < 3, message: "name too short" },
+    { condition: !user.email, message: "email required" },
+    { condition: user.email.indexOf("@") < 0, message: "email invalid" }
+  ]);
+}
+
+function validateOrder(order) {
+  return validateFields([
+    { condition: !order.id, message: "id required" },
+    { condition: !order.amount || order.amount <= 0, message: "amount invalid" }
+  ]);
+}
+```
+
+如果你想要更标准化的字段验证，也可以这样：
+
+```javascript
+function validateFields(validators, data) {
+  for (const [field, value, errorMessage] of validators) {
+    if (value) return errorMessage;
+  }
+  return "ok";
+}
+
+function validateUser(user) {
+  return validateFields([
+    ["name", !user.name, "name required"],
+    ["name", user.name.length < 3, "name too short"],
+    ["email", !user.email, "email required"],
+    ["email", user.email.indexOf("@") < 0, "email invalid"]
+  ]);
+}
+
+function validateOrder(order) {
+  return validateFields([
+    ["id", !order.id, "id required"],
+    ["amount", !order.amount || order.amount <= 0, "amount invalid"]
+  ]);
+}
+```
+
+这三种方案都保持了原始行为，同时消除了重复的验证逻辑。哪种更合适取决于你的具体需求。第一种方案最灵活，适合逻辑更复杂的验证；第二种方案更简洁直观；第三种方案适合需要记录哪个字段出错的情况。

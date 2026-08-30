@@ -1,0 +1,146 @@
+[
+  {
+    "task": "auth-token",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 20,
+    "out_tokens_mean": 332
+  },
+  {
+    "task": "auth-token",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 0.667,
+    "safe_rate": 0.667,
+    "total_loc_median": 15,
+    "out_tokens_mean": 186
+  },
+  {
+    "task": "cache",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 0.333,
+    "safe_rate": 0.333,
+    "total_loc_median": 15,
+    "out_tokens_mean": 220
+  },
+  {
+    "task": "cache",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 13,
+    "out_tokens_mean": 117
+  },
+  {
+    "task": "critic-email",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 0.0,
+    "safe_rate": 0.0,
+    "total_loc_median": 52,
+    "out_tokens_mean": 619
+  },
+  {
+    "task": "critic-email",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 0.667,
+    "safe_rate": 1.0,
+    "total_loc_median": 28,
+    "out_tokens_mean": 282
+  },
+  {
+    "task": "csv-sum",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 0.333,
+    "safe_rate": 0.333,
+    "total_loc_median": 25,
+    "out_tokens_mean": 297
+  },
+  {
+    "task": "csv-sum",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 12,
+    "out_tokens_mean": 98
+  },
+  {
+    "task": "rate-limit",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 23,
+    "out_tokens_mean": 552
+  },
+  {
+    "task": "rate-limit",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 17,
+    "out_tokens_mean": 162
+  },
+  {
+    "task": "safe-path",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 0.333,
+    "safe_rate": 0.333,
+    "total_loc_median": 17,
+    "out_tokens_mean": 212
+  },
+  {
+    "task": "safe-path",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 17,
+    "out_tokens_mean": 184
+  },
+  {
+    "task": "sql-user",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 0.667,
+    "safe_rate": 0.667,
+    "total_loc_median": 9,
+    "out_tokens_mean": 204
+  },
+  {
+    "task": "sql-user",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 8,
+    "out_tokens_mean": 84
+  },
+  {
+    "task": "todo-null",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 106,
+    "out_tokens_mean": 1268
+  },
+  {
+    "task": "todo-null",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 85,
+    "out_tokens_mean": 743
+  }
+]

@@ -1,11 +1,11 @@
-根因：id 5 的用户 `profile` 为空对象，`user.profile.name` 未定义。
+用户 id 为 5 时 `profile.name` 未定义，因 `profile` 为空对象。
 
-修复：移除特殊分支，统一从 `user.name` 取值。
-
-```js
+```javascript
 function getUserName(user) {
-  return user.name;
+  return user.profile?.name ?? user.name;
 }
 ```
 
-已删除 `if (user.id === 5)` 分支（追溯根源，不留补丁）。若无其他调用方依赖此特殊行为，此为最终解。
+根因：第 5 号用户走特殊分支却缺少 `profile.name` 数据。可选链 `?.` 与空值合并 `??` 在任何用户上都先取 `profile.name`，缺失时回退到 `user.name`，且无需区分 id。
+
+下一步：删除第 5 号用户条目中的特殊分支? 若业务上 id 5 确有特殊逻辑，请在 profile 中补齐 name 字段。

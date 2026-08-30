@@ -1,0 +1,1 @@
+return user.profile && user.profile.name ? user.profile.name : user.name;

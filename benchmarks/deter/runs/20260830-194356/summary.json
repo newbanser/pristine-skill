@@ -1,0 +1,218 @@
+[
+  {
+    "task": "auth-token",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 16,
+    "out_tokens_mean": 180
+  },
+  {
+    "task": "auth-token",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 15,
+    "out_tokens_mean": 166
+  },
+  {
+    "task": "auth-token",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 15,
+    "out_tokens_mean": 179
+  },
+  {
+    "task": "cache",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 13,
+    "out_tokens_mean": 88
+  },
+  {
+    "task": "cache",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 13,
+    "out_tokens_mean": 102
+  },
+  {
+    "task": "cache",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 13,
+    "out_tokens_mean": 88
+  },
+  {
+    "task": "critic-email",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 39,
+    "out_tokens_mean": 358
+  },
+  {
+    "task": "critic-email",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 4,
+    "out_tokens_mean": 55
+  },
+  {
+    "task": "critic-email",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 5,
+    "out_tokens_mean": 72
+  },
+  {
+    "task": "csv-sum",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 12,
+    "out_tokens_mean": 114
+  },
+  {
+    "task": "csv-sum",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 0.667,
+    "safe_rate": 0.667,
+    "total_loc_median": 11,
+    "out_tokens_mean": 86
+  },
+  {
+    "task": "csv-sum",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 16,
+    "out_tokens_mean": 110
+  },
+  {
+    "task": "rate-limit",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 17,
+    "out_tokens_mean": 169
+  },
+  {
+    "task": "rate-limit",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 18,
+    "out_tokens_mean": 146
+  },
+  {
+    "task": "rate-limit",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 17,
+    "out_tokens_mean": 153
+  },
+  {
+    "task": "safe-path",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 18,
+    "out_tokens_mean": 219
+  },
+  {
+    "task": "safe-path",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 4,
+    "out_tokens_mean": 49
+  },
+  {
+    "task": "safe-path",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 8,
+    "out_tokens_mean": 102
+  },
+  {
+    "task": "sql-user",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 7,
+    "out_tokens_mean": 82
+  },
+  {
+    "task": "sql-user",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 6,
+    "out_tokens_mean": 66
+  },
+  {
+    "task": "sql-user",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 9,
+    "out_tokens_mean": 109
+  },
+  {
+    "task": "todo-null",
+    "arm": "empty",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 89,
+    "out_tokens_mean": 771
+  },
+  {
+    "task": "todo-null",
+    "arm": "ponytail",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 45,
+    "out_tokens_mean": 563
+  },
+  {
+    "task": "todo-null",
+    "arm": "pristine",
+    "n": 3,
+    "correct_rate": 1.0,
+    "safe_rate": 1.0,
+    "total_loc_median": 65,
+    "out_tokens_mean": 547
+  }
+]

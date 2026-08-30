@@ -1,0 +1,21 @@
+**问题：**
+1. 假设 `items[i].value` 可能非数字，乘法会得到 NaN。
+2. 未处理 `items[i]` 为 null/undefined 的情况。
+3. 逻辑冗余：`flag` 可用 `x > 100` 直接生成。
+
+**改进方案：**
+```javascript
+function process(items) {
+  return (items || [])
+    .filter(item => item && item.active && typeof item.value === 'number')
+    .map(item => {
+      const x = item.value * 2;
+      return { id: item.id, val: x, flag: x > 100 };
+    });
+}
+```
+
+**关键修改点：**
+- 使用 `filter`+`map` 替代循环，更简洁。
+- 防御性处理空数组和无效项。
+- 直接计算 `flag`，消除冗余条件分支。

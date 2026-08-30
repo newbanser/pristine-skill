@@ -1,0 +1,57 @@
+```javascript
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+
+const app = express();
+const db = new sqlite3.Database(':memory:');
+
+app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+
+// 初始化数据库
+db.serialize(() => {
+  db.run("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT)");
+});
+
+// 注册
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+  bcrypt.hash(password, 10, (err, hash) => {
+    db.run("INSERT INTO users (username, password) VALUES (?, ?)", [username, hash], (err) => {
+      if (err) return res.status(400).send('Username exists');
+      res.send('Registered');
+    });
+  });
+});
+
+// 登录
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
+    if (!user) return res.status(401).send('Invalid credentials');
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (!result) return res.status(401).send('Invalid credentials');
+      req.session.user = username;
+      res.send('Logged in');
+    });
+  });
+});
+
+// 登出
+app.post('/logout', (req, res) => {
+  req.session.destroy();
+  res.send('Logged out');
+});
+
+// 受保护的资源
+app.get('/protected', (req, res) => {
+  if (!req.session.user) return res.status(401).send('Unauthorized');
+  res.send(`Hello ${req.session.user}`);
+});
+
+app.listen(3000);
+```
+
+**运行前提**：`npm install express sqlite3 bcrypt express-session`

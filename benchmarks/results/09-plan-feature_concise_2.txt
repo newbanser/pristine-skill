@@ -1,0 +1,5 @@
+1. 确定导出范围：选择要导出的报表字段、排序及数据筛选条件。
+2. 后端接口：新增`/api/report/export`，接收查询参数，返回CSV流，设置`Content-Type: text/csv`和`Content-Disposition`。
+3. 前端实现：添加“导出CSV”按钮，点击后调用接口并用Blob下载。
+4. 测试：验证数据完整性、中文编码（UTF-8 BOM）、大文件性能。
+5. 部署并监控。

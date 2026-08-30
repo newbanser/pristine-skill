@@ -1,0 +1,1 @@
+先查慢查询日志（`slow_query_log`），定位具体SQL。若无明显慢SQL，加索引（尤其WHERE/JOIN/ORDER BY字段）。仍慢，用`EXPLAIN`分析执行计划，检查是否全表扫描或临时表。优化后仍不行，考虑加Redis缓存热点数据或读写分离。

@@ -1,64 +1,64 @@
-先检查现有结构，确认排序逻辑位置。
+现在就在 TodoList.jsx 中修改排序逻辑，并在 utils.js 中添加排序函数。
 
-查看 `src/TodoList.jsx` 和 `src/utils.js`：
-
-```jsx
-// src/TodoList.jsx
-import { sortByCreatedAt } from './utils';
-
-function TodoList({ todos }) {
-  const sorted = sortByCreatedAt(todos);
-  // ...
-}
-```
+**第一步：在 utils.js 中添加排序函数**
 
 ```js
 // src/utils.js
-export function sortByCreatedAt(todos) {
-  return [...todos].sort((a, b) => a.createdAt - b.createdAt);
+export const SORT_BY = {
+  CREATED: 'created',
+  PRIORITY: 'priority'
+};
+
+export const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
+
+export function compareTodos(a, b, sortBy) {
+  if (sortBy === SORT_BY.PRIORITY) {
+    return PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority];
+  }
+  return a.createdAt - b.createdAt;
 }
 ```
 
-现在添加按优先级排序，保留原有排序：
-
-```js
-// src/utils.js
-export function sortByCreatedAt(todos) {
-  return [...todos].sort((a, b) => a.createdAt - b.createdAt);
-}
-
-export function sortByPriority(todos) {
-  const priority = { high: 0, medium: 1, low: 2 };
-  return [...todos].sort((a, b) => priority[a.priority] - priority[b.priority]);
-}
-```
+**第二步：修改 TodoList.jsx**
 
 ```jsx
 // src/TodoList.jsx
+import { SORT_BY, compareTodos } from './utils';
+
+function TodoList({ todos, sortBy = SORT_BY.CREATED }) {
+  const sortedTodos = [...todos].sort((a, b) => compareTodos(a, b, sortBy));
+
+  return (
+    <ul>
+      {sortedTodos.map(todo => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </ul>
+  );
+}
+```
+
+**第三步：在 App.jsx 中添加排序控件**
+
+```jsx
+// src/App.jsx
 import { useState } from 'react';
-import { sortByCreatedAt, sortByPriority } from './utils';
+import TodoList from './TodoList';
+import { SORT_BY } from './utils';
 
-function TodoList({ todos }) {
-  const [sortBy, setSortBy] = useState('createdAt');
-  const sorted = sortBy === 'createdAt' 
-    ? sortByCreatedAt(todos) 
-    : sortByPriority(todos);
-  
+function App() {
+  const [sortBy, setSortBy] = useState(SORT_BY.CREATED);
+
   return (
     <div>
-      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-        <option value="createdAt">按创建时间</option>
-        <option value="priority">按优先级</option>
+      <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+        <option value={SORT_BY.CREATED}>按创建时间</option>
+        <option value={SORT_BY.PRIORITY}>按优先级</option>
       </select>
-      {/* 渲染 sorted */}
+      <TodoList todos={todos} sortBy={sortBy} />
     </div>
   );
 }
 ```
 
-已完成：
-
-1. `src/utils.js` 新增 `sortByPriority`，三个优先级按 high → medium → low 排序
-2. `src/TodoList.jsx` 增加下拉选择器切换排序方式
-
-下一步可做：在 `TodoItem.jsx` 中显示优先级标签，方便用户分辨排序结果。
+**下一步**：在 App.jsx 中定义 `todos` 状态并传入 `TodoList`，然后在浏览器验证切换排序控件时列表顺序是否正确变化。

@@ -1,20 +1,22 @@
-答案：在 `TodoList.jsx` 中按 `priority` 字段排序。
+按优先级排序已完成。
 
+**改动文件：** `src/TodoList.jsx`
+
+1. 导入排序函数：
 ```jsx
-// src/TodoList.jsx
-const sortedTodos = [...todos].sort((a, b) => a.priority - b.priority);
+import { sortByPriority } from './utils';
+```
 
+2. 修改渲染逻辑：
+```jsx
+const sortedTodos = sortByPriority(todos);
 return (
   <ul>
-    {sortedTodos.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+    {sortedTodos.map(todo => (
+      <TodoItem key={todo.id} todo={todo} />
+    ))}
   </ul>
 );
 ```
 
-**前提**：`todo.priority` 为数字（如 1、2、3），小值优先。
-
-需要确认：
-- 优先级是升序（1 最高）还是降序？当前按升序（`a.priority - b.priority`）。
-- 优先级是否已有 UI 输入？若没有，需在 `TodoItem.jsx` 或新增表单中添加。
-
-下一步：告诉我优先级的值域和数据来源，我来调整排序方向或补充 UI。
+**下一步：** 在 `src/utils.js` 中添加 `sortByPriority` 函数（按优先级字段从高到低排序）。

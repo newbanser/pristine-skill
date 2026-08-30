@@ -3,6 +3,7 @@
 ![Pristine](cover.png)
 
 ![LICENSE](https://img.shields.io/badge/LICENSE-MIT-333?style=flat-square)
+![Version](https://img.shields.io/badge/Version-2.2-8B5CF6?style=flat-square)
 ![Agent Skills](https://img.shields.io/badge/Agent_Skills-Standard-8B5CF6?style=flat-square)
 ![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-D97706?style=flat-square&logo=anthropic&logoColor=white)
 ![Codex](https://img.shields.io/badge/Codex-Skill-10B981?style=flat-square&logo=openai&logoColor=white)
@@ -10,9 +11,11 @@
 
 If memory loss is the root, let every AI agent rebirth follow the First-Time Principle.
 
-Perhaps the only agent skill you need — your output, forever written as if for the first time. Pure, clear, economical.
+Perhaps the only agent skill you need — your output, forever written as if for the first time. Pure, clear, economical, objective, adversarial.
 
 Works with Claude Code, OpenAI Codex, OpenCode, OpenClaw, Doubao.
+
+> Current version **v2.2** · See [CHANGELOG](CHANGELOG.md) for updates
 
 [简体中文](README.md) | **English**
 
@@ -20,49 +23,44 @@ Works with Claude Code, OpenAI Codex, OpenCode, OpenClaw, Doubao.
 
 ## Before & After
 
-> Measured: DeepSeek Chat, 6 tasks × 2 groups × 3 runs = 36 calls. Full data: `benchmarks/results/REPORT.md`.
+Same model, same tasks. We compared three setups: nothing installed, Pristine installed, and a popular minimalist skill from GitHub with 110k+ stars.
 
-### Output tokens reduced by 77.4% on average
+Pristine: **78% less output · 8/8 code tasks pass execution verification with zero failures · complete but not bloated.**
 
-| Task | Without pristine | With pristine | Reduction |
-|---|---|---|---|
-| Fix edge bug | 356 | 98 | 72.5% |
-| Implement login | 4096 (truncated) | 795 | 80.6% |
-| Answer vague premise | 1216 | 196 | 83.9% |
-| Refactor duplicate code | 617 | 252 | 59.2% |
-| Explain concept | 969 | 177 | 81.7% |
-| Add feature | 1933 | 267 | 86.2% |
+The popular skill compresses harder (LOC down to 55%), but over-compresses on one task and drops error handling for dirty data; Pristine passes 8/8 with zero failures — **"complete" is stability, not just brevity.**
+
+![Deterministic benchmark: three-way comparison](benchmarks/results/benchmark-deter.svg)
 
 ### Example: vague premise
 
 User says: "The API returns 500, probably the database is slow."
 
-**Without pristine (1216 tokens):** Accepts the premise, gives a six-dimension optimization plan (cache, index, SQL, architecture, hardware, monitoring).
+- **Without pristine (1545):** Also questions the premise, but buries it in padding and SQL examples for every step — low information density
+- **Just "be concise" (21):** "Add index, optimize SQL, cache, shard" — buzzwords, not actionable
+- **With pristine (226):** Questions the premise first, then gives actionable steps:
 
-**With pristine (196 tokens):**
-
-> First enable slow query log, confirm it's actually the database.
+> First, confirm: a 500 doesn't mean the database is slow. Check logs for the actual error stack and slow queries before optimizing.
 >
-> 1. Check slow query log: `SHOW VARIABLES LIKE 'slow_query_log'`
-> 2. Analyze: `EXPLAIN` to see if there's a full table scan
-> 3. Fix the slowest one: usually missing index
-> 4. Verify: rerun `EXPLAIN`, check if `rows` dropped
+> 1. Check logs: identify the 500 error type (connection timeout, lock wait, pool exhaustion)
+> 2. Check slow queries: `EXPLAIN ANALYZE` to find the costliest SQL
+> 3. Check connection pool: `SHOW PROCESSLIST` for connection backlog
+> 4. Check system metrics: high CPU = heavy queries, high IO = missing indexes, high memory = cache issues
 >
-> Send me the slowest SQL from the slow log when done.
+> Send me the slow query log and `SHOW PROCESSLIST` when done, and I'll give the specific fix.
 
 ### Example: implement login
 
-**Without pristine:** Auto-adds registration, frontend pages (login.html/register.html/dashboard.html), hits 4096 token limit and gets truncated.
-
-**With pristine (795 tokens):** Only login + register endpoints, uses better-sqlite3 prepared statements for injection prevention, Node built-in crypto for hashing (no bcrypt dependency), concrete next step.
+- **Without pristine (4096, truncated):** Auto-adds registration, frontend pages, a tutorial — hits max_tokens, core code unfinished
+- **Just "be concise" (499):** Tight code but stores passwords in plaintext
+- **With pristine (593):** Only the endpoint, salt + pbkdf2 hashing, input sanitization for injection prevention
 
 ### Key findings
 
-- Output tokens reduced by 77.4% on average
-- 1/6 tasks truncated without pristine (unbounded output)
-- Thought purity works: questions premises before accepting
-- Planning purity works: only does what's in scope, no auto-added features
-- Small tasks have fixed cost: SKILL.md ~2800 tokens, total tokens increase for small tasks; large tasks benefit clearly
+- Fixes default defects: **accepting premises** (question unverified assumptions), **scope creep** (don't do what wasn't asked), **unbounded output** (stop when done)
+- **Pristine ≠ terse:** just asking for brevity saves until it's unusable; pristine demands "necessary completeness"
+- Fewer tokens is a side effect, not the goal; what's really saved is **human time** (reading, filtering, follow-ups, rework)
+
+<sub>Reproduce: `python3 benchmarks/deter/skillbench-deter.py`; full data and methodology in `benchmarks/results/REPORT.md`.</sub>
 
 ---
 
@@ -72,25 +70,37 @@ User says: "The API returns 500, probably the database is slow."
 
 The second law of thermodynamics: closed systems move from order to disorder. Code, docs, memory, and conversations are information systems — unmaintained, they entropy-increase.
 
+> Strictly a metaphor: information does not "rot" the way a thermodynamic system does; it degrades because requirements change and no one maintains it. But the direction is real — what is not actively counteracted always drifts toward chaos, never toward tidiness. We use "entropy" for this one-way decay, not as a physics claim.
+
 Humans spontaneously fight entropy with intuition and common sense: seeing two conflicting versions makes us stop and verify, seeing noise makes us skip it, seeing stale information makes us doubt it. AI has neither mechanism. It faithfully executes chaos. AI is not the cause of entropy; it is the amplifier.
 
 ### AI has three unhealable defects
 
+Entropy alone is not dangerous — the inability to self-heal is.
+
 | Defect | Consequence |
 |---|---|
 | **Memory loss** | No persistent memory; survives across sessions via files. Files rot (paths move, counts change, old names linger), and AI reads files whole, not diffs — one stale entry is a false premise for the next session |
-| **Cost** | Context window is a hard constraint. Long sessions run on truncated/stale context late in life, equivalent to working in a half-amnesic state. Past 75% water level, each turn costs 3–5× the opening; in one 34-turn session the tail 25% was 50% of total cost |
+| **Cost** | Context window is a hard constraint. Long sessions run on truncated/stale context late in life, equivalent to working in a half-amnesic state. Past 75% water level, each turn costs 3–5× the opening; in one observed 34-turn session the tail 25% was ~50% of total cost (single observation, not a benchmark) |
 | **Multiple sources of truth** | Same rule defined in multiple places — AI does not verify, it picks one at random or mixes them. Multiple sources = no source. Patching is writing a second bible |
 
 These three problems AI cannot fix itself. An external discipline is required to reset entropy on every change.
 
 ### Pristine = the counterforce
 
-The eight laws are concrete counter-measures. The four-layer framework is the scope of the fight (from thought to output). Mechanical verification is the landing mechanism (evaluator = executor, self-assessment is unreliable).
+The seven laws are concrete counter-measures. The four-layer framework is the scope of the fight (from thought to output). Mechanical verification is the landing mechanism (evaluator = executor, self-assessment is unreliable).
 
 Core maxim: "Write everything as if for the first time" — reset entropy on every change, accumulate no historical baggage. Economy forces reliability.
 
 Causal chain: Entropy (physics) → AI has no safety net (amplifies) → three defects (cannot self-heal) → Pristine (counterforce).
+
+### Objectivity and adversariality (core philosophy)
+
+AI has three default tendencies that pollute judgment: **sycophancy** (when a conclusion agrees with the user, it goes unexamined), **answering on impulse** (concluding before seeking a counterexample), and **accepting premises** (not questioning input). These are entropy showing up at the thought layer.
+
+"Write everything as if for the first time" inherently contains objectivity and adversariality: no pre-existing stance is objectivity; not being led by historical answers is adversariality. Adversariality is the means to objectivity — actively seek the strongest counterargument and check whether a conclusion merely echoes the user, rather than passively staying neutral.
+
+Landing as two executable rules (see `SKILL.md`): **refutation first**, **sycophancy check**. They are trigger signals, not a procedure — no step template, so they cannot be performed performatively.
 
 ### What it doesn't do
 
@@ -102,33 +112,30 @@ It also does not fit every scenario: exploratory prototypes, one-off scripts, an
 
 ## What your AI needs to know
 
-### The eight laws (v2.1)
-
-Ordered by layer + causal chain: 1–2 foundations → 3–4 daily → 5–7 high-frequency scenarios → 8 specific timing.
+### The seven laws
 
 | Law | Meaning |
 |---|---|
-| **1. No patching — 追溯根源** | Fix the root, not the symptom. No special-case `if`s, no copied-and-tweaked logic, no switches that route around a problem. Rewrite when the patch pile is worse than a clean rewrite |
-| **2. Nothing extra — 单一真源** | Purity means no duplication. Reuse existing helpers/utils/patterns — stdlib, platform, installed deps — before writing your own. Climb the reuse ladder, stop at the first rung that holds |
-| **3. No residue — 不留残渣** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes |
-| **4. Code explains itself — 代码自释** | Names carry the "what". Comments only say what code cannot: business rules, constraints, historical traps. No explanatory comments, no commented-out code |
-| **5. Deployment parity — 部署如一** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes |
-| **6. Session cost — 会话成本** | An unbounded session is the same entropy as an unbounded file. Reset on context water level, not turn count; write a checkpoint before every reset |
-| **7. Conversation purity — 对话纯净** | Every reply is the highest-frequency output and the main entry point for entropy. 9 rules: lead with the answer, number multi-step tasks, end with one concrete next step, suppress tangents, matter-of-fact tone, cap lists at 5, no preamble/recap/closers, specific time estimates, make wins visible |
-| **8. First draft before launch — 上线初稿** | No installed base before launch. Change the definition, not the compat. No migrations, no compatibility layers |
+| **No patching — 追溯根源** | Fix the root, not the symptom. No special-case `if`s, no copied-and-tweaked logic, no switches that route around a problem. Rewrite when the patch pile is worse than a clean rewrite |
+| **Code explains itself — 代码自释** | Names carry the "what". Comments only say "why": business rules, constraints, deliberate trade-offs. No explanatory comments, no commented-out code |
+| **No residue — 不留残渣** | No backups, drafts, dead code, or intermediate states. Superseded rules are updated in place, never appended as "as of…" notes |
+| **Deployment parity — 部署如一** | What runs in production is exactly what was reviewed locally. No remote-only quick fixes |
+| **Nothing extra — 单一真源** | One source for every behavior. Reuse what exists first; what doesn't need to exist, don't write |
+| **Session cost — 会话成本** | An unbounded session is the same entropy as an unbounded file. Reset on context water level, not turn count; write a checkpoint before every reset |
+| **First draft before launch — 上线初稿** | No installed base before launch. Change the definition, not the compat. No migrations, no compatibility layers |
 
-### Four-layer framework (v2.1)
+### Four-layer framework (v2)
 
-Four layers form a causal chain: impure thought → impure planning → impure execution → impure output. Fixing output without fixing the layer above is patching.
+v2 extends purity from code to four layers, forming a causal chain: impure thought → impure planning → impure execution → impure output. Fixing output without fixing the layer above is patching.
 
 | Layer | Governs | Maps to laws |
 |---|---|---|
-| **Thought purity** (input) | What premises to accept, reject, and not carry forward | 1, 2 |
-| **Planning purity** (decision) | How goals decompose, what to include/exclude, how to validate before execution | 8 |
-| **Execution purity** (action) | How actions are performed, what tools to use, how state is tracked | 1, 3, 5, 6 |
-| **Output purity** (delivery) | Form and density of artifacts (code/docs/files) and conversation (every reply) | 2, 4, 7, 8 |
+| **Thought purity** (input) | What premises to accept, reject, and not carry forward | 1, 5 |
+| **Planning purity** (decision) | How goals decompose, what to include/exclude, how to validate before execution | 7 |
+| **Execution purity** (action) | How actions are performed, what tools to use, how state is tracked, how sessions are managed | 1, 3, 4, 6 |
+| **Output purity** (delivery) | Form and density of artifacts and conversation | 2, 5, 7 |
 
-Full conversation purity 9 rules, meta-rules, Pre-send check, and decision table are in `SKILL.md`.
+The output layer adds **conversation purity** — 9 rules: lead with the answer, number multi-step tasks, end with one concrete next step, suppress tangents, matter-of-fact tone, cap lists at 5, no preamble/recap/closers, specific time estimates, make wins visible. Full rules in `SKILL.md`.
 
 ## Install
 
@@ -163,13 +170,13 @@ Invoke by name: `pristine`, `纯净原则`, or `first-time`.
 
 Three trigger levels:
 
-- **Pristine principle** — instant correction. "Does this follow the pristine principle?" → immediate对照 answer
+- **Pristine principle** — instant correction. "Does this follow the pristine principle?" → answer against the principle on the spot
 - **Pristine self-check** — periodic audit. "Stop and self-check" → item-by-item report
 - **Pristine scan** — mechanical fallback. "Scan it" → run the script, output is the verdict
 
 ## Companion tools
 
-The eight laws are intent, not mechanism. Intent is executed by people (models), and people's reminders and self-assessments are unreliable — so purity lands on the codebase through scripts.
+The seven laws are intent, not mechanism. Intent is executed by people (models), and people's reminders and self-assessments are unreliable — so purity lands on the codebase through scripts.
 
 ### Pristine scan (pristine-scan)
 
@@ -204,14 +211,41 @@ Wired as a hook, mechanically monitors context water level. 70% soft reminder, 8
 }
 ```
 
-### Multi-location sync (sync-skills)
+### Session cost playbook
 
-Change SKILL.md in one place, sync to global skill and project skill with one command — no manual copying. Source of truth is the repo, targets are the skill directories.
+An unbounded session is the same entropy as an unbounded file. Every turn re-sends the whole history under a harsh cost model: first mention is full price, later mentions are cached-read price only.
 
-```bash
-node scripts/sync-skills.js           # sync to all target locations
-node scripts/sync-skills.js --verify  # verify drift only, don't sync
-```
+**Turn count is not the cost proxy.** The real trigger is the **context water level**: when the working context nears 70–80% of capacity, the session is at end of life — later turns run on stale or truncated context, paying again for facts that were already evicted.
+
+**Two gauges: water level and water meter.** Water level = the exact context size of the last API call (`cache_read + input + cache_creation + output`), read from the `usage` block of the session record. It says **when** to close the valve. Water meter = the sum of per-turn increments (`output_tokens + cache_creation_input_tokens`), cached reads are near-free and uncounted. It says **whether it's worth it**: heavy tasks at 1.5 pools are normal; light chat at 4 pools is a leaky-budget habit.
+
+**Thresholds are tunable, principles are law.** The 70–80% level and the 1.5/4-pool figures are empirical values for today's mainstream context windows and pricing — when models change, contexts double, or pricing shifts, the numbers move, but "reset on water level, not turn count" and "write a checkpoint before every reset" stay.
+
+**Five session-hygiene laws:**
+1. One session, one task. When the task is done, start a new session.
+2. Reset on water level, not turn count. When done or context is heavy, propose a checkpoint then `/clear`. No silent continuation.
+3. Write a checkpoint before every reset — never clear without a record.
+4. Cost is a habit, not a tool. Choose a workflow, not a vendor.
+5. Don't restart mid-task for frugality. Finish the task, then reset.
+
+**Checkpoint:** state lives on disk, not in the conversation. File `<vault>/.claude/checkpoint.md`, overwritten in place, never appended. Exactly four items: current task (one line), progress, next step (concrete enough to resume without the session), open items. Read and overwrite in the next session. A checkpoint is a workbench, not a source of truth: persistent content moves to its real home before being overwritten.
+
+## Decision table
+
+| Situation | Patch instinct | Pristine action |
+|---|---|---|
+| Edge bug | Add an `if` special case | Trace the root rule, fix once, remove the workaround |
+| Code needs explanation | Add a "what" comment | Rename the function / extract the logic |
+| Unused file or block | Keep it "just in case" | Delete — version control remembers |
+| A rule changed | Append an "as of…" note | Edit the original entry in place |
+| Production anomaly | Quick-fix on the server | Fix locally, deploy the exact source |
+| Docs out of sync | Add a drift note | Update the docs to match the code |
+| New feature | Build a new module | Reuse what exists, write only the missing part — or skip |
+| Rename column before launch | Write migration / `ALTER TABLE` | Edit the CREATE TABLE, rebuild the database |
+| Old form in the code | Add a compatibility layer | Delete — no installed base yet |
+| User asks a question | Bury the answer in context | Lead with the answer, explain if needed |
+| Multi-step task | Narrate steps in prose | Numbered list, one bounded action per step |
+| Notices a side issue | Fix it "by the way" | Finish the current task, raise it separately |
 
 ## One line
 
@@ -222,3 +256,5 @@ Self-checks are a habit for humans, not a mechanism for AI. Keeping an AI pristi
 Brought to you by [Bailu](https://github.com/bailu-agent).
 
 MIT License. Star if it saved you one patch.
+
+[简体中文](README.md) | **English**

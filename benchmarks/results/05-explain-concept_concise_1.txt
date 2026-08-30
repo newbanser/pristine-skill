@@ -1,0 +1,17 @@
+闭包是函数与其词法作用域的绑定。内部函数可以访问外部函数的变量，即使外部函数已执行完毕。
+
+```javascript
+function counter() {
+  let count = 0;
+  return function() {
+    count++;
+    return count;
+  };
+}
+
+const increment = counter();
+console.log(increment()); // 1
+console.log(increment()); // 2
+```
+
+`increment` 函数保留了对 `count` 的引用，每次调用都修改同一个变量。

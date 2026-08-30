@@ -1,0 +1,32 @@
+# calculateShipping 使用文档
+
+## 功能
+根据商品基础价格、重量和目的地国家，计算运费。
+
+## 参数
+- `basePrice` (Number): 商品基础价格，应为正数。
+- `weight` (Number): 包裹重量，任意正数。
+- `country` (String): 目的地国家代码，仅支持 `'US'`、`'CA'`、`'EU'`。
+
+## 返回值
+(Number): 运费金额，计算公式：
+- 已知国家：`basePrice * 对应费率 + weight * 2`
+- 未知国家：`basePrice * 0.2 + weight * 2`
+
+## 费率表
+| 国家 | 费率 |
+|------|------|
+| US   | 0.10 |
+| CA   | 0.12 |
+| EU   | 0.15 |
+| 其他 | 0.20 |
+
+## 示例
+```javascript
+calculateShipping(100, 2, 'US'); // 返回 14
+calculateShipping(100, 2, 'JP'); // 返回 24
+```
+
+## 注意事项
+- `country` 区分大小写，需使用大写代码。
+- `basePrice` 为 0 或负数时，结果可能不符合预期（因乘0逻辑）。
